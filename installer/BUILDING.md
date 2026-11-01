@@ -4,7 +4,7 @@ Windows PowerShell 5.1+，.NET Framework 4.x C# 编译器。源码仓库不含�
 
 ## 安装器
 
-UI 资源目录需包含 `app.ico`（遗产图标）、`main_background.png`（遗产汉化图）、`button.png`、`Severed.poster.jpg`、`MarkerPatch_Logo.png`（上游 Logo）。`Chinese.assets.R8.7z` 是沿用并校验的汉化资源文件名，2026.11.1 没有更改译文。
+UI 资源目录需包含 `app.ico`（遗产图标）、`ChinesePatch.logo.jpg`（用户提供的 Titan Station 标志）、`button.png`、`Severed.poster.jpg`、`MarkerPatch_Logo.png`（上游 Logo）。`Chinese.assets.R8.7z` 是沿用并校验的汉化资源文件名，2026.11.1 没有更改译文。
 
 ```powershell
 .\tools\build_installer.ps1 `
@@ -51,3 +51,10 @@ UI 资源目录需包含 `app.ico`（遗产图标）、`main_background.png`（�
 ```
 
 `--ignore-errors` 只能放宽基础游戏版本识别，不会绕过 DLC 元数据/解压文件的完整性校验。程序必须在完整解压后运行；临时解压目录会被阻止。
+
+## 安装器语言
+
+源语言为简体中文，English 文案集中在 `src/Locales/en.json`，构建脚本将其嵌入 EXE。`src/I18n.cs` 按 Windows `GetUserPreferredUILanguages` 返回顺序选择中文或英语，其他语言跳过，无法获取时回退到 UI culture 和英语。主页面 Language 按钮即时切换，不重新创建安装选项。
+
+`--language zh-CN` / `--language en` 可显式覆盖本次启动语言，也可用于命令行安装/卸载。`--preview --language en` 仅预览英语界面。
+语言扩展需要补全主界面、59 项功能/13 项参数、提示、日志和错误文案，并做版面与选项保留检查；不能只翻译按钮。

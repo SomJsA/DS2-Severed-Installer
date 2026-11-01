@@ -41,7 +41,7 @@ $outputDir = Split-Path -Parent $OutputExe
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 $sources = @(Get-ChildItem -LiteralPath (Join-Path $root 'src') -Filter '*.cs' | ForEach-Object { $_.FullName })
 if ($sources.Count -lt 3) { throw 'Missing installer source files.' }
-foreach ($name in @('main_background.png','button.png','Severed.poster.jpg','MarkerPatch_Logo.png','app.ico')) {
+foreach ($name in @('ChinesePatch.logo.jpg','button.png','Severed.poster.jpg','MarkerPatch_Logo.png','app.ico')) {
     if (-not (Test-Path -LiteralPath (Join-Path $UiAssetsDir $name))) { throw "Missing UI asset: $name" }
 }
 $manifest = Join-Path $root 'src\app.manifest'
@@ -60,7 +60,8 @@ $compileArgs = @(
     '/reference:System.Drawing.dll',
     '/reference:System.Web.Extensions.dll',
     "/resource:$(Join-Path $UiAssetsDir 'app.ico'),DS2_APP_ICON",
-    "/resource:$(Join-Path $UiAssetsDir 'main_background.png'),DS2_LEGACY_BG",
+    "/resource:$(Join-Path $UiAssetsDir 'ChinesePatch.logo.jpg'),DS2_CHINESE_LOGO",
+    "/resource:$(Join-Path $root 'src\Locales\en.json'),DS2_LANG_EN",
     "/resource:$(Join-Path $UiAssetsDir 'button.png'),DS2_LEGACY_BUTTON",
     "/resource:$(Join-Path $UiAssetsDir 'Severed.poster.jpg'),DS2_DLC_POSTER",
     "/resource:$(Join-Path $UiAssetsDir 'MarkerPatch_Logo.png'),DS2_MARKER_LOGO",

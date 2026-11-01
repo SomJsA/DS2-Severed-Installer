@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -94,11 +94,11 @@ internal static class MarkerCatalog
   {
    var p=Parameters.FirstOrDefault(x=>x.Key==pair.Key);decimal value;
    if(p==null || !decimal.TryParse(pair.Value,NumberStyles.AllowLeadingSign|NumberStyles.AllowDecimalPoint,CultureInfo.InvariantCulture,out value) || value<p.Min || value>p.Max)
-    throw new System.IO.InvalidDataException("MarkerPatch 参数无效："+pair.Key);
+    throw new System.IO.InvalidDataException(L.T("MarkerPatch 参数无效：")+pair.Key);
    if(p.Decimals==0 && value!=decimal.Truncate(value))
-    throw new System.IO.InvalidDataException("MarkerPatch 此参数必须是整数："+pair.Key);
+    throw new System.IO.InvalidDataException(L.T("MarkerPatch 此参数必须是整数：")+pair.Key);
    if(p.Key=="MaxAnisotropy" && value!=0 && value!=2 && value!=4 && value!=8 && value!=16)
-    throw new System.IO.InvalidDataException("各向异性过滤仅支持 0、2、4、8、16。");
+    throw new System.IO.InvalidDataException(L.T("各向异性过滤仅支持 0、2、4、8、16。"));
   }
  }
 }

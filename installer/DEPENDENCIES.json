@@ -66,7 +66,14 @@
     "release": "2026.11.1",
     "assembly_version": "2026.11.1.0",
     "repository": "https://github.com/SomJsA/DS2-Severed-Installer",
-    "default_subtitle_scale": 1.0
+    "default_subtitle_scale": 1.0,
+    "languages": [
+      "zh-CN",
+      "en"
+    ],
+    "startup_language": "Windows preferred display languages in order",
+    "manual_language_switch": true,
+    "english_catalog_sha256": "117cf1339e856747481c70b5aa1675ab4d5c94f52cfc272df178e50132811bb1"
   },
   "ui_assets": {
     "app.ico": {
@@ -77,10 +84,6 @@
       "bytes": 16395,
       "sha256": "49426342c5a86bb44cc6b7eb4da9165147d722d6736d5d2ac9a70d7479ee101a"
     },
-    "main_background.png": {
-      "bytes": 314711,
-      "sha256": "653c707669291959537c8b904ea09204a187f398228783fc4c176dfa8617fedc"
-    },
     "MarkerPatch_Logo.png": {
       "bytes": 165180,
       "sha256": "08f60f674d1445bb6b8b2c8095b24e59f4cfaba009da65814ddd89d427a08dc6"
@@ -88,6 +91,11 @@
     "Severed.poster.jpg": {
       "bytes": 60526,
       "sha256": "b15b7068fbeb94f2ce4c37dad51b13080e21058b299fcbe1b92aa2f5e79b4dbc"
+    },
+    "ChinesePatch.logo.jpg": {
+      "bytes": 51179,
+      "sha256": "f1f5aba78bcc8203e12bf7ed2f5f8fb726fe25fa8e0fd0b25bd7b9d9ad7a86a2",
+      "source": "user-supplied Titan Station image"
     }
   }
 }

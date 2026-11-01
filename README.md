@@ -9,7 +9,7 @@
 - [MarkerPatch 功能中文说明、默认开关与参数](installer/MARKER_FEATURES_ZH.md)
 - [原上游转换器说明](README.upstream.md)
 
-程序采用遗产版图标和汉化图，主页面可分别选择汉化、DLC、MarkerPatch，字幕默认 1.0 倍。
+程序采用遗产版图标和用户提供的 Titan Station 汉化卡片图，主页面可分别选择汉化、DLC、MarkerPatch，字幕默认 1.0 倍。
 游戏与 Severed.marker 优先从附近发现；自动识别遇到多个 Steam / EA 目录时可选择。
 
 新上传的安装器目录仅含代码、配置、元数据示例、文档和许可证。
@@ -24,3 +24,5 @@
 
 已知：中文标点间距偏窄，暂不修复；未测试全部 MarkerPatch 功能组合和其他模组的兼容性。
 卸载遇到异常会保留文件及安装记录，并提示通过 Steam/EA 修复游戏。
+
+安装器支持简体中文 / English，启动时按 Windows 首选显示语言选择；主界面 Language 按钮即时切换。简体中文汉化同时覆盖基础游戏与 DLC；仅 DLC 保留原版语言（英文 / 启动器所选语言）。

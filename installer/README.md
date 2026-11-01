@@ -1,5 +1,10 @@
 # 死亡空间贴吧汉化组移植&汉化 2026.11.1
 
+安装器支持 **简体中文 / English**。启动时按 Windows 首选显示语言的顺序选择已支持的语言；主界面 **Language：中文 / English** 可即时切换，保留路径、组件勾选、倍率和参数。安装器语言不改变游戏语言或安装选项。
+
+“简体中文汉化”包含基础游戏和 Severed DLC 的简体中文译文。单独安装 DLC 时不应用汉化，使用原版语言（英文 / 启动器所选语言）；勾选汉化后 DLC 也会变为简体中文。新汉化卡片使用用户提供的 Titan Station 标志，程序图标仍沿用遗产版。
+
+
 完整解压分发 ZIP，把 `DS2SeveredOneClick.exe` 与 `Severed.marker` 放在一起后运行。程序会寻找附近的游戏和数据包，也能识别 Steam、EA 安装目录；有多个游戏时，点“自动识别”选择本次要安装的版本。
 
 主页面可多选汉化补丁、Severed DLC、MarkerPatch，也可分别单装。字幕默认 **1.0 倍**，可直接调整。“其他由 MarkerPatch 提供的功能改善”中包含 59 项开关及 13 项数值设置，列明默认状态、功能说明和默认值。
@@ -38,8 +43,7 @@
 
 当前版本基石：Wemino/MarkerPatch、Tubzbuster/DS2SeveredPC<br>
 simgroup异版简单修复和整合：SomJs<br>
-超级校对：lxyun_2（腹黑小喵）、Charlotte<br>
-超级测试：待补充<br>
+超级校对：lxyun_2（腹黑小喵）、MisakaCharlotte（是的呀啊）<br>
 提供部分Token：天雷本雷
 
 历史版本人员名单：
@@ -47,7 +51,7 @@ simgroup异版简单修复和整合：SomJs<br>
 汉化总负责：lxyun_2（腹黑小喵）<br>
 汉化技术负责：Erwin Qins<br>
 翻译、校对、游戏测试：特洛克·洛克莱斯<br>
-翻译、校对：attprtt、Charlotte、零之境、上白石泽雨<br>
+翻译、校对：attprtt、MisakaCharlotte（是的呀啊）、零之境、上白石泽雨<br>
 校对：SomJs
 
 - [交流群 339639634](https://qm.qq.com/q/AsZY1d8WxG)

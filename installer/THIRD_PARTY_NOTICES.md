@@ -14,7 +14,7 @@ artwork, icons, DLL/ASI/EXE dependencies or compiled installer.
 - Swei Shear Sans CJK SC Medium: https://github.com/max32002/swei-shear-sans,
   SIL OFL 1.1 in `licenses/Swei-OFL.txt`. No font binary or generated stream
   is published here.
-- Legacy Chinese patch artwork/icon/credits and Severed poster are externally
+- User-supplied Titan Station artwork, legacy icon/credits and Severed poster are externally
   supplied build resources. MarkerPatch uses its official upstream logo.
   Those images are not covered by this repository's code license.
 

@@ -11,8 +11,8 @@ internal sealed class GameLocation
     public bool Nearby;
     public override string ToString()
     {
-        string type=Path.IndexOf("steamapps",StringComparison.OrdinalIgnoreCase)>=0?"Steam 版":
-            Path.IndexOf("EA Games",StringComparison.OrdinalIgnoreCase)>=0?"EA 版":Nearby?"附近的游戏":"游戏";
+        string type=Path.IndexOf("steamapps",StringComparison.OrdinalIgnoreCase)>=0?L.T("Steam 版"):
+            Path.IndexOf("EA Games",StringComparison.OrdinalIgnoreCase)>=0?L.T("EA 版"):Nearby?L.T("附近的游戏"):L.T("游戏");
         return type+"  ·  "+Path;
     }
 }
@@ -100,10 +100,10 @@ internal static class LaunchGuard
     public static string BlockReason(string executablePath)
     {
         string full;
-        try{full=System.IO.Path.GetFullPath(executablePath);}catch{return "程序路径无效，请完整解压后运行。";}
+        try{full=System.IO.Path.GetFullPath(executablePath);}catch{return L.T("程序路径无效，请完整解压后运行。");}
         string temp=System.IO.Path.GetFullPath(System.IO.Path.GetTempPath()).TrimEnd('\\','/')+System.IO.Path.DirectorySeparatorChar;
         if(full.StartsWith(temp,StringComparison.OrdinalIgnoreCase)||Regex.IsMatch(full,@"[\\/](Rar\$[^\\/]*|7z[OE][A-Za-z0-9._-]*|Temp\d*_[^\\/]*\.(zip|rar|7z))([\\/]|$)",RegexOptions.IgnoreCase))
-            return "请先将整个分发包完整解压到固定文件夹，再运行安装程序。不要在压缩软件内直接打开 EXE。";
+            return L.T("请先将整个分发包完整解压到固定文件夹，再运行安装程序。不要在压缩软件内直接打开 EXE。");
         return null;
     }
 }

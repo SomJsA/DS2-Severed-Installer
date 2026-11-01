@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,7 +39,7 @@ internal sealed class MarkerOption
 
     public override string ToString()
     {
-        return Display + (Recommended ? "  [默认开启]" : "  [默认关闭]");
+        return Display + (Recommended ? L.T("  [默认开启]") : L.T("  [默认关闭]"));
     }
 }
 
@@ -48,13 +48,14 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        L.Initialize(ArgValue(args,"--language"));
         string launchProblem=LaunchGuard.BlockReason(Assembly.GetExecutingAssembly().Location);
         if(launchProblem!=null)
         {
             string log=ArgValue(args,"--log");
             if(log!=null)try{File.AppendAllText(log,launchProblem+Environment.NewLine,Encoding.UTF8);}catch{}
             if(args.Length==0 || (args[0]!="--install" && args[0]!="--uninstall"))
-                MessageBox.Show(launchProblem,"请完整解压后运行",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                MessageBox.Show(launchProblem,L.T("请完整解压后运行"),MessageBoxButtons.OK,MessageBoxIcon.Warning);
             return 2;
         }
         if (args.Length > 0 && args[0] == "--install")
@@ -145,6 +146,10 @@ internal sealed class InstallerForm : Form
     private readonly SkinButton installButton = new SkinButton { Primary = true };
     private readonly SkinButton uninstallButton = new SkinButton();
     private readonly SkinButton markerSettingsButton = new SkinButton();
+    private readonly SkinButton chineseLanguageButton = new SkinButton();
+    private readonly SkinButton englishLanguageButton = new SkinButton();
+    private Label selectionHint;
+    private Label subtitleUnit;
     private readonly Button closeButton = new Button();
     private readonly Label statusLabel = new Label();
 
@@ -165,47 +170,76 @@ internal sealed class InstallerForm : Form
         BackColor = PaintSkin.Background; ForeColor = Color.FromArgb(230,239,243); AutoScaleMode = AutoScaleMode.Dpi;
         AddLabel(this,ProductInfo.GroupTitle,18F,FontStyle.Bold,24,25,Color.FromArgb(239,247,250));
         AddLabel(this,ProductInfo.ReleaseVersion,10F,FontStyle.Regular,798,28,PaintSkin.Accent);
-        var groupLink = new LinkLabel { Text="交流群 339639634", AutoSize=false, TextAlign=ContentAlignment.MiddleRight, Location=new Point(472,15), Size=new Size(302,33), Font=new Font("Microsoft YaHei UI",14F,FontStyle.Bold), LinkColor=Color.FromArgb(212,238,247), ActiveLinkColor=Color.White, VisitedLinkColor=Color.FromArgb(212,238,247), LinkBehavior=LinkBehavior.HoverUnderline };
+        var groupLink = new LinkLabel { Text=L.T("交流群 339639634"), AutoSize=false, TextAlign=ContentAlignment.MiddleRight, Location=new Point(472,15), Size=new Size(302,33), Font=new Font("Microsoft YaHei UI",14F,FontStyle.Bold), LinkColor=Color.FromArgb(212,238,247), ActiveLinkColor=Color.White, VisitedLinkColor=Color.FromArgb(212,238,247), LinkBehavior=LinkBehavior.HoverUnderline };
         groupLink.LinkClicked += (sender,e)=>Process.Start(new ProcessStartInfo(ProductInfo.GroupUrl){UseShellExecute=true});Controls.Add(groupLink);
-        var tiebaLink = new LinkLabel { Text="死亡空间贴吧", AutoSize=false, TextAlign=ContentAlignment.MiddleRight, Location=new Point(472,49), Size=new Size(302,29), Font=new Font("Microsoft YaHei UI",12F,FontStyle.Bold), LinkColor=Color.FromArgb(165,209,229), ActiveLinkColor=Color.FromArgb(212,238,247), LinkBehavior=LinkBehavior.HoverUnderline };
+        var tiebaLink = new LinkLabel { Text=L.T("死亡空间贴吧"), AutoSize=false, TextAlign=ContentAlignment.MiddleRight, Location=new Point(472,49), Size=new Size(302,29), Font=new Font("Microsoft YaHei UI",12F,FontStyle.Bold), LinkColor=Color.FromArgb(165,209,229), ActiveLinkColor=Color.FromArgb(212,238,247), LinkBehavior=LinkBehavior.HoverUnderline };
         tiebaLink.LinkClicked += (sender,e)=>Process.Start(new ProcessStartInfo(ProductInfo.TiebaUrl){UseShellExecute=true});Controls.Add(tiebaLink);
-        AddLabel(this,"选择安装内容",10F,FontStyle.Regular,26,96,Color.FromArgb(177,199,210));
-        AddLabel(this,"可多选",8.5F,FontStyle.Regular,844,98,Color.FromArgb(112,137,151));
-        ConfigureChoice(markerBox,"MarkerPatch","功能改善与个性化","DS2_MARKER_LOGO",616,true);
-        ConfigureChoice(dlcBox,"Severed DLC","完整英文剧情内容","DS2_DLC_POSTER",320,true);
-        ConfigureChoice(chineseBox,"汉化补丁","基础游戏与 DLC 译文","DS2_LEGACY_BG",24,true);
-        AddLabel(this,"游戏目录",8.5F,FontStyle.Regular,26,413,Color.FromArgb(132,157,171));
+        AddLabel(this,L.T("选择安装内容"),10F,FontStyle.Regular,26,96,Color.FromArgb(177,199,210));
+        selectionHint=AddLabel(this,L.T("可多选"),8.5F,FontStyle.Regular,844,98,Color.FromArgb(112,137,151));
+        var languageLabel=AddLabel(this,"Language",8.5F,FontStyle.Regular,510,98,Color.FromArgb(157,185,201));L.KeepLiteral(languageLabel);
+        ConfigureLanguageButton(chineseLanguageButton,"中文",586,66,"zh-CN");
+        ConfigureLanguageButton(englishLanguageButton,"English",660,85,"en");
+        ConfigureChoice(markerBox,"MarkerPatch",L.T("功能改善与个性化"),"DS2_MARKER_LOGO",616,true);
+        ConfigureChoice(dlcBox,"Severed DLC",L.T("英文 / 启动器所选语言"),"DS2_DLC_POSTER",320,true);
+        ConfigureChoice(chineseBox,L.T("简体中文汉化"),L.T("基础游戏 + Severed DLC"),"DS2_CHINESE_LOGO",24,true);
+        AddLabel(this,L.T("游戏目录"),8.5F,FontStyle.Regular,26,413,Color.FromArgb(132,157,171));
         gameBox.Location = new Point(26,436); gameBox.Size = new Size(658,28); gameBox.BorderStyle = BorderStyle.FixedSingle;
         gameBox.BackColor = Color.FromArgb(20,32,42); gameBox.ForeColor = Color.FromArgb(211,227,235);
         gameBox.Text = InstallerEngine.FindGameDir() ?? ""; Controls.Add(gameBox);
-        var detect = MakeButton("自动识别",700,432,94,34,false); detect.Click += (sender,e)=>AutoDetectGame(); Controls.Add(detect);pathEditors.Add(detect);
-        var browse = MakeButton("浏览",806,432,88,34,false); browse.Click += (sender,e)=>BrowseGame(); Controls.Add(browse);pathEditors.Add(browse);
-        AddLabel(this,"Severed.marker 路径",8.5F,FontStyle.Regular,26,477,Color.FromArgb(132,157,171));
+        var detect = MakeButton(L.T("自动识别"),700,432,94,34,false); detect.Click += (sender,e)=>AutoDetectGame(); Controls.Add(detect);pathEditors.Add(detect);
+        var browse = MakeButton(L.T("浏览"),806,432,88,34,false); browse.Click += (sender,e)=>BrowseGame(); Controls.Add(browse);pathEditors.Add(browse);
+        AddLabel(this,L.T("Severed.marker 路径"),8.5F,FontStyle.Regular,26,477,Color.FromArgb(132,157,171));
         dlcPathBox.Location=new Point(26,500);dlcPathBox.Size=new Size(744,28);dlcPathBox.BackColor=Color.FromArgb(20,32,42);dlcPathBox.ForeColor=Color.FromArgb(211,227,235);dlcPathBox.BorderStyle=BorderStyle.FixedSingle;
         dlcPathBox.Text=InstallerEngine.FindDlcArchive();Controls.Add(dlcPathBox);
-        var packageBrowse=MakeButton("浏览",786,496,108,34,false);packageBrowse.Click+=(sender,e)=>BrowseDlcArchive();Controls.Add(packageBrowse);pathEditors.Add(packageBrowse);
-        AddLabel(this,"字幕倍率",9F,FontStyle.Regular,26,552,Color.FromArgb(165,190,202));
+        var packageBrowse=MakeButton(L.T("浏览"),786,496,108,34,false);packageBrowse.Click+=(sender,e)=>BrowseDlcArchive();Controls.Add(packageBrowse);pathEditors.Add(packageBrowse);
+        AddLabel(this,L.T("字幕倍率"),9F,FontStyle.Regular,26,552,Color.FromArgb(165,190,202));
         subtitleScaleBox.Location=new Point(108,547); subtitleScaleBox.Size=new Size(77,28);
         subtitleScaleBox.DecimalPlaces=1; subtitleScaleBox.Minimum=.5m; subtitleScaleBox.Maximum=3m; subtitleScaleBox.Increment=.1m;
         subtitleScaleBox.Value=1.0m; subtitleScaleBox.BackColor=Color.FromArgb(20,32,42); subtitleScaleBox.ForeColor=Color.White; Controls.Add(subtitleScaleBox);
-        AddLabel(this,"倍",10F,FontStyle.Regular,194,551,Color.FromArgb(132,157,171));
-        markerSettingsButton.Text="其他由 MarkerPatch 提供的功能改善";markerSettingsButton.Location=new Point(246,541);markerSettingsButton.Size=new Size(330,36);markerSettingsButton.BackColor=BackColor;markerSettingsButton.ForeColor=Color.FromArgb(192,211,221);markerSettingsButton.Font=Font;markerSettingsButton.Click+=(sender,e)=>ShowMarkerSettings();Controls.Add(markerSettingsButton);
-        var details = MakeButton("详情",718,541,80,36,false); details.Click+=(sender,e)=>ShowDetails(); Controls.Add(details);
-        var logs = MakeButton("日志",814,541,80,36,false); logs.Click+=(sender,e)=>ShowLog(); Controls.Add(logs);
+        subtitleUnit=AddLabel(this,L.T("倍"),10F,FontStyle.Regular,194,551,Color.FromArgb(132,157,171));
+        markerSettingsButton.Text=L.T("其他由 MarkerPatch 提供的功能改善");markerSettingsButton.Location=new Point(246,541);markerSettingsButton.Size=new Size(330,36);markerSettingsButton.BackColor=BackColor;markerSettingsButton.ForeColor=Color.FromArgb(192,211,221);markerSettingsButton.Font=Font;markerSettingsButton.Click+=(sender,e)=>ShowMarkerSettings();Controls.Add(markerSettingsButton);
+        var details = MakeButton(L.T("详情"),718,541,80,36,false); details.Click+=(sender,e)=>ShowDetails(); Controls.Add(details);
+        var logs = MakeButton(L.T("日志"),814,541,80,36,false); logs.Click+=(sender,e)=>ShowLog(); Controls.Add(logs);
         progressBar.Location=new Point(26,607); progressBar.Size=new Size(868,4); progressBar.Style=ProgressBarStyle.Continuous; Controls.Add(progressBar);
         statusLabel.Location=new Point(26,630); statusLabel.Size=new Size(505,48); statusLabel.ForeColor=Color.FromArgb(147,178,194); Controls.Add(statusLabel);
-        uninstallButton.Text="卸载"; uninstallButton.Location=new Point(544,632); uninstallButton.Size=new Size(112,44); uninstallButton.BackColor=BackColor; uninstallButton.ForeColor=Color.FromArgb(192,211,221); uninstallButton.Click+=(sender,e)=>RunUninstall(); Controls.Add(uninstallButton);
-        installButton.Text="安装所选组件"; installButton.Location=new Point(672,632); installButton.Size=new Size(222,44); installButton.BackColor=BackColor; installButton.Font=new Font(Font.FontFamily,11F,FontStyle.Bold); installButton.Click+=(sender,e)=>RunInstall(); Controls.Add(installButton);
+        uninstallButton.Text=L.T("卸载"); uninstallButton.Location=new Point(544,632); uninstallButton.Size=new Size(112,44); uninstallButton.BackColor=BackColor; uninstallButton.ForeColor=Color.FromArgb(192,211,221); uninstallButton.Click+=(sender,e)=>RunUninstall(); Controls.Add(uninstallButton);
+        installButton.Text=L.T("安装所选组件"); installButton.Location=new Point(672,632); installButton.Size=new Size(222,44); installButton.BackColor=BackColor; installButton.Font=new Font(Font.FontFamily,11F,FontStyle.Bold); installButton.Click+=(sender,e)=>RunInstall(); Controls.Add(installButton);
         logBox.Multiline=true; logBox.ReadOnly=true; logBox.ScrollBars=ScrollBars.Vertical; logBox.BackColor=PaintSkin.Background; logBox.ForeColor=Color.FromArgb(201,223,233);
-        ConfigureCheck(ignoreErrorsBox,"允许跳过基础版本识别（建议使用原版游戏）",new Point(16,570),false);
+        ConfigureCheck(ignoreErrorsBox,L.T("允许跳过基础版本识别（建议使用原版游戏）"),new Point(16,570),false);
         markerOptionsList.CheckOnClick=true; markerOptionsList.IntegralHeight=false; markerOptionsList.BackColor=PaintSkin.Panel; markerOptionsList.ForeColor=Color.White; markerOptionsList.HorizontalScrollbar=true;
         foreach(var option in InstallerEngine.GetMarkerPatchOptions()){int i=markerOptionsList.Items.Add(option);markerOptionsList.SetItemChecked(i,option.Recommended);}
         markerBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary(); dlcBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary(); chineseBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary();
-        UpdateSelectionSummary(); FormClosing+=(sender,e)=>{if(busy)e.Cancel=true;};
+        ApplyLanguage(); FormClosing+=(sender,e)=>{if(busy)e.Cancel=true;};
     }
-    private static void AddLabel(Control parent,string text,float size,FontStyle style,int x,int y,Color color)
+    private static Label AddLabel(Control parent,string text,float size,FontStyle style,int x,int y,Color color)
     {
-        parent.Controls.Add(new Label{Text=text,UseMnemonic=false,AutoSize=true,Location=new Point(x,y),ForeColor=color,BackColor=Color.Transparent,Font=new Font("Microsoft YaHei UI",size,style)});
+        var label=new Label{Text=text,UseMnemonic=false,AutoSize=true,Location=new Point(x,y),ForeColor=color,BackColor=Color.Transparent,Font=new Font("Microsoft YaHei UI",size,style)};
+        parent.Controls.Add(label);return label;
+    }
+    private void ConfigureLanguageButton(SkinButton button,string text,int x,int width,string language)
+    {
+        button.Text=text;button.Location=new Point(x,91);button.Size=new Size(width,28);button.BackColor=BackColor;button.ForeColor=Color.FromArgb(210,230,238);button.Font=Font;
+        L.KeepLiteral(button);button.Click+=(sender,e)=>{L.SetLanguage(language);ApplyLanguage();};Controls.Add(button);pathEditors.Add(button);
+    }
+    private void ApplyLanguage()
+    {
+        var selected=new Dictionary<string,bool>();
+        for(int i=0;i<markerOptionsList.Items.Count;i++){var option=(MarkerOption)markerOptionsList.Items[i];selected[option.Key]=markerOptionsList.GetItemChecked(i);}
+        int selectedIndex=markerOptionsList.SelectedIndex;
+        L.ApplyTree(this);Text=ProductInfo.GroupTitle;
+        markerOptionsList.Items.Clear();
+        foreach(var option in InstallerEngine.GetMarkerPatchOptions())
+        {
+            bool check;int index=markerOptionsList.Items.Add(option);markerOptionsList.SetItemChecked(index,selected.TryGetValue(option.Key,out check)?check:option.Recommended);
+        }
+        if(selectedIndex>=0&&selectedIndex<markerOptionsList.Items.Count)markerOptionsList.SelectedIndex=selectedIndex;
+        chineseLanguageButton.Primary=!L.IsEnglish;englishLanguageButton.Primary=L.IsEnglish;
+        chineseLanguageButton.Invalidate();englishLanguageButton.Invalidate();
+        chineseBox.Caption=L.T("基础游戏 + Severed DLC");markerBox.Caption=L.T("功能改善与个性化");
+        foreach(var card in new[]{chineseBox,dlcBox,markerBox}){card.AccessibleName=card.Text;card.Invalidate();}
+        selectionHint.Left=L.IsEnglish?770:844;
+        subtitleScaleBox.Left=L.IsEnglish?130:108;subtitleUnit.Left=L.IsEnglish?217:194;
+        UpdateSelectionSummary();
     }
     private SkinButton MakeButton(string text,int x,int y,int width,int height,bool primary)
     {
@@ -219,10 +253,11 @@ internal sealed class InstallerForm : Form
     private void UpdateSelectionSummary()
     {
         markerSettingsButton.FlowGlow=markerBox.Checked;
+        dlcBox.Caption=chineseBox.Checked?L.T("随汉化补丁变为简体中文"):L.T("英文 / 启动器所选语言");dlcBox.Invalidate();
         if(busy)return;
         int count=(markerBox.Checked?1:0)+(dlcBox.Checked?1:0)+(chineseBox.Checked?1:0);
-        statusLabel.Text=count==0?"请选择需要安装的内容":"已选择 "+count+" 个组件";
-        if(dlcBox.Checked&&!markerBox.Checked)statusLabel.Text+="\r\nDLC 将包含所需运行组件";
+        statusLabel.Text=count==0?L.T("请选择需要安装的内容"):L.T("已选择 ")+count+L.T(" 个组件");
+        if(dlcBox.Checked&&!markerBox.Checked)statusLabel.Text+=L.T("\r\nDLC 将包含所需运行组件");
         installButton.Enabled=count>0;
     }
     private Form MakeDialog(string title,Size size)
@@ -232,16 +267,16 @@ internal sealed class InstallerForm : Form
     private void AutoDetectGame()
     {
         var games=InstallerEngine.FindGameDirs();
-        if(games.Count==0){MessageBox.Show(this,"没有识别到游戏，请手动选择目录。","游戏目录");return;}
+        if(games.Count==0){MessageBox.Show(this,L.T("没有识别到游戏，请手动选择目录。"),L.T("游戏目录"));return;}
         string selected=null;
         if(games.Count==1)selected=games[0].Path;
-        else using(var dialog=MakeDialog("选择游戏版本",new Size(780,250)))
+        else using(var dialog=MakeDialog(L.T("选择游戏版本"),new Size(780,250)))
         {
-            AddLabel(dialog,"检测到多个游戏目录，请选择本次安装的版本。",11F,FontStyle.Bold,18,16,Color.White);
+            AddLabel(dialog,L.T("检测到多个游戏目录，请选择本次安装的版本。"),11F,FontStyle.Bold,18,16,Color.White);
             var choices=new ListBox{Location=new Point(18,54),Size=new Size(744,126),BackColor=PaintSkin.Panel,ForeColor=Color.White,HorizontalScrollbar=true};
             foreach(var game in games)choices.Items.Add(game);choices.SelectedIndex=0;dialog.Controls.Add(choices);
-            var use=MakeButton("使用所选目录",598,198,164,34,true);use.DialogResult=DialogResult.OK;dialog.Controls.Add(use);dialog.AcceptButton=use;
-            if(dialog.ShowDialog(this)==DialogResult.OK)selected=((GameLocation)choices.SelectedItem).Path;
+            var use=MakeButton(L.T("使用所选目录"),598,198,164,34,true);use.DialogResult=DialogResult.OK;dialog.Controls.Add(use);dialog.AcceptButton=use;
+            L.ApplyTree(dialog);if(dialog.ShowDialog(this)==DialogResult.OK)selected=((GameLocation)choices.SelectedItem).Path;
         }
         if(selected!=null){gameBox.Text=selected;RefreshNearbyPackage();}
     }
@@ -252,7 +287,7 @@ internal sealed class InstallerForm : Form
     }
     private void ShowLog()
     {
-        using(var dialog=MakeDialog("安装日志",new Size(800,480)))
+        using(var dialog=MakeDialog(L.T("安装日志"),new Size(800,480)))
         {
             logBox.Dock=DockStyle.Fill;dialog.Controls.Add(logBox);
             try{dialog.ShowDialog(this);}finally{dialog.Controls.Remove(logBox);logBox.Dock=DockStyle.None;}
@@ -260,48 +295,48 @@ internal sealed class InstallerForm : Form
     }
     private void ShowDetails()
     {
-        using(var dialog=MakeDialog("详情",new Size(680,650)))
+        using(var dialog=MakeDialog(L.T("详情"),new Size(680,650)))
         {
             detailsBox.Text=ProductInfo.Details;detailsBox.Multiline=true;detailsBox.ReadOnly=true;detailsBox.ScrollBars=ScrollBars.Vertical;detailsBox.TabStop=false;
             detailsBox.Location=new Point(18,18);detailsBox.Size=new Size(644,410);detailsBox.BackColor=PaintSkin.Panel;detailsBox.ForeColor=Color.White;dialog.Controls.Add(detailsBox);
             string[] links={ProductInfo.GroupUrl,ProductInfo.TiebaUrl,ProductInfo.MarkerRepository,ProductInfo.DlcRepository,ProductInfo.OwnRepository};
-            string[] labels={"交流群 339639634","死亡空间贴吧","Wemino/MarkerPatch","Tubzbuster/DS2SeveredPC","SomJsA/DS2-Severed-Installer"};
+            string[] labels={L.T("交流群 339639634"),L.T("死亡空间贴吧"),"Wemino/MarkerPatch","Tubzbuster/DS2SeveredPC","SomJsA/DS2-Severed-Installer"};
             for(int i=0;i<links.Length;i++){string url=links[i];var link=new LinkLabel{Text=labels[i],AutoSize=true,LinkColor=PaintSkin.Accent,Location=new Point(20,448+i*32)};link.LinkClicked+=(sender,e)=>Process.Start(new ProcessStartInfo(url){UseShellExecute=true});dialog.Controls.Add(link);}
-            try{dialog.ShowDialog(this);}finally{dialog.Controls.Remove(detailsBox);}
+            L.ApplyTree(dialog);try{dialog.ShowDialog(this);}finally{dialog.Controls.Remove(detailsBox);}
         }
     }
     private void ShowMarkerSettings()
     {
-        using(var dialog=MakeDialog("其他由 MarkerPatch 提供的功能改善",new Size(820,650)))
+        using(var dialog=MakeDialog(L.T("其他由 MarkerPatch 提供的功能改善"),new Size(820,650)))
         {
             var tabs=new TabControl{Location=new Point(14,14),Size=new Size(792,573)};
-            var switches=new TabPage("功能开关"){BackColor=PaintSkin.Background,ForeColor=Color.White};var parameters=new TabPage("数值参数"){BackColor=PaintSkin.Background,ForeColor=Color.White,AutoScroll=true};tabs.TabPages.Add(switches);tabs.TabPages.Add(parameters);dialog.Controls.Add(tabs);
-            AddLabel(switches,"默认开启 12 项，其余默认关闭。选择一项查看功能说明。",9F,FontStyle.Regular,14,14,Color.FromArgb(170,196,210));
-            AddLabel(switches,"尚未测试全部功能组合及与其他模组的兼容性。",9F,FontStyle.Regular,14,37,Color.FromArgb(219,193,139));
+            var switches=new TabPage(L.T("功能开关")){BackColor=PaintSkin.Background,ForeColor=Color.White};var parameters=new TabPage(L.T("数值参数")){BackColor=PaintSkin.Background,ForeColor=Color.White,AutoScroll=true};tabs.TabPages.Add(switches);tabs.TabPages.Add(parameters);dialog.Controls.Add(tabs);
+            AddLabel(switches,L.T("默认开启 12 项，其余默认关闭。选择一项查看功能说明。"),9F,FontStyle.Regular,14,14,Color.FromArgb(170,196,210));
+            AddLabel(switches,L.T("尚未测试全部功能组合及与其他模组的兼容性。"),9F,FontStyle.Regular,14,37,Color.FromArgb(219,193,139));
             markerOptionsList.Location=new Point(14,66);markerOptionsList.Size=new Size(432,456);switches.Controls.Add(markerOptionsList);
             var help=new TextBox{Location=new Point(460,66),Size=new Size(302,456),Multiline=true,ReadOnly=true,ScrollBars=ScrollBars.Vertical,BackColor=PaintSkin.Panel,ForeColor=Color.White,BorderStyle=BorderStyle.FixedSingle};switches.Controls.Add(help);
-            EventHandler updateHelp=(sender,e)=>{var option=markerOptionsList.SelectedItem as MarkerOption;if(option==null)return;var info=MarkerCatalog.Find(option.Key);help.Text=info.Title+"\r\n\r\n"+info.Description+"\r\n\r\n"+(option.Recommended?"默认开启":"默认关闭")+"\r\n\r\n配置项："+option.Key;};
+            EventHandler updateHelp=(sender,e)=>{var option=markerOptionsList.SelectedItem as MarkerOption;if(option==null)return;var info=MarkerCatalog.Find(option.Key);help.Text=L.T(info.Title)+"\r\n\r\n"+L.T(info.Description)+"\r\n\r\n"+(option.Recommended?L.T("默认开启"):L.T("默认关闭"))+L.T("\r\n\r\n配置项：")+option.Key;};
             markerOptionsList.SelectedIndexChanged+=updateHelp;if(markerOptionsList.Items.Count>0)markerOptionsList.SelectedIndex=0;updateHelp(null,EventArgs.Empty);
-            AddLabel(parameters,"尚未测试全部功能组合及与其他模组的兼容性。",9F,FontStyle.Regular,16,14,Color.FromArgb(219,193,139));
+            AddLabel(parameters,L.T("尚未测试全部功能组合及与其他模组的兼容性。"),9F,FontStyle.Regular,16,14,Color.FromArgb(219,193,139));
             var edited=new Dictionary<string,Control>();int y=48;
             foreach(var param in MarkerCatalog.Parameters)
             {
                 AddLabel(parameters,param.Title,10F,FontStyle.Bold,16,y,Color.White);Control input;
                 if(!string.IsNullOrEmpty(param.Choices))
                 {
-                    var combo=new ComboBox{DropDownStyle=ComboBoxStyle.DropDownList,Location=new Point(552,y),Size=new Size(190,28)};combo.Items.AddRange(param.Choices.Split('|'));decimal val=decimal.Parse(parameterValues[param.Key],CultureInfo.InvariantCulture);combo.SelectedIndex=param.Key=="MaxAnisotropy"?Array.IndexOf(new[]{0,2,4,8,16},(int)val):(int)val;input=combo;
+                    var combo=new ComboBox{DropDownStyle=ComboBoxStyle.DropDownList,Location=new Point(552,y),Size=new Size(190,28)};combo.Items.AddRange(param.Choices.Split('|').Select(L.T).ToArray());decimal val=decimal.Parse(parameterValues[param.Key],CultureInfo.InvariantCulture);combo.SelectedIndex=param.Key=="MaxAnisotropy"?Array.IndexOf(new[]{0,2,4,8,16},(int)val):(int)val;input=combo;
                 }
                 else
                 {
                     var number=new NumericUpDown{Minimum=param.Min,Maximum=param.Max,Increment=param.Step,DecimalPlaces=param.Decimals,Value=decimal.Parse(parameterValues[param.Key],CultureInfo.InvariantCulture),Location=new Point(552,y),Size=new Size(190,28)};input=number;
                 }
                 parameters.Controls.Add(input);edited[param.Key]=input;
-                AddLabel(parameters,"默认值："+param.Default.ToString(CultureInfo.InvariantCulture),8.5F,FontStyle.Regular,16,y+30,Color.FromArgb(125,163,182));
-                var description=new Label{Text=param.Description,Location=new Point(16,y+51),Size=new Size(726,32),ForeColor=Color.FromArgb(161,183,197)};parameters.Controls.Add(description);y+=94;
+                AddLabel(parameters,L.T("默认值：")+param.Default.ToString(CultureInfo.InvariantCulture),8.5F,FontStyle.Regular,16,y+30,Color.FromArgb(125,163,182));
+                var description=new Label{Text=L.T(param.Description),Location=new Point(16,y+51),Size=new Size(726,32),ForeColor=Color.FromArgb(161,183,197)};parameters.Controls.Add(description);y+=94;
             }
-            AddLabel(parameters,"字幕倍率在主页面调整；当前为 "+subtitleScaleBox.Value.ToString("0.0",CultureInfo.InvariantCulture)+"倍，默认 1.0倍。",9F,FontStyle.Regular,16,y,PaintSkin.Accent);parameters.AutoScrollMinSize=new Size(0,y+50);
-            ignoreErrorsBox.Location=new Point(18,600);dialog.Controls.Add(ignoreErrorsBox);var done=MakeButton("完成",690,594,110,36,true);done.DialogResult=DialogResult.OK;dialog.Controls.Add(done);
-            try{dialog.ShowDialog(this);foreach(var param in MarkerCatalog.Parameters){var input=edited[param.Key];if(input is NumericUpDown)parameterValues[param.Key]=((NumericUpDown)input).Value.ToString(CultureInfo.InvariantCulture);else {int index=((ComboBox)input).SelectedIndex;parameterValues[param.Key]=(param.Key=="MaxAnisotropy"?new[]{0,2,4,8,16}[index]:index).ToString(CultureInfo.InvariantCulture);}}}
+            AddLabel(parameters,L.T("字幕倍率在主页面调整；当前为 ")+subtitleScaleBox.Value.ToString("0.0",CultureInfo.InvariantCulture)+L.T("倍，默认 1.0倍。"),9F,FontStyle.Regular,16,y,PaintSkin.Accent);parameters.AutoScrollMinSize=new Size(0,y+50);
+            ignoreErrorsBox.Location=new Point(18,600);dialog.Controls.Add(ignoreErrorsBox);var done=MakeButton(L.T("完成"),690,594,110,36,true);done.DialogResult=DialogResult.OK;dialog.Controls.Add(done);
+            L.ApplyTree(dialog);try{dialog.ShowDialog(this);foreach(var param in MarkerCatalog.Parameters){var input=edited[param.Key];if(input is NumericUpDown)parameterValues[param.Key]=((NumericUpDown)input).Value.ToString(CultureInfo.InvariantCulture);else {int index=((ComboBox)input).SelectedIndex;parameterValues[param.Key]=(param.Key=="MaxAnisotropy"?new[]{0,2,4,8,16}[index]:index).ToString(CultureInfo.InvariantCulture);}}}
             finally{markerOptionsList.SelectedIndexChanged-=updateHelp;switches.Controls.Remove(markerOptionsList);dialog.Controls.Remove(ignoreErrorsBox);}
         }
     }
@@ -318,7 +353,7 @@ internal sealed class InstallerForm : Form
     {
         using (var dialog = new FolderBrowserDialog())
         {
-            dialog.Description = "选择包含 deadspace2.exe 的目录";
+            dialog.Description = L.T("选择包含 deadspace2.exe 的目录");
             if (dialog.ShowDialog(this) == DialogResult.OK)
             {
                 gameBox.Text = dialog.SelectedPath;
@@ -331,8 +366,8 @@ internal sealed class InstallerForm : Form
     {
         using(var dialog=new OpenFileDialog())
         {
-            dialog.Title="选择 Severed DLC 数据包";
-            dialog.Filter="DLC 数据包|Severed.marker;*.marker;*.DLC|所有文件|*.*";
+            dialog.Title=L.T("选择 Severed DLC 数据包");
+            dialog.Filter=L.T("DLC 数据包|Severed.marker;*.marker;*.DLC|所有文件|*.*");
             if(System.IO.File.Exists(dlcPathBox.Text))dialog.FileName=dlcPathBox.Text;
             if(dialog.ShowDialog(this)==DialogResult.OK)dlcPathBox.Text=dialog.FileName;
         }
@@ -343,7 +378,7 @@ internal sealed class InstallerForm : Form
         logBox.AppendText(text + Environment.NewLine);
         logBox.SelectionStart = logBox.TextLength;
         logBox.ScrollToCaret();
-        if(text.StartsWith("步骤") || text.StartsWith("安装完成") || text.StartsWith("卸载完成") || text.StartsWith("安装失败") || text.StartsWith("卸载失败") || (text.Contains("校验") && text.Length<60)) statusLabel.Text=text;
+        if(text.StartsWith(L.T("步骤")) || text.StartsWith(L.T("安装完成")) || text.StartsWith(L.T("卸载完成")) || text.StartsWith(L.T("安装失败")) || text.StartsWith(L.T("卸载失败")) || (text.Contains(L.T("校验")) && text.Length<60)) statusLabel.Text=text;
         progressBar.Invalidate();
         Application.DoEvents();
     }
@@ -352,7 +387,7 @@ internal sealed class InstallerForm : Form
     {
         this.busy = busy;
         markerBox.Enabled = dlcBox.Enabled = chineseBox.Enabled = ignoreErrorsBox.Enabled = !busy;
-        markerOptionsList.Enabled = subtitleScaleBox.Enabled = !busy;
+        markerOptionsList.Enabled = subtitleScaleBox.Enabled = markerSettingsButton.Enabled = !busy;
         installButton.Enabled = !busy;
         uninstallButton.Enabled = !busy;
         closeButton.Enabled = !busy;
@@ -386,15 +421,15 @@ internal sealed class InstallerForm : Form
 
     private void RunInstall()
     {
-        if (PreviewOnly) { MessageBox.Show(this,"界面预览，不执行安装。","预览"); return; }
+        if (PreviewOnly) { MessageBox.Show(this,L.T("界面预览，不执行安装。"),L.T("预览")); return; }
         if (MessageBox.Show(this,
-            "将备份受影响的 DAT/插件文件，并写入所选组件。\r\n\r\n" +
-            "本补丁按 Steam/EA 原版制作。整合版、免安装版或已有汉化请先恢复原版。" +
+            L.T("将备份受影响的 DAT/插件文件，并写入所选组件。\r\n\r\n") +
+            L.T("本补丁按 Steam/EA 原版制作。整合版、免安装版或已有汉化请先恢复原版。") +
             (ignoreErrorsBox.Checked
-                ? "\r\n\r\n已启用“忽略兼容性错误”：遇到未知版本会继续，但汉化、DLC 或 MarkerPatch 不保证可用。"
-                : "\r\n\r\n如遇版本不匹配，安装器会停止并保留回退信息。") +
-            "\r\n\r\n继续安装？",
-            "确认安装", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                ? L.T("\r\n\r\n已启用“忽略兼容性错误”：遇到未知版本会继续，但汉化、DLC 或 MarkerPatch 不保证可用。")
+                : L.T("\r\n\r\n如遇版本不匹配，安装器会停止并保留回退信息。")) +
+            L.T("\r\n\r\n继续安装？"),
+            L.T("确认安装"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
         {
             return;
         }
@@ -405,15 +440,15 @@ internal sealed class InstallerForm : Form
             InstallerEngine.Install(gameBox.Text, ReadOptions(), AppendLog);
             progressBar.Style = ProgressBarStyle.Continuous;
             progressBar.Value = 100;
-            AppendLog("安装完成。");
-            MessageBox.Show(this, "安装完成。" + (string.IsNullOrEmpty(InstallerEngine.LastInstallNote) ? "" : "\r\n" + InstallerEngine.LastInstallNote), "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            AppendLog(L.T("安装完成。"));
+            MessageBox.Show(this, L.T("安装完成。") + (string.IsNullOrEmpty(InstallerEngine.LastInstallNote) ? "" : "\r\n" + InstallerEngine.LastInstallNote), L.T("完成"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
-            AppendLog("安装失败：" + ex.Message);
+            AppendLog(L.T("安装失败：") + ex.Message);
             progressBar.Style = ProgressBarStyle.Continuous;
             progressBar.Value = 0;
-            MessageBox.Show(this, ex.Message, "安装失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(this, ex.Message, L.T("安装失败"), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
@@ -423,10 +458,10 @@ internal sealed class InstallerForm : Form
 
     private void RunUninstall()
     {
-        if (PreviewOnly) { MessageBox.Show(this,"界面预览，不执行卸载。","预览"); return; }
+        if (PreviewOnly) { MessageBox.Show(this,L.T("界面预览，不执行卸载。"),L.T("预览")); return; }
         if (MessageBox.Show(this,
-            "按安装记录移除本工具的改动，并恢复安装前备份。\r\n如文件已被改动或原备份不可用，会停止卸载并提示处理方法。\r\n\r\n继续卸载？",
-            "确认卸载", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            L.T("按安装记录移除本工具的改动，并恢复安装前备份。\r\n如文件已被改动或原备份不可用，会停止卸载并提示处理方法。\r\n\r\n继续卸载？"),
+            L.T("确认卸载"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
         {
             return;
         }
@@ -437,8 +472,8 @@ internal sealed class InstallerForm : Form
             InstallerEngine.Uninstall(gameBox.Text, AppendLog);
             progressBar.Style = ProgressBarStyle.Continuous;
             progressBar.Value = 100;
-            AppendLog("卸载完成。");
-            MessageBox.Show(this, "卸载完成，已恢复可用的安装前备份。安装前已有的 DLC 或插件可能仍会保留。", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            AppendLog(L.T("卸载完成。"));
+            MessageBox.Show(this, L.T("卸载完成，已恢复可用的安装前备份。安装前已有的 DLC 或插件可能仍会保留。"), L.T("完成"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
@@ -446,7 +481,7 @@ internal sealed class InstallerForm : Form
             AppendLog(message);
             progressBar.Style = ProgressBarStyle.Continuous;
             progressBar.Value = 0;
-            MessageBox.Show(this, message, "卸载未完成", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, message, L.T("卸载未完成"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
         finally
         {
@@ -508,7 +543,7 @@ internal static class InstallerEngine
 
     public static List<MarkerOption> GetMarkerPatchOptions()
     {
-        return MarkerCatalog.Features.Select(info=>new MarkerOption{Key=info.Key,Display="["+info.Category+"] "+info.Title,Recommended=RecommendedKeys.Contains(info.Key)}).ToList();
+        return MarkerCatalog.Features.Select(info=>new MarkerOption{Key=info.Key,Display="["+L.T(info.Category)+"] "+L.T(info.Title),Recommended=RecommendedKeys.Contains(info.Key)}).ToList();
     }
 
     public static List<GameLocation> FindGameDirs()
@@ -526,19 +561,19 @@ internal static class InstallerEngine
     {
         LastInstallNote = "";
         if (!options.MarkerPatch && !options.Dlc && !options.Chinese)
-            throw new InvalidOperationException("请至少选择一个安装组件。");
+            throw new InvalidOperationException(L.T("请至少选择一个安装组件。"));
         if (options.SubtitleScale < 0.5m || options.SubtitleScale > 3.0m)
-            throw new InvalidDataException("字幕倍率应在 0.5 到 3.0 之间。");
+            throw new InvalidDataException(L.T("字幕倍率应在 0.5 到 3.0 之间。"));
         MarkerCatalog.Validate(options.MarkerParameters);
         if(options.MarkerValues.ContainsKey("GyroEnabled") && options.MarkerValues["GyroEnabled"] &&
            (!options.MarkerValues.ContainsKey("RawMouseInput") || !options.MarkerValues["RawMouseInput"]))
-            throw new InvalidDataException("陀螺仪瞄准需要同时开启原始鼠标输入。");
-        if(options.MarkerValues.Keys.Any(key=>MarkerCatalog.Find(key)==null)) throw new InvalidDataException("MarkerPatch 功能项无效。");
+            throw new InvalidDataException(L.T("陀螺仪瞄准需要同时开启原始鼠标输入。"));
+        if(options.MarkerValues.Keys.Any(key=>MarkerCatalog.Find(key)==null)) throw new InvalidDataException(L.T("MarkerPatch 功能项无效。"));
         string game = ValidateGame(gamePath);
         EnsureGameStopped();
         if (options.Chinese || options.Dlc)
         {
-            log("校验基础游戏 DAT...");
+            log(L.T("校验基础游戏 DAT..."));
             ValidateBase(game, options.IgnoreCompatibilityErrors, log);
         }
 
@@ -548,7 +583,7 @@ internal static class InstallerEngine
         bool chineseApplied = false;
         bool dlcLocalized = false;
         if (options.Dlc && !File.Exists(dlcArchive))
-            throw new FileNotFoundException("找不到 DLC 数据包，请检查 Severed.marker 路径。", dlcArchive);
+            throw new FileNotFoundException(L.T("找不到 DLC 数据包，请检查 Severed.marker 路径。"), dlcArchive);
         bool previousChinese = ReadState(game, "chinese") == "True";
         bool previousRuntime = ReadState(game, "owns_dlc_runtime") == "True" || ReadState(game, "dlc") == "True";
         bool previousMarker = ReadState(game, "marker_patch") == "True";
@@ -574,21 +609,21 @@ internal static class InstallerEngine
             {
                 package = ReadDlcPackage(dlcArchive, temp, sevenZip);
                 LastDlcDescription = package.Summary;
-                log("数据包：" + package.Summary);
+                log(L.T("数据包：") + package.Summary);
             }
             if (options.MarkerPatch)
             {
-                log("步骤 1/3：安装 MarkerPatch 核心与所选设置...");
+                log(L.T("步骤 1/3：安装 MarkerPatch 核心与所选设置..."));
                 InstallMarkerPatch(game, temp, options, log, undo);
             }
             else if (options.Dlc)
             {
-                log("步骤 1/3：仅安装 DLC 所需的最小 MarkerPatch 运行组件...");
+                log(L.T("步骤 1/3：仅安装 DLC 所需的最小 MarkerPatch 运行组件..."));
                 InstallMinimalDlcRuntime(game, temp, options, log, undo);
             }
             if (options.Dlc)
             {
-                log("步骤 2/3：安装原始英文 DLC...");
+                log(L.T("步骤 2/3：安装原始英文 DLC..."));
                 InstallDlc(game, dlcArchive, temp, sevenZip, package, log, undo, !wasManagedDat2);
             }
             if (options.Dlc)
@@ -603,14 +638,14 @@ internal static class InstallerEngine
             }
             if (options.Chinese)
             {
-                log("步骤 3/3：安装汉化（基础游戏 → DLC 译文）...");
+                log(L.T("步骤 3/3：安装汉化（基础游戏 → DLC 译文）..."));
                 chineseApplied = InstallChinese(game, temp, sevenZip, log, undo, options.IgnoreCompatibilityErrors);
                 if (chineseApplied)
                     dlcLocalized = InstallDlcChinese(game, temp, log, undo, !options.Dlc && !wasManagedDat2,
                         package != null ? package.PayloadSha256 : previousBaseHash);
             }
             if (options.Dlc && !options.Chinese)
-                log("未选择汉化：DLC 保持原始英文。");
+                log(L.T("未选择汉化：DLC 保持原始英文。"));
             File.WriteAllText(
                 Path.Combine(game, "DS2SeveredOneClick.install.txt"),
                 "version=9\r\n" +
@@ -630,14 +665,14 @@ internal static class InstallerEngine
                     string.Join(";", Regex.Matches(File.ReadAllText(Path.Combine(game, "MarkerPatch.ini")), @"(?m)^\s*(\w+)\s*=\s*([01])\s*$")
                         .Cast<Match>().Where(match=>MarkerCatalog.Find(match.Groups[1].Value)!=null).Select(match => match.Groups[1].Value + "=" + match.Groups[2].Value)) : "") + "\r\n",
                 Encoding.UTF8);
-            log("所选步骤已完成；校验结果及跳过原因见上方日志。");
+            log(L.T("所选步骤已完成；校验结果及跳过原因见上方日志。"));
         }
         catch
         {
-            log("安装失败，正在恢复安装前状态...");
+            log(L.T("安装失败，正在恢复安装前状态..."));
             for (int i = undo.Count - 1; i >= 0; i--)
             {
-                try { undo[i](); } catch (Exception rollbackError) { log("回滚失败：" + rollbackError.Message); }
+                try { undo[i](); } catch (Exception rollbackError) { log(L.T("回滚失败：") + rollbackError.Message); }
             }
             throw;
         }
@@ -654,7 +689,7 @@ internal static class InstallerEngine
 
         bool stateExists = File.Exists(Path.Combine(game, "DS2SeveredOneClick.install.txt"));
         if (!stateExists)
-            throw new InvalidOperationException("找不到本工具的安装记录，无法确认文件归属，已停止卸载并保留现有文件。");
+            throw new InvalidOperationException(L.T("找不到本工具的安装记录，无法确认文件归属，已停止卸载并保留现有文件。"));
         bool ownsChinese = !stateExists || ReadState(game, "chinese") == "True";
         bool ownsRuntime = !stateExists || ReadState(game, "owns_dlc_runtime") == "True" || ReadState(game, "dlc") == "True";
         bool ownsMarker = !stateExists || ReadState(game, "marker_patch") == "True";
@@ -666,12 +701,12 @@ internal static class InstallerEngine
         if (ownsChinese && (!File.Exists(dat0) || Sha256(dat0) == PatchedDat0Sha))
         {
             if (!File.Exists(dat0Backup) || Sha256(dat0Backup) != OriginalDat0Sha)
-                throw new InvalidOperationException("找不到可验证的 DS2DAT0.DAT 原始备份，拒绝卸载汉化。");
+                throw new InvalidOperationException(L.T("找不到可验证的 DS2DAT0.DAT 原始备份，拒绝卸载汉化。"));
             RestoreOrRemoveOwned(game, "DS2DAT0.DAT", File.Exists(dat0) ? PatchedDat0Sha : null, log);
         }
         else if (ownsChinese && File.Exists(dat0) && Sha256(dat0) != OriginalDat0Sha)
         {
-            throw new InvalidOperationException("DS2DAT0.DAT 已被其他工具修改，拒绝覆盖。");
+            throw new InvalidOperationException(L.T("DS2DAT0.DAT 已被其他工具修改，拒绝覆盖。"));
         }
 
         string dat2 = Path.Combine(game, "DS2DAT2.DAT");
@@ -682,7 +717,7 @@ internal static class InstallerEngine
             string dat2Hash = Sha256(dat2);
             if (dat2Hash == recordedDat2Hash || (string.IsNullOrEmpty(recordedDat2Hash) && (dat2Hash == OriginalDat2Sha || dat2Hash == ChineseDat2Sha)))
                 RestoreOrRemoveOwned(game, "DS2DAT2.DAT", dat2Hash, log);
-            else throw new InvalidOperationException("DS2DAT2.DAT 已被其他工具修改，已保留文件及卸载记录。");
+            else throw new InvalidOperationException(L.T("DS2DAT2.DAT 已被其他工具修改，已保留文件及卸载记录。"));
         }
         if (ownsRuntime)
         {
@@ -705,7 +740,7 @@ internal static class InstallerEngine
     private static void PreflightUninstall(string game, bool chinese, bool runtime, bool marker, bool dat2, string dat2Hash)
     {
         if (!chinese && !runtime && !marker && !dat2)
-            throw new InvalidDataException("安装记录缺少组件信息，无法安全卸载。");
+            throw new InvalidDataException(L.T("安装记录缺少组件信息，无法安全卸载。"));
         var problems = new List<string>();
         var owned = new Dictionary<string, string>();
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
@@ -716,17 +751,17 @@ internal static class InstallerEngine
             {
                 string backup = dat0 + ".ds2oneclick.bak";
                 if (!File.Exists(backup) || Sha256(backup) != OriginalDat0Sha)
-                    problems.Add("缺少可验证的 DS2DAT0.DAT 原版备份，无法恢复汉化。");
+                    problems.Add(L.T("缺少可验证的 DS2DAT0.DAT 原版备份，无法恢复汉化。"));
             }
             else if (current != OriginalDat0Sha)
-                problems.Add("DS2DAT0.DAT 已被其他工具修改，不能确认恢复方式。");
+                problems.Add(L.T("DS2DAT0.DAT 已被其他工具修改，不能确认恢复方式。"));
             owned["DS2DAT0.DAT"] = null;
         }
         if (dat2 && File.Exists(Path.Combine(game, "DS2DAT2.DAT")))
         {
             string actual = Sha256(Path.Combine(game, "DS2DAT2.DAT"));
             bool matches = !string.IsNullOrEmpty(dat2Hash) ? actual == dat2Hash : actual == OriginalDat2Sha || actual == ChineseDat2Sha;
-            if (!matches) problems.Add("DS2DAT2.DAT 已被其他工具修改，将保留该文件。");
+            if (!matches) problems.Add(L.T("DS2DAT2.DAT 已被其他工具修改，将保留该文件。"));
             owned["DS2DAT2.DAT"] = actual;
         }
         else if (dat2) owned["DS2DAT2.DAT"] = null;
@@ -742,7 +777,7 @@ internal static class InstallerEngine
             foreach (string name in new[] { "MarkerPatch.asi", "MarkerPatch.ini" })
             {
                 string original = Path.Combine(game, "plugins", name), disabled = original + ".ds2oneclick-disabled";
-                if (File.Exists(original) && File.Exists(disabled)) problems.Add("旧插件恢复位置被占用：plugins\\" + name);
+                if (File.Exists(original) && File.Exists(disabled)) problems.Add(L.T("旧插件恢复位置被占用：plugins\\") + name);
                 if (File.Exists(disabled)) owned[Path.Combine("plugins", name + ".ds2oneclick-disabled")] = null;
             }
         }
@@ -751,17 +786,17 @@ internal static class InstallerEngine
         {
             string path = Path.Combine(game, item.Key);
             if (File.Exists(path) && item.Value != null && Sha256(path) != item.Value)
-                problems.Add(item.Key + " 已被改动，将保留该文件。");
+                problems.Add(item.Key + L.T(" 已被改动，将保留该文件。"));
             foreach (string candidate in new[] { path, path + ".ds2oneclick.bak" })
             {
                 if (!File.Exists(candidate)) continue;
                 if ((File.GetAttributes(candidate) & FileAttributes.ReadOnly) != 0)
-                    problems.Add(Path.GetFileName(candidate) + " 为只读文件，请检查权限。");
+                    problems.Add(Path.GetFileName(candidate) + L.T(" 为只读文件，请检查权限。"));
                 else using (var check = new FileStream(candidate, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { }
             }
         }
         if (problems.Count != 0)
-            throw new InvalidOperationException("卸载前检查未通过，尚未修改任何文件：\r\n" + string.Join("\r\n", problems.Distinct()));
+            throw new InvalidOperationException(L.T("卸载前检查未通过，尚未修改任何文件：\r\n") + string.Join("\r\n", problems.Distinct()));
     }
 
     private static bool InstallChinese(string game, string temp, string sevenZip, Action<string> log, List<Action> undo, bool ignoreErrors)
@@ -769,7 +804,7 @@ internal static class InstallerEngine
         string assets = Path.Combine(temp, "Chinese.assets.7z");
         ExtractResource("DS2_CHINESE_ASSETS", assets);
         if (new FileInfo(assets).Length != ChineseAssetsBytes || Sha256(assets) != ChineseAssetsSha)
-            throw new InvalidDataException("内置汉化资源包校验失败。");
+            throw new InvalidDataException(L.T("内置汉化资源包校验失败。"));
         string root = Path.Combine(temp, "cn");
         Directory.CreateDirectory(root);
         Run7Zip(sevenZip, "x -y -o\"" + root + "\" \"" + assets + "\"");
@@ -777,26 +812,26 @@ internal static class InstallerEngine
         string text = Path.Combine(root, "D22D5B5A.str");
         if (Sha256(font) != "3b70cff50748d8d931a04bb6ba1286bdef97a0a5f1e2acabaef916043e843dcb" ||
             Sha256(text) != "0a75e1bc191e2127e2cab7f01c2f3ba6dc45e4c3452803aeac97aa403a0546e7")
-            throw new InvalidDataException("内置字体或译文资源校验失败。");
+            throw new InvalidDataException(L.T("内置字体或译文资源校验失败。"));
 
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
         string hash = Sha256(dat0);
         if (hash == PatchedDat0Sha)
         {
-            log("DS2DAT0.DAT 已包含本汉化，跳过。");
+            log(L.T("DS2DAT0.DAT 已包含本汉化，跳过。"));
             return true;
         }
         if (hash != OriginalDat0Sha)
         {
             if (!ignoreErrors)
-                throw new InvalidOperationException("DS2DAT0.DAT 不是支持的原版版本。");
-            log("警告：DS2DAT0.DAT 哈希不受支持，跳过基础及 DLC 汉化。");
+                throw new InvalidOperationException(L.T("DS2DAT0.DAT 不是支持的原版版本。"));
+            log(L.T("警告：DS2DAT0.DAT 哈希不受支持，跳过基础及 DLC 汉化。"));
             return false;
         }
 
         string backup = dat0 + ".ds2oneclick.bak";
         if (File.Exists(backup) && Sha256(backup) != OriginalDat0Sha)
-            throw new InvalidOperationException("已有 DAT0 备份哈希不匹配，拒绝覆盖。");
+            throw new InvalidOperationException(L.T("已有 DAT0 备份哈希不匹配，拒绝覆盖。"));
         string rebuilt = Path.Combine(temp, "DS2DAT0.zh.DAT");
         RebuildBigh(dat0, rebuilt, new Dictionary<uint, string>
         {
@@ -804,9 +839,9 @@ internal static class InstallerEngine
             { 0xD22D5B5A, text }
         });
         if (new FileInfo(rebuilt).Length != PatchedDat0Bytes || Sha256(rebuilt) != PatchedDat0Sha)
-            throw new InvalidDataException("重建后的 DS2DAT0.DAT 校验失败。");
+            throw new InvalidDataException(L.T("重建后的 DS2DAT0.DAT 校验失败。"));
         ReplaceDat(dat0, rebuilt, temp, true, undo, log);
-        log("DS2DAT0.DAT 汉化写入完成。");
+        log(L.T("DS2DAT0.DAT 汉化写入完成。"));
         return true;
     }
 
@@ -819,7 +854,7 @@ internal static class InstallerEngine
         return GameLocations.FindPackage(baseDir,null);
     }
 
-    public static string LastDlcDescription = "尚未读取数据包";
+    public static string LastDlcDescription = L.T("尚未读取数据包");
     public static string LastInstallNote = "";
     private static string ReadState(string game, string key)
     {
@@ -842,7 +877,7 @@ internal static class InstallerEngine
         Run7Zip(sevenZip, "x -y -o\"" + folder + "\" \"" + archive + "\" DLC.version.json");
         string manifest = Path.Combine(folder, "DLC.version.json");
         if (!File.Exists(manifest) || new FileInfo(manifest).Length > 65536)
-            throw new InvalidDataException("DLC 包缺少有效的版本与校验清单。");
+            throw new InvalidDataException(L.T("DLC 包缺少有效的版本与校验清单。"));
         return DlcPackage.Parse(File.ReadAllText(manifest, Encoding.UTF8));
     }
 
@@ -871,8 +906,8 @@ internal static class InstallerEngine
         if (createdBackup)
         {
             File.Copy(target, backup);
-            if (Sha256(backup) != Sha256(previous)) throw new InvalidDataException("原文件备份校验失败。");
-            log("已保留原文件备份 " + Path.GetFileName(backup) + "。");
+            if (Sha256(backup) != Sha256(previous)) throw new InvalidDataException(L.T("原文件备份校验失败。"));
+            log(L.T("已保留原文件备份 ") + Path.GetFileName(backup) + L.T("。"));
         }
         if (existed) File.Replace(staged, target, null);
         else File.Move(staged, target);
@@ -881,35 +916,35 @@ internal static class InstallerEngine
     private static void InstallDlc(string game, string archive, string temp, string sevenZip, DlcPackage package, Action<string> log, List<Action> undo, bool keepOriginalBackup)
     {
         string root = Path.Combine(temp, "dlc");
-        log("包内版本与协议通过：" + package.Summary);
+        log(L.T("包内版本与协议通过：") + package.Summary);
         if (package.PosterSha256 != null)
         {
             Run7Zip(sevenZip, "x -y -o\"" + root + "\" \"" + archive + "\" Severed.poster.jpg");
             string poster = Path.Combine(root, "Severed.poster.jpg");
             if (!File.Exists(poster) || new FileInfo(poster).Length != package.PosterBytes || Sha256(poster) != package.PosterSha256)
-                throw new InvalidDataException("数据包海报大小或 SHA-256 校验失败。");
-            log("DLC 海报完整性校验通过。");
+                throw new InvalidDataException(L.T("数据包海报大小或 SHA-256 校验失败。"));
+            log(L.T("DLC 海报完整性校验通过。"));
         }
-        else log("历史数据包没有海报，英文数据仍可按原校验安装。");
+        else log(L.T("历史数据包没有海报，英文数据仍可按原校验安装。"));
         Run7Zip(sevenZip, "x -y -o\"" + root + "\" \"" + archive + "\" DS2DAT2.DAT");
         string extracted = Path.Combine(root, "DS2DAT2.DAT");
         if (!File.Exists(extracted) || new FileInfo(extracted).Length != package.PayloadBytes || Sha256(extracted) != package.PayloadSha256)
-            throw new InvalidDataException("原始英文 DS2DAT2.DAT 大小或 SHA-256 校验失败。");
+            throw new InvalidDataException(L.T("原始英文 DS2DAT2.DAT 大小或 SHA-256 校验失败。"));
         using (var input = File.OpenRead(extracted))
         {
             byte[] header = ReadExact(input, 16);
             if (Encoding.ASCII.GetString(header, 0, 4) != "BIGH" || ReadLe32(header, 4) != package.PayloadBytes)
-                throw new InvalidDataException("DLC 数据不是支持的完整 BIGH 归档。");
+                throw new InvalidDataException(L.T("DLC 数据不是支持的完整 BIGH 归档。"));
         }
         string target = Path.Combine(game, "DS2DAT2.DAT");
         if (File.Exists(target) && Sha256(target) == package.PayloadSha256)
         {
-            log("DS2DAT2.DAT 已是此包的英文数据，跳过替换。");
+            log(L.T("DS2DAT2.DAT 已是此包的英文数据，跳过替换。"));
             return;
         }
         ReplaceDat(target, extracted, temp, keepOriginalBackup, undo, log);
-        if (Sha256(target) != package.PayloadSha256) throw new InvalidDataException("原始 DLC 落盘校验失败。");
-        log("原始英文 DLC 安装完成（SHA-256 " + package.PayloadSha256 + "）。");
+        if (Sha256(target) != package.PayloadSha256) throw new InvalidDataException(L.T("原始 DLC 落盘校验失败。"));
+        log(L.T("原始英文 DLC 安装完成（SHA-256 ") + package.PayloadSha256 + L.T("）。"));
     }
 
     private static bool InstallDlcChinese(string game, string temp, Action<string> log, List<Action> undo, bool keepOriginalBackup, string acceptedEnglishHash)
@@ -917,31 +952,31 @@ internal static class InstallerEngine
         string dat2 = Path.Combine(game, "DS2DAT2.DAT");
         if (!File.Exists(dat2))
         {
-            log("未发现 DLC，跳过 DLC 汉化；基础游戏汉化已完成。");
+            log(L.T("未发现 DLC，跳过 DLC 汉化；基础游戏汉化已完成。"));
             return false;
         }
         string hash = Sha256(dat2);
         if (hash == ChineseDat2Sha)
         {
-            log("DLC 已是 XLSX 汉化版本 zh-workbook-v1，跳过。");
+            log(L.T("DLC 已是 XLSX 汉化版本 zh-workbook-v1，跳过。"));
             return true;
         }
         if (hash != OriginalDat2Sha)
         {
             if (!string.IsNullOrEmpty(acceptedEnglishHash) && hash == acceptedEnglishHash)
             {
-                LastInstallNote = "新版 DLC 暂无匹配汉化，已保留英文。";
-                log("此英文 DLC 版本较新，当前汉化不兼容其数据布局；保留英文 DLC，未应用旧译文。");
+                LastInstallNote = L.T("新版 DLC 暂无匹配汉化，已保留英文。");
+                log(L.T("此英文 DLC 版本较新，当前汉化不兼容其数据布局；保留英文 DLC，未应用旧译文。"));
                 return false;
             }
-            throw new InvalidDataException("DLC 汉化仅支持已知英文基座；请先安装受支持的原始 DLC。");
+            throw new InvalidDataException(L.T("DLC 汉化仅支持已知英文基座；请先安装受支持的原始 DLC。"));
         }
         string cn = Path.Combine(temp, "cn");
         string stream = Path.Combine(cn, "DLC.4F21D71F.str");
         string toc = Path.Combine(cn, "DLC.4F9AE556.toc");
         if (Sha256(stream) != "678cd673364ed40e96d73d4de02ff0941399be08354be252e3f340134d76e718" ||
             Sha256(toc) != "4771a3b58d03a6216dc5e802ca5e04676ee638ae8e1f0f49485f9f88abb6bd35")
-            throw new InvalidDataException("内置 DLC 汉化资源校验失败。");
+            throw new InvalidDataException(L.T("内置 DLC 汉化资源校验失败。"));
         string rebuilt = Path.Combine(temp, "DS2DAT2.zh.DAT");
         RebuildBigh(dat2, rebuilt, new Dictionary<uint, string>
         {
@@ -949,10 +984,10 @@ internal static class InstallerEngine
             { 0x4F9AE556, toc }
         });
         if (new FileInfo(rebuilt).Length != ChineseDat2Bytes || Sha256(rebuilt) != ChineseDat2Sha)
-            throw new InvalidDataException("DLC 汉化输出校验失败。");
+            throw new InvalidDataException(L.T("DLC 汉化输出校验失败。"));
         ReplaceDat(dat2, rebuilt, temp, keepOriginalBackup, undo, log);
-        if (Sha256(dat2) != ChineseDat2Sha) throw new InvalidDataException("DLC 汉化落盘校验失败。");
-        log("DLC 218 条 XLSX 译文安装完成（zh-workbook-v1，90301421...）。");
+        if (Sha256(dat2) != ChineseDat2Sha) throw new InvalidDataException(L.T("DLC 汉化落盘校验失败。"));
+        log(L.T("DLC 218 条 XLSX 译文安装完成（zh-workbook-v1，90301421...）。"));
         return true;
     }
 
@@ -961,7 +996,7 @@ internal static class InstallerEngine
         QuarantineLegacyMarkerPlugin(game, undo, log);
         string dll = Path.Combine(temp, "dinput8.dll");
         ExtractResource("DS2_MARKER_DLL", dll);
-        if (Sha256(dll) != MarkerDllSha) throw new InvalidDataException("内置 MarkerPatch DLL 校验失败。");
+        if (Sha256(dll) != MarkerDllSha) throw new InvalidDataException(L.T("内置 MarkerPatch DLL 校验失败。"));
         InstallBinary(game, "dinput8.dll", File.ReadAllBytes(dll), MarkerDllSha, undo, log);
 
         string ini = ConfigureMarkerPatch(ReadResourceText("DS2_MARKER_INI"), options);
@@ -980,7 +1015,7 @@ internal static class InstallerEngine
             ini = File.ReadAllText(path);
             ini = SetIni(ini, "LoadASIPlugins", "1");
             ini = SetIni(ini, "EnableSeveredDLC", "1");
-            log("保留已有 MarkerPatch 设置，仅确保 DLC 加载与所需物品开关启用。");
+            log(L.T("保留已有 MarkerPatch 设置，仅确保 DLC 加载与所需物品开关启用。"));
         }
         else
         {
@@ -988,7 +1023,7 @@ internal static class InstallerEngine
             minimal.MarkerValues = RecommendedMarkerValues().Keys.ToDictionary(key => key,
                 key => key == "LoadASIPlugins" || key == "EnableSeveredDLC", StringComparer.OrdinalIgnoreCase);
             ini = ConfigureMarkerPatch(ReadResourceText("DS2_MARKER_INI"), minimal);
-            log("最小配置：仅 LoadASIPlugins、EnableSeveredDLC 开启；字幕与其他增强关闭。");
+            log(L.T("最小配置：仅 LoadASIPlugins、EnableSeveredDLC 开启；字幕与其他增强关闭。"));
         }
         InstallText(game, "MarkerPatch.ini", ini, null, undo, log);
     }
@@ -1003,14 +1038,14 @@ internal static class InstallerEngine
             if (!File.Exists(source)) continue;
             string disabled = source + ".ds2oneclick-disabled";
             if (File.Exists(disabled))
-                throw new InvalidOperationException("旧 MarkerPatch 隔离文件已存在：" + disabled);
+                throw new InvalidOperationException(L.T("旧 MarkerPatch 隔离文件已存在：") + disabled);
             File.Move(source, disabled);
             undo.Add(() =>
             {
                 if (File.Exists(disabled) && !File.Exists(source))
                     File.Move(disabled, source);
             });
-            log("已隔离冲突插件 plugins\\" + name + "。");
+            log(L.T("已隔离冲突插件 plugins\\") + name + L.T("。"));
         }
     }
 
@@ -1022,11 +1057,11 @@ internal static class InstallerEngine
             string original = Path.Combine(pluginDir, name);
             string disabled = original + ".ds2oneclick-disabled";
             if (File.Exists(disabled) && File.Exists(original))
-                throw new IOException("旧插件恢复位置被占用，已保留备份：" + original);
+                throw new IOException(L.T("旧插件恢复位置被占用，已保留备份：") + original);
             if (File.Exists(disabled) && !File.Exists(original))
             {
                 File.Move(disabled, original);
-                log("已恢复旧插件 plugins\\" + name + "。");
+                log(L.T("已恢复旧插件 plugins\\") + name + L.T("。"));
             }
         }
     }
@@ -1054,24 +1089,24 @@ internal static class InstallerEngine
     private static void ValidateBase(string game, bool ignoreErrors, Action<string> log)
     {
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
-        if (!File.Exists(dat0)) throw new FileNotFoundException("缺少 DS2DAT0.DAT。", dat0);
+        if (!File.Exists(dat0)) throw new FileNotFoundException(L.T("缺少 DS2DAT0.DAT。"), dat0);
         string dat0Hash = Sha256(dat0);
         if (dat0Hash != OriginalDat0Sha && dat0Hash != PatchedDat0Sha)
         {
             if (!ignoreErrors)
-                throw new InvalidDataException("DS2DAT0.DAT 不属于 Steam/EA pristine 或本补丁版本。");
-            log("警告：DS2DAT0.DAT 哈希不受支持。建议恢复原版后再安装汉化。");
+                throw new InvalidDataException(L.T("DS2DAT0.DAT 不属于 Steam/EA pristine 或本补丁版本。"));
+            log(L.T("警告：DS2DAT0.DAT 哈希不受支持。建议恢复原版后再安装汉化。"));
         }
         foreach (var pair in BaseHashes)
         {
             string path = Path.Combine(game, pair.Key);
             if (!File.Exists(path))
-                throw new FileNotFoundException("缺少基础 DAT。", path);
+                throw new FileNotFoundException(L.T("缺少基础 DAT。"), path);
             if (Sha256(path) != pair.Value)
             {
                 if (!ignoreErrors)
-                    throw new InvalidDataException(pair.Key + " 哈希不匹配。");
-                log("警告：" + pair.Key + " 不是 pristine 哈希，按忽略兼容性错误继续。");
+                    throw new InvalidDataException(pair.Key + L.T(" 哈希不匹配。"));
+                log(L.T("警告：") + pair.Key + L.T(" 不是 pristine 哈希，按忽略兼容性错误继续。"));
             }
         }
     }
@@ -1079,10 +1114,10 @@ internal static class InstallerEngine
     private static string ValidateGame(string gamePath)
     {
         if (string.IsNullOrWhiteSpace(gamePath) || !Directory.Exists(gamePath))
-            throw new DirectoryNotFoundException("游戏目录不存在。");
+            throw new DirectoryNotFoundException(L.T("游戏目录不存在。"));
         string game = Path.GetFullPath(gamePath);
         if (!File.Exists(Path.Combine(game, "deadspace2.exe")))
-            throw new FileNotFoundException("目录中没有 deadspace2.exe。", game);
+            throw new FileNotFoundException(L.T("目录中没有 deadspace2.exe。"), game);
         return game;
     }
 
@@ -1090,7 +1125,7 @@ internal static class InstallerEngine
     {
 #if !TEST_BUILD
         if (Process.GetProcessesByName("deadspace2").Length != 0)
-            throw new InvalidOperationException("请先关闭 deadspace2.exe。");
+            throw new InvalidOperationException(L.T("请先关闭 deadspace2.exe。"));
 #endif
     }
 
@@ -1105,7 +1140,7 @@ internal static class InstallerEngine
         string root = Path.GetPathRoot(Path.GetFullPath(game));
         long free = new DriveInfo(root).AvailableFreeSpace;
         if (free < requiredBytes)
-            throw new IOException("磁盘空间不足。需要至少 " + (requiredBytes >> 20) + " MiB，当前可用 " + (free >> 20) + " MiB。");
+            throw new IOException(L.T("磁盘空间不足。需要至少 ") + (requiredBytes >> 20) + L.T(" MiB，当前可用 ") + (free >> 20) + L.T(" MiB。"));
     }
 
     private static void Run7Zip(string exe, string arguments)
@@ -1123,7 +1158,7 @@ internal static class InstallerEngine
             string stderr = process.StandardError.ReadToEnd();
             process.WaitForExit();
             if (process.ExitCode != 0)
-                throw new IOException("7-Zip 解压失败：" + (stderr + stdout).Trim());
+                throw new IOException(L.T("7-Zip 解压失败：") + (stderr + stdout).Trim());
         }
     }
 
@@ -1170,8 +1205,8 @@ internal static class InstallerEngine
         });
         if (createdBackup) File.Copy(path, backup);
         File.WriteAllBytes(path, data);
-        if (hash != null && Sha256(path) != hash) throw new InvalidDataException(relative + " 写入校验失败。");
-        log("已安装 " + relative + "。");
+        if (hash != null && Sha256(path) != hash) throw new InvalidDataException(relative + L.T(" 写入校验失败。"));
+        log(L.T("已安装 ") + relative + L.T("。"));
     }
 
     private static void InstallOwnedText(string game, string relative, string text, string expectedHash, List<Action> undo, Action<string> log)
@@ -1194,11 +1229,11 @@ internal static class InstallerEngine
     {
         string path = Path.Combine(game, relative);
         if (File.Exists(path) && Sha256(path) != expectedHash)
-            throw new IOException(relative + " 在卸载期间发生变化，已保留文件及安装记录。");
+            throw new IOException(relative + L.T(" 在卸载期间发生变化，已保留文件及安装记录。"));
         if (File.Exists(path) && Sha256(path) == expectedHash)
         {
             File.Delete(path);
-            log("已移除 " + relative + "。");
+            log(L.T("已移除 ") + relative + L.T("。"));
         }
     }
 
@@ -1208,7 +1243,7 @@ internal static class InstallerEngine
         string backup = path + ".ds2oneclick.bak";
         if (!File.Exists(path) && !File.Exists(backup)) return;
         if (expectedHash != null && File.Exists(path) && Sha256(path) != expectedHash)
-            throw new IOException(relative + " 在卸载期间发生变化，已保留文件及安装记录。");
+            throw new IOException(relative + L.T(" 在卸载期间发生变化，已保留文件及安装记录。"));
         if (File.Exists(backup))
         {
             string restore = path + ".ds2oneclick-restore-" + Guid.NewGuid().ToString("N");
@@ -1216,19 +1251,19 @@ internal static class InstallerEngine
             try
             {
                 File.Copy(backup, restore, false);
-                if (Sha256(restore) != expectedBackup) throw new InvalidDataException(relative + " 备份复制校验失败。");
+                if (Sha256(restore) != expectedBackup) throw new InvalidDataException(relative + L.T(" 备份复制校验失败。"));
                 if (File.Exists(path)) File.Replace(restore, path, null);
                 else File.Move(restore, path);
-                if (Sha256(path) != expectedBackup) throw new InvalidDataException(relative + " 还原校验失败。");
+                if (Sha256(path) != expectedBackup) throw new InvalidDataException(relative + L.T(" 还原校验失败。"));
                 File.Delete(backup);
             }
             finally { if (File.Exists(restore)) File.Delete(restore); }
-            log("已恢复 " + relative + "。");
+            log(L.T("已恢复 ") + relative + L.T("。"));
         }
         else
         {
             File.Delete(path);
-            log("已移除 " + relative + "。");
+            log(L.T("已移除 ") + relative + L.T("。"));
         }
     }
 
@@ -1239,7 +1274,7 @@ internal static class InstallerEngine
         using (var stream = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 20))
         {
             byte[] header = ReadExact(stream, 16);
-            if (Encoding.ASCII.GetString(header, 0, 4) != "BIGH") throw new InvalidDataException("DAT 不是 BIGH。");
+            if (Encoding.ASCII.GetString(header, 0, 4) != "BIGH") throw new InvalidDataException(L.T("DAT 不是 BIGH。"));
             uint count = ReadBe32(header, 8);
             uint headerSize = ReadBe32(header, 12);
             byte[] table = ReadExact(stream, checked((int)count * 12));
@@ -1266,7 +1301,7 @@ internal static class InstallerEngine
             layout.Add(Tuple.Create(pair.Key, position, (long)pair.Value.Item2));
             position = Align(position + pair.Value.Item2, BigArchiveAlign);
         }
-        if (position > uint.MaxValue) throw new InvalidDataException("重建后的 DAT 超过 4 GiB。");
+        if (position > uint.MaxValue) throw new InvalidDataException(L.T("重建后的 DAT 超过 4 GiB。"));
 
         using (var input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 20))
         using (var output = new FileStream(target, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1 << 20))
