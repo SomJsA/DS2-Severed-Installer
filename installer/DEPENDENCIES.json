@@ -1,0 +1,93 @@
+{
+  "schema": 3,
+  "markerpatch": {
+    "repository": "https://github.com/Wemino/MarkerPatch",
+    "source_commit": "292d42acdfb62e635dcbbaacd6874307154e9f3e",
+    "dinput8_bytes": 1725952,
+    "dinput8_sha256": "c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5"
+  },
+  "severedpc": {
+    "repository": "https://github.com/Tubzbuster/DS2SeveredPC",
+    "release_tag": "v1.1.5",
+    "asi_bytes": 46080,
+    "asi_sha256": "9a4542eccdbf88ab3ca0c02c52aca34eff9d0ccf3d2fdf71fd1a6314cb561a46"
+  },
+  "sevenzip": {
+    "version_used": "26.05",
+    "exe_bytes": 577536,
+    "exe_sha256": "94205cfc054dd3bbeb978905bc619a65b3f04e9e73bb2717841110b6f46d962e",
+    "dll_bytes": 1908736,
+    "dll_sha256": "78bf6b668d75801e3aa180b4ccb16e6d8395fba80dec8a065055bb6f8dfabb82"
+  },
+  "base_game": {
+    "dat0_bytes": 2145060192,
+    "dat0_sha256": "fd7d1bdbb5ec6b92324cd877465a029942c78396468695b4551068f4c3562e23",
+    "dat2_bytes": 3187759104,
+    "dat2_sha256": "81a145da647660d34a6fcb15ea3a8709c74855cf1beef23fc668a3ae42eb6ea0"
+  },
+  "font": {
+    "font_name": "Swei Shear Sans CJK SC Medium",
+    "font_file_size": 10759464,
+    "source": "DeadSpace汉化遗产.zip: ds工具包/字体生成/data/font.ttf"
+  },
+  "generated": {
+    "font_stream_sha256": "3b70cff50748d8d931a04bb6ba1286bdef97a0a5f1e2acabaef916043e843dcb",
+    "chinese_assets_bytes": 6981480,
+    "chinese_assets_sha256": "8c035b6ba2b0ad9e96967866281607b55db14a5a1261b413ec3faee93bd7105a",
+    "dat0_sha256": "e9a5a0d212c1848009543ace7876a745d39f498b4c514673bd02df123c182583",
+    "dat2_sha256": "90301421956be9de44c2dbc89d64f3a928bc8cc468ad82927ef059f48b454876",
+    "dlc_marker_bytes": 1170665452,
+    "dlc_marker_sha256": "e35109e970c9d6e5aed4873f9efcc6f317cf17cb1a17177e14087dada6028b4c"
+  },
+  "dlc_package": {
+    "filename": "Severed.marker",
+    "variant": "base-en-v1",
+    "language": "en",
+    "localized": false,
+    "protocol_version": 1,
+    "package_version": "1.1.0",
+    "minimum_installer_version": "1.0.9.0",
+    "manifest": "DLC.version.json",
+    "dat2_sha256": "81a145da647660d34a6fcb15ea3a8709c74855cf1beef23fc668a3ae42eb6ea0",
+    "poster": {
+      "file": "Severed.poster.jpg",
+      "bytes": 60526,
+      "sha256": "b15b7068fbeb94f2ce4c37dad51b13080e21058b299fcbe1b92aa2f5e79b4dbc",
+      "source_page": "https://www.imdb.com/title/tt8266064/"
+    },
+    "whole_archive_hash_is_installer_gate": false
+  },
+  "installation_order": [
+    "MarkerPatch",
+    "Original English DLC",
+    "Chinese localization (optional)"
+  ],
+  "installer": {
+    "release": "R9",
+    "assembly_version": "1.0.9.0",
+    "repository": "https://github.com/SomJsA/DS2-Severed-Installer",
+    "default_subtitle_scale": 1.2
+  },
+  "ui_assets": {
+    "app.ico": {
+      "bytes": 155486,
+      "sha256": "f12732fdff1c28ec69cc3b56308314c19c16969a7b2e1070f17c414d278bbdb4"
+    },
+    "button.png": {
+      "bytes": 16395,
+      "sha256": "49426342c5a86bb44cc6b7eb4da9165147d722d6736d5d2ac9a70d7479ee101a"
+    },
+    "main_background.png": {
+      "bytes": 314711,
+      "sha256": "653c707669291959537c8b904ea09204a187f398228783fc4c176dfa8617fedc"
+    },
+    "MarkerPatch_Logo.png": {
+      "bytes": 165180,
+      "sha256": "08f60f674d1445bb6b8b2c8095b24e59f4cfaba009da65814ddd89d427a08dc6"
+    },
+    "Severed.poster.jpg": {
+      "bytes": 60526,
+      "sha256": "b15b7068fbeb94f2ce4c37dad51b13080e21058b299fcbe1b92aa2f5e79b4dbc"
+    }
+  }
+}

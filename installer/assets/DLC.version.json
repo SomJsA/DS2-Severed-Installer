@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "package_id": "ds2-severed-base-en",
+  "package_version": "1.1.0",
+  "variant": "base-en-v1",
+  "language": "en",
+  "localized": false,
+  "payload_file": "DS2DAT2.DAT",
+  "payload_bytes": 3187759104,
+  "payload_sha256": "81a145da647660d34a6fcb15ea3a8709c74855cf1beef23fc668a3ae42eb6ea0",
+  "converter": "DS2SeveredPC v1.2.5 (release tag v1.1.5)",
+  "xbox_input_id": "29E2FCC04BEF1D2532C48269EC42EF2E3DBFC45845",
+  "contents": "Original converted English Severed DLC. No Chinese text or fonts.",
+  "installation_order": [
+    "MarkerPatch",
+    "Original DLC",
+    "Chinese localization (optional)"
+  ],
+  "protocol_version": 1,
+  "minimum_installer_version": "1.0.9.0",
+  "poster": {
+    "file": "Severed.poster.jpg",
+    "bytes": 60526,
+    "sha256": "b15b7068fbeb94f2ce4c37dad51b13080e21058b299fcbe1b92aa2f5e79b4dbc",
+    "source_page": "https://www.imdb.com/title/tt8266064/"
+  },
+  "integrity": "Verify payload_file and poster file using the declared byte counts and SHA-256 values. This is an integrity manifest, not a digital signature."
+}
