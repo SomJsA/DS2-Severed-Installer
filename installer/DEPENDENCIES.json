@@ -63,10 +63,10 @@
     "Chinese localization (optional)"
   ],
   "installer": {
-    "release": "R9",
-    "assembly_version": "1.0.9.0",
+    "release": "2026.11.1",
+    "assembly_version": "2026.11.1.0",
     "repository": "https://github.com/SomJsA/DS2-Severed-Installer",
-    "default_subtitle_scale": 1.2
+    "default_subtitle_scale": 1.0
   },
   "ui_assets": {
     "app.ico": {

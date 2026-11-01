@@ -1,6 +1,6 @@
 # Third-party notices
 
-This code-only directory contains no game archives, localization/font streams,
+The code-only source publication contains no game archives, localization/font streams,
 artwork, icons, DLL/ASI/EXE dependencies or compiled installer.
 
 - MarkerPatch: https://github.com/Wemino/MarkerPatch, source commit

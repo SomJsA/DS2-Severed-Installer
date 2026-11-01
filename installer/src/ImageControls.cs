@@ -108,7 +108,22 @@ internal sealed class SkinButton : Button
 {
     public bool Primary { get; set; }
     private bool hover;
-    public SkinButton(){SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer,true);FlatStyle=FlatStyle.Flat;Cursor=Cursors.Hand;}
+    private bool flowGlow;
+    private float flowPhase;
+    private readonly Timer glowTimer=new Timer{Interval=30};
+    public bool FlowGlow
+    {
+        get{return flowGlow;}
+        set{if(flowGlow==value)return;flowGlow=value;UpdateGlowTimer();Invalidate();}
+    }
+    private void UpdateGlowTimer(){if(flowGlow&&Visible&&Enabled)glowTimer.Start();else glowTimer.Stop();}
+    public SkinButton()
+    {
+        SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer,true);FlatStyle=FlatStyle.Flat;Cursor=Cursors.Hand;
+        glowTimer.Tick+=(sender,e)=>{flowPhase=(flowPhase+.012f)%1f;Invalidate();};
+    }
+    protected override void OnVisibleChanged(EventArgs e){base.OnVisibleChanged(e);UpdateGlowTimer();}
+    protected override void OnEnabledChanged(EventArgs e){base.OnEnabledChanged(e);UpdateGlowTimer();Invalidate();}
     protected override void OnMouseEnter(EventArgs e){hover=true;Invalidate();base.OnMouseEnter(e);}
     protected override void OnMouseLeave(EventArgs e){hover=false;Invalidate();base.OnMouseLeave(e);}
     protected override void OnPaint(PaintEventArgs e)
@@ -120,10 +135,27 @@ internal sealed class SkinButton : Button
             if(!Enabled)fill=Color.FromArgb(42,55,64);
             using(var brush=new SolidBrush(fill))g.FillPath(brush,path);
             using(var pen=new Pen(Primary ? fill : Color.FromArgb(52,71,83)))g.DrawPath(pen,path);
+            if(flowGlow&&Enabled)
+            {
+                using(var pen=new Pen(Color.FromArgb(100,PaintSkin.Accent),1.4f))g.DrawPath(pen,path);
+                float span=Math.Max(96f,Width*.38f),x=flowPhase*(Width+span)-span;
+                var beam=new RectangleF(x,0,span,Height);
+                var saved=g.Save();g.SetClip(path);
+                using(var light=new LinearGradientBrush(beam,Color.Transparent,Color.Transparent,LinearGradientMode.Horizontal))
+                {
+                    light.InterpolationColors=new ColorBlend{Positions=new[]{0f,.5f,1f},Colors=new[]{Color.FromArgb(0,PaintSkin.Accent),Color.FromArgb(36,PaintSkin.Accent),Color.FromArgb(0,PaintSkin.Accent)}};
+                    g.FillRectangle(light,beam);
+                    g.SetClip(beam,CombineMode.Intersect);
+                    light.InterpolationColors=new ColorBlend{Positions=new[]{0f,.5f,1f},Colors=new[]{Color.FromArgb(0,PaintSkin.Accent),Color.FromArgb(230,PaintSkin.Accent),Color.FromArgb(0,PaintSkin.Accent)}};
+                    using(var pen=new Pen(light,2.6f))g.DrawPath(pen,path);
+                }
+                g.Restore(saved);
+            }
         }
         TextRenderer.DrawText(g,Text,Font,ClientRectangle,Primary ? PaintSkin.Background : ForeColor,TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter);
         if(Focused)ControlPaint.DrawFocusRectangle(g,new Rectangle(4,4,Width-8,Height-8));
     }
+    protected override void Dispose(bool disposing){if(disposing)glowTimer.Dispose();base.Dispose(disposing);}
 }
 internal sealed class SlimProgress : ProgressBar
 {

@@ -21,7 +21,7 @@ internal static class MarkerCatalog
   new MarkerHelp("EnableIgnitionRooms","DLC 内容","Ignition 奖励房间","解锁原本供 Dead Space Ignition 玩家进入的奖励房间。"),
   new MarkerHelp("EnableOriginalPlasmaCutter","DLC 内容","初代等离子切割器","开放原本由初代存档解锁的奖励等离子切割器。"),
   new MarkerHelp("AutoResolution","显示与字幕","自动匹配屏幕分辨率","首次启动时自动使用屏幕分辨率。关闭后保留游戏自身的分辨率设置。"),
-  new MarkerHelp("FontScaling","显示与字幕","字幕缩放","启用适配高分辨率的字幕缩放，并应用所设倍率。默认倍率为 1.2倍；关闭此项时倍率不生效。"),
+  new MarkerHelp("FontScaling","显示与字幕","字幕缩放","启用适配高分辨率的字幕缩放，并应用所设倍率。默认倍率为 1.0倍；关闭此项时倍率不生效。"),
   new MarkerHelp("RawMouseInput","输入与手柄","原始鼠标输入","使鼠标灵敏度不再随帧率变化。陀螺仪瞄准要求此项开启。"),
   new MarkerHelp("UseSDLControllerInput","输入与手柄","SDL 手柄输入","用 SDL 接管 XInput 手柄处理。会改变手柄输入路径，现有手柄正常时可保持关闭。"),
   new MarkerHelp("BlockDirectInputDevices","输入与手柄","屏蔽 DirectInput 设备","除鼠标键盘外，屏蔽 DirectInput 设备；不会屏蔽 XInput 手柄。使用其他控制器时需留意兼容性。"),

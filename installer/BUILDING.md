@@ -1,10 +1,10 @@
-# R9 构建
+# 2026.11.1 构建
 
 Windows PowerShell 5.1+，.NET Framework 4.x C# 编译器。源码仓库不含游戏/汉化数据、美术资源或第三方二进制；构建时显式提供，冻结依赖长度与 SHA-256 见 DEPENDENCIES.json。
 
 ## 安装器
 
-UI 资源目录需包含 `app.ico`（遗产图标）、`main_background.png`（遗产汉化图）、`button.png`、`Severed.poster.jpg`、`MarkerPatch_Logo.png`（上游 Logo）。`Chinese.assets.R8.7z` 是沿用并校验的汉化资源文件名，R9 没有更改译文。
+UI 资源目录需包含 `app.ico`（遗产图标）、`main_background.png`（遗产汉化图）、`button.png`、`Severed.poster.jpg`、`MarkerPatch_Logo.png`（上游 Logo）。`Chinese.assets.R8.7z` 是沿用并校验的汉化资源文件名，2026.11.1 没有更改译文。
 
 ```powershell
 .\tools\build_installer.ps1 `
@@ -38,7 +38,7 @@ UI 资源目录需包含 `app.ico`（遗产图标）、`main_background.png`（�
 
 ## 汉化重建
 
-本地维护树保留 XLSX/218 行导出、字体及 `tools/build_localization.py`、`tools/font_build/`，这些输入不发布到纯代码仓库。源码中的处理脚本可在提供私有输入后使用。修改译文需要重建资源、校验输出并同步程序常量与 DEPENDENCIES.json；当前 R9 仍使用已验证的 R8 汉化资源。
+本地维护树保留 XLSX/218 行导出、字体及 `tools/build_localization.py`、`tools/font_build/`，这些输入不发布到纯代码仓库。源码中的处理脚本可在提供私有输入后使用。修改译文需要重建资源、校验输出并同步程序常量与 DEPENDENCIES.json；当前 2026.11.1 仍使用已验证的 R8 汉化资源。
 
 ## 命令行
 

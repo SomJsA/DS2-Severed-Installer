@@ -6,8 +6,9 @@ using System.Windows.Forms;
 
 internal static class ProductInfo
 {
+    public const string ReleaseVersion = "2026.11.1";
     public const string GroupTitle = "死亡空间贴吧汉化组移植&汉化";
-    public const string Contact = "交流群339639634 && 死亡空间百度贴吧";
+    public const string Contact = "交流群339639634 && 死亡空间贴吧";
     public const string GroupUrl = "https://qm.qq.com/q/AsZY1d8WxG";
     public const string TiebaUrl = "https://tieba.baidu.com/f?kw=%E6%AD%BB%E4%BA%A1%E7%A9%BA%E9%97%B4&fr=personalize_page";
     public const string MarkerRepository = "https://github.com/Wemino/MarkerPatch";
@@ -21,7 +22,7 @@ internal static class ProductInfo
         "\r\n\r\n本项目源码（不含游戏数据）\r\n" + OwnRepository +
         "\r\n\r\n历史版本人员名单（原署名沿用）\r\n" + LegacyCredits;
     public static readonly string Details = GroupTitle + "\r\n" + Contact +
-        "\r\n\r\n版本：R9" +
+        "\r\n\r\n版本：" + ReleaseVersion +
         "\r\n\r\n" + CurrentCredits +
         "\r\n\r\n历史版本人员名单\r\n" + LegacyCredits +
         "\r\n\r\n开源项目\r\n" + MarkerRepository + "\r\n" + DlcRepository +
