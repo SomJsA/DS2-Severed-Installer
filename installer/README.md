@@ -1,63 +1,30 @@
-# 死亡空间贴吧汉化组移植&汉化 2026.11.1
+# DS2 Severed Installer 2026.11.2.1
 
-安装器支持 **简体中文 / English**。启动时按 Windows 首选显示语言的顺序选择已支持的语言；主界面 **Language：中文 / English** 可即时切换，保留路径、组件勾选、倍率和参数。安装器语言不改变游戏语言或安装选项。
+死亡空间贴吧汉化组移植&汉化。支持 Steam / EA 游戏目录，安装器界面支持简体中文 / English。
 
-“简体中文汉化”包含基础游戏和 Severed DLC 的简体中文译文。单独安装 DLC 时不应用汉化，使用原版语言（英文 / 启动器所选语言）；勾选汉化后 DLC 也会变为简体中文。新汉化卡片使用用户提供的 Titan Station 标志，程序图标仍沿用遗产版。
+- 三张卡片选择简体中文汉化、Severed DLC、MarkerPatch。安装顺序为 MarkerPatch → 原始英文 DLC → 汉化；未选步骤跳过。只装 DLC 保持英文／启动器语言，勾选汉化后本体与 DLC 使用简体中文。
+- DLC 自动带必需 Patch，无需另勾 MarkerPatch。节点修正为独立选项；启用时额外需要 EnableHackerDLC，会开放黑客装备。Ignition 房间是另一个独立开关。
+- MarkerPatch 更新为官方 3.0.7，提供 61 项功能和 13 项数值设置，包括陀螺仪横向／纵向反转。标注“默认启用”“默认不启用”“随 DLC 自动启用”；节点依赖单独说明。字幕默认 1.0 倍。
+- 读取所选游戏的实际安装与配置，支持更改组件组合。保存设置只写配置，不重写 DAT；未知配置项、注释与原始备份保留。已识别旧版可以直接升级，异常时提示先备份存档，再尝试全新安装或平台修复。
+- 可在游戏根目录安装／更新 DS2PatchManager.exe，调整设置或切换随包 MarkerPatch 启动状态。停用后 DLC 入口与相关运行修正不可用。外置／未知版本会提示兼容性与作者 Issue 链接。
+- GitHub 更新检查合并显示版本日志。选择“是”打开发布网页，选择“否”继续使用。本程序不下载或自动替换更新。
+- 安装完成后，从游戏“新游戏”中选择 Severed 进入 DLC。开场后显示简短累计日志：初版 Playable；新版新增节点购买修正与提示优化。
 
+DLC 数据包仍使用原 Severed.marker，无需重新制作。此仓库不含 DAT、汉化数据、字体、美术素材或第三方 PE；构建所需资源另行提供。EXE 分发与源码提交按各自范围处理。
 
-完整解压分发 ZIP，把 `DS2SeveredOneClick.exe` 与 `Severed.marker` 放在一起后运行。程序会寻找附近的游戏和数据包，也能识别 Steam、EA 安装目录；有多个游戏时，点“自动识别”选择本次要安装的版本。
+能量节点当前采用候选 2：旧候选 C1 在 EA + 官方 MarkerPatch 3.0.7 中出现商店钩子失败。候选 2 增加错误诊断及已校验 MarkerPatch 回调回退，71 项原生检查通过，仍待实机验证。此前 Steam 节点恢复显示的反馈对应旧 C1 组合，不能替代本候选验收。矿区面板、存档名称／图标、游戏内 Severed 菜单汉化仍待单独修复。
 
-主页面可多选汉化补丁、Severed DLC、MarkerPatch，也可分别单装。字幕默认 **1.0 倍**，可直接调整。“其他由 MarkerPatch 提供的功能改善”中包含 59 项开关及 13 项数值设置，列明默认状态、功能说明和默认值。
+卸载会检查归属与改动，恢复可验证备份；不会覆盖存档。异常保留记录、文件和恢复点。管理器保留在根目录，关闭后可手动移除。平台验证／修复可能保留第三方文件，不保证恢复所有未知模组组合。
 
-安装顺序固定为 MarkerPatch → 原始英文 DLC → 汉化。只装 DLC 会保持英文，并自动安装所需的最小运行组件；在全新安装上只开启 LoadASIPlugins、EnableSeveredDLC，其他增强和字幕缩放关闭。已有用户配置保留。只装汉化不会额外安装加载器。
+当前版本基石：[Wemino/MarkerPatch](https://github.com/Wemino/MarkerPatch)、[Tubzbuster/DS2SeveredPC](https://github.com/Tubzbuster/DS2SeveredPC)。
+simgroup 异版简单修复和整合：SomJs。超级校对：lxyun_2（腹黑小喵）、MisakaCharlotte（是的呀啊）。提供部分 Token：天雷本雷。
 
-“卸载”使用首次覆盖前的备份恢复原文件。安装失败会恢复本次操作前的状态。关闭游戏后安装；不要直接在压缩软件预览目录中运行。
+[交流群 339639634](https://qm.qq.com/q/AsZY1d8WxG) · [死亡空间贴吧](https://tieba.baidu.com/f?kw=%E6%AD%BB%E4%BA%A1%E7%A9%BA%E9%97%B4&fr=personalize_page)
 
-## 数据与历史版本
+勾选或重新勾选 DLC 时默认勾选能量节点修正，仍可手动取消；读取已有安装时保留已保存的选择。
 
-当前 `Severed.marker` 是原始英文 DLC 基包，含英文 `DS2DAT2.DAT`、海报 `Severed.poster.jpg` 和 `DLC.version.json`。汉化资源单独嵌入安装器，勾选汉化时最后应用。218 条 DLC 译文保持用户校对版本，字体为狮尾快剪黑 SC Medium。
+卸载默认清理本工具安装的全部组件、已确认日志、管理器版本文件和空目录；保留管理器 EXE 与 Severed.marker，恢复原先文件。不依据当前卡片勾选来缩小卸载范围。无记录时仅清理可确认的旧残留，不删除未知文件。
 
-2026.11.1 根据包内协议、最低安装器版本及解压文件长度/SHA-256 检查兼容性，不固定整包哈希。相同协议的新版数据可继续识别；不匹配现有 DLC 汉化资源时保留英文并提示。SHA-256 检查完整性，不提供来源认证。R8 及更早属于历史版本，不支持本协议的后续兼容。
+右上交流群旁新增 GitHub 发布页按钮；安装成功后显示 DLC 的“新游戏 → Severed”入口提示，确认后关闭安装器主窗口。取消或安装失败时保留窗口。
 
-安装器、游戏插件未签名。若安全软件报告具体威胁，请停止运行并核对来源。发行检查记录保留实际扫描结果。
-
-## 卸载与修复
-
-卸载先检查安装记录、原版 DAT0 备份、相关文件的哈希及可访问状态。缺少记录、备份损坏、文件被其他工具改动或占用时停止，并保留文件及安装记录。复制恢复备份时验证 SHA-256，再替换目标。
-
-卸载恢复本工具保存的备份；安装前已有的 DLC/插件可能仍会保留。不能把“卸载完成”等同于 Steam/EA 已验证为纯净原版。意外 I/O 错误仍可能导致部分操作完成，失败提示会要求保留备份、记录并检查日志。
-
-仍无法卸载时，先备份存档并关闭游戏，再按平台修复：
-
-- Steam：库 → 死亡空间 2 → 属性 → 已安装文件 → 验证游戏文件完整性。[Steam 官方说明](https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB)
-- EA app：库 → 死亡空间 2 → 管理 → 修复。[EA 官方说明](https://help.ea.com/en/articles/platforms/fix-crashing-and-freezing/)
-
-平台修复可能保留非官方插件和 DLC 文件；结合日志检查残留，保留原备份和安装记录，不删除存档。
-
-## 已知问题
-
-中文冒号、括号等标点的字距偏窄，用户决定暂不修复。本版沿用已验证的汉化数据、字体与 218 条译文。
-尚未测试全部 MarkerPatch 功能组合及与其他模组的兼容性；详细设置内也显示此说明。
-
-## 人员与联系
-
-当前版本基石：Wemino/MarkerPatch、Tubzbuster/DS2SeveredPC<br>
-simgroup异版简单修复和整合：SomJs<br>
-超级校对：lxyun_2（腹黑小喵）、MisakaCharlotte（是的呀啊）<br>
-提供部分Token：天雷本雷
-
-历史版本人员名单：
-
-汉化总负责：lxyun_2（腹黑小喵）<br>
-汉化技术负责：Erwin Qins<br>
-翻译、校对、游戏测试：特洛克·洛克莱斯<br>
-翻译、校对：attprtt、MisakaCharlotte（是的呀啊）、零之境、上白石泽雨<br>
-校对：SomJs
-
-- [交流群 339639634](https://qm.qq.com/q/AsZY1d8WxG)
-- [死亡空间贴吧](https://tieba.baidu.com/f?kw=%E6%AD%BB%E4%BA%A1%E7%A9%BA%E9%97%B4&fr=personalize_page)
-- [Wemino/MarkerPatch](https://github.com/Wemino/MarkerPatch)
-- [Tubzbuster/DS2SeveredPC](https://github.com/Tubzbuster/DS2SeveredPC)
-- [本项目源码](https://github.com/SomJsA/DS2-Severed-Installer)
-
-源码仓库只发布程序代码、配置、构建说明与许可证，不含游戏数据、汉化资源包、海报/图标或外部 EXE/DLL/ASI。构建方法见 [BUILDING.md](BUILDING.md)，依赖记录见 [DEPENDENCIES.json](DEPENDENCIES.json)。
+2026.11.2.1 使用递增四段版本，兼容已分发 2026.11.2 的更新检查；检查只提示并打开网页，不自动下载安装。已分发旧 EXE 保持原样。节点运行修正仍为 C2，实机待验证。

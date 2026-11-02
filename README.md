@@ -1,28 +1,32 @@
 # DS2 Severed Installer
 
-死亡空间贴吧汉化组移植&汉化。一站式安装器 2026.11.1 的纯代码仓库，支持 Steam / EA 版游戏。
+当前维护版本：**2026.11.2.1**。 [GitHub 发布页](https://github.com/SomJsA/DS2-Severed-Installer/releases)。已分发的 2026.11.2 可检查到此递增版本，确认后打开网页；节点 C2 实机仍待验证。
 
-**自有内容：稍后补充自有内容。**
+死亡空间贴吧汉化组移植&汉化。支持 Steam / EA 游戏目录，安装器界面支持简体中文 / English。
 
-- [安装器源码与说明](installer/README.md)
-- [构建方法](installer/BUILDING.md)
-- [MarkerPatch 功能中文说明、默认开关与参数](installer/MARKER_FEATURES_ZH.md)
-- [原上游转换器说明](README.upstream.md)
+- 三张卡片选择简体中文汉化、Severed DLC、MarkerPatch。安装顺序为 MarkerPatch → 原始英文 DLC → 汉化；未选步骤跳过。只装 DLC 保持英文／启动器语言，勾选汉化后本体与 DLC 使用简体中文。
+- DLC 自动带必需 Patch，无需另勾 MarkerPatch。节点修正为独立选项；启用时额外需要 EnableHackerDLC，会开放黑客装备。Ignition 房间是另一个独立开关。
+- MarkerPatch 更新为官方 3.0.7，提供 61 项功能和 13 项数值设置，包括陀螺仪横向／纵向反转。标注“默认启用”“默认不启用”“随 DLC 自动启用”；节点依赖单独说明。字幕默认 1.0 倍。
+- 读取所选游戏的实际安装与配置，支持更改组件组合。保存设置只写配置，不重写 DAT；未知配置项、注释与原始备份保留。已识别旧版可以直接升级，异常时提示先备份存档，再尝试全新安装或平台修复。
+- 可在游戏根目录安装／更新 DS2PatchManager.exe，调整设置或切换随包 MarkerPatch 启动状态。停用后 DLC 入口与相关运行修正不可用。外置／未知版本会提示兼容性与作者 Issue 链接。
+- GitHub 更新检查合并显示版本日志。选择“是”打开发布网页，选择“否”继续使用。本程序不下载或自动替换更新。
+- 安装完成后，从游戏“新游戏”中选择 Severed 进入 DLC。开场后显示简短累计日志：初版 Playable；新版新增节点购买修正与提示优化。
 
-程序采用遗产版图标和用户提供的 Titan Station 汉化卡片图，主页面可分别选择汉化、DLC、MarkerPatch，字幕默认 1.0 倍。
-游戏与 Severed.marker 优先从附近发现；自动识别遇到多个 Steam / EA 目录时可选择。
+DLC 数据包仍使用原 Severed.marker，无需重新制作。此仓库不含 DAT、汉化数据、字体、美术素材或第三方 PE；构建所需资源另行提供。EXE 分发与源码提交按各自范围处理。
 
-新上传的安装器目录仅含代码、配置、元数据示例、文档和许可证。
-不上传游戏 DAT、DLC 大包、汉化资源、字体、美术素材或第三方二进制。
-构建这些资源需由使用者另行提供。R9、R8 及以前为历史版本。
+能量节点当前采用候选 2：旧候选 C1 在 EA + 官方 MarkerPatch 3.0.7 中出现商店钩子失败。候选 2 增加错误诊断及已校验 MarkerPatch 回调回退，71 项原生检查通过，仍待实机验证。此前 Steam 节点恢复显示的反馈对应旧 C1 组合，不能替代本候选验收。矿区面板、存档名称／图标、游戏内 Severed 菜单汉化仍待单独修复。
 
-当前版本基石：[Wemino/MarkerPatch](https://github.com/Wemino/MarkerPatch)、
-[Tubzbuster/DS2SeveredPC](https://github.com/Tubzbuster/DS2SeveredPC)。本仓库保留上游转换器代码及原始署名。
+卸载会检查归属与改动，恢复可验证备份；不会覆盖存档。异常保留记录、文件和恢复点。管理器保留在根目录，关闭后可手动移除。平台验证／修复可能保留第三方文件，不保证恢复所有未知模组组合。
 
-[交流群 339639634](https://qm.qq.com/q/AsZY1d8WxG) ·
-[死亡空间贴吧](https://tieba.baidu.com/f?kw=%E6%AD%BB%E4%BA%A1%E7%A9%BA%E9%97%B4&fr=personalize_page)
+当前版本基石：[Wemino/MarkerPatch](https://github.com/Wemino/MarkerPatch)、[Tubzbuster/DS2SeveredPC](https://github.com/Tubzbuster/DS2SeveredPC)。
+simgroup 异版简单修复和整合：SomJs。超级校对：lxyun_2（腹黑小喵）、MisakaCharlotte（是的呀啊）。提供部分 Token：天雷本雷。
 
-已知：中文标点间距偏窄，暂不修复；未测试全部 MarkerPatch 功能组合和其他模组的兼容性。
-卸载遇到异常会保留文件及安装记录，并提示通过 Steam/EA 修复游戏。
+[交流群 339639634](https://qm.qq.com/q/AsZY1d8WxG) · [死亡空间贴吧](https://tieba.baidu.com/f?kw=%E6%AD%BB%E4%BA%A1%E7%A9%BA%E9%97%B4&fr=personalize_page)
 
-安装器支持简体中文 / English，启动时按 Windows 首选显示语言选择；主界面 Language 按钮即时切换。简体中文汉化同时覆盖基础游戏与 DLC；仅 DLC 保留原版语言（英文 / 启动器所选语言）。
+[安装器构建方法](installer/BUILDING.md) · [节点插件源码](runtime-fixes/README.md) · [保留的上游说明](README.upstream.md)
+
+勾选或重新勾选 DLC 时默认勾选能量节点修正，仍可手动取消；读取已有安装时保留已保存的选择。
+
+卸载默认清理本工具安装的全部组件、已确认日志、管理器版本文件和空目录；保留管理器 EXE 与 Severed.marker，恢复原先文件。不依据当前卡片勾选来缩小卸载范围。无记录时仅清理可确认的旧残留，不删除未知文件。
+
+右上交流群旁新增 GitHub 发布页按钮；安装成功后显示 DLC 的“新游戏 → Severed”入口提示，确认后关闭安装器主窗口。取消或安装失败时保留窗口。

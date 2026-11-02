@@ -1,0 +1,9 @@
+build/
+*.asi
+*.exe
+*.obj
+*.dll
+*.pdb
+*.lib
+*.exp
+*.log

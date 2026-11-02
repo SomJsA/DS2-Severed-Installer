@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.1.0")]
-[assembly: AssemblyFileVersion("2026.11.1.0")]
-[assembly: AssemblyInformationalVersion("2026.11.1")]
+[assembly: AssemblyVersion("2026.11.2.1")]
+[assembly: AssemblyFileVersion("2026.11.2.1")]
+[assembly: AssemblyInformationalVersion("2026.11.2.1")]
 
 internal sealed class InstallOptions
 {
@@ -25,6 +25,8 @@ internal sealed class InstallOptions
     public bool Dlc = true;
     public bool MarkerPatch = true;
     public bool IgnoreCompatibilityErrors = false;
+    public bool NodeFix = true;
+    public bool DeployManager = false;
     public decimal SubtitleScale = 1.0m;
     public string DlcArchivePath;
     public Dictionary<string,string> MarkerParameters = MarkerCatalog.DefaultParameters();
@@ -36,10 +38,12 @@ internal sealed class MarkerOption
     public string Key { get; set; }
     public string Display { get; set; }
     public bool Recommended { get; set; }
+    public bool RequiredForDlc, RequiredForNode;
+    public string StatusText { get { return RequiredForNode ? L.T("节点修正所需，自动启用") : RequiredForDlc ? L.T("随 DLC 自动启用") : Recommended ? L.T("默认启用") : L.T("默认不启用"); } }
 
     public override string ToString()
     {
-        return Display + (Recommended ? L.T("  [默认开启]") : L.T("  [默认关闭]"));
+        return Display + "  [" + StatusText + "]";
     }
 }
 
@@ -58,7 +62,7 @@ internal static class Program
                 MessageBox.Show(launchProblem,L.T("请完整解压后运行"),MessageBoxButtons.OK,MessageBoxIcon.Warning);
             return 2;
         }
-        if (args.Length > 0 && args[0] == "--install")
+        if (args.Length > 0 && (args[0] == "--install" || args[0] == "--change"))
         {
             return RunSilentInstall(args);
         }
@@ -70,7 +74,12 @@ internal static class Program
         Application.SetCompatibleTextRenderingDefault(false);
         bool preview = args.Contains("--preview");
         if (!preview && ProductInfo.ShowStartupNotice() != DialogResult.OK) return 0;
-        Application.Run(new InstallerForm { PreviewOnly = preview });
+        using (var form = new InstallerForm { PreviewOnly = preview })
+        {
+            string selectedGame = ArgValue(args, "--game-dir");
+            if (!string.IsNullOrWhiteSpace(selectedGame)) form.SelectGameDirectory(selectedGame);
+            Application.Run(form);
+        }
         return 0;
     }
 
@@ -85,22 +94,32 @@ internal static class Program
 
     private static int RunSilentInstall(string[] args)
     {
-        string game = ArgValue(args, "--install");
+        string game = ArgValue(args, "--install") ?? ArgValue(args, "--change");
         string logPath = ArgValue(args, "--log");
         var options = new InstallOptions
         {
             Chinese = !args.Contains("--no-chinese"),
             Dlc = !args.Contains("--no-dlc"),
             MarkerPatch = !args.Contains("--no-marker"),
+            NodeFix = !args.Contains("--no-node-fix"),
+            DeployManager = args.Contains("--keep-manager"),
             IgnoreCompatibilityErrors = args.Contains("--ignore-errors")
         };
         try
         {
+            if (File.Exists(Path.Combine(game, "DS2SeveredOneClick.install.txt")))
+            {
+                var installed = InstallerEngine.InspectInstallation(game).Options;
+                options.MarkerValues = installed.MarkerValues;
+                options.MarkerParameters = installed.MarkerParameters;
+                options.SubtitleScale = installed.SubtitleScale;
+                if (!args.Contains("--node-fix") && !args.Contains("--no-node-fix") && File.ReadAllLines(Path.Combine(game, "DS2SeveredOneClick.install.txt")).Any(line => line.StartsWith("node_fix_preference="))) options.NodeFix = installed.NodeFix;
+            }
             options.DlcArchivePath = ArgValue(args, "--dlc-package");
             string scaleValue = ArgValue(args, "--subtitle-scale");
             if (scaleValue != null)
                 options.SubtitleScale = decimal.Parse(scaleValue, NumberStyles.Number, CultureInfo.InvariantCulture);
-            InstallerEngine.Install(game, options, message =>
+            InstallerEngine.ApplySelection(game, options, message =>
             {
                 if (logPath != null) File.AppendAllText(logPath, message + Environment.NewLine, Encoding.UTF8);
             });
@@ -108,7 +127,7 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            if (logPath != null) File.AppendAllText(logPath, "ERROR: " + ex + Environment.NewLine, Encoding.UTF8);
+            if (logPath != null) File.AppendAllText(logPath, "ERROR: " + InstallerEngine.MaintenanceFailure(ex) + Environment.NewLine, Encoding.UTF8);
             return 1;
         }
     }
@@ -133,7 +152,7 @@ internal static class Program
     }
 }
 
-internal sealed class InstallerForm : Form
+internal sealed partial class InstallerForm : Form
 {
     private readonly TextBox gameBox = new TextBox();
     private readonly TextBox logBox = new TextBox();
@@ -172,8 +191,10 @@ internal sealed class InstallerForm : Form
         AddLabel(this,ProductInfo.ReleaseVersion,10F,FontStyle.Regular,798,28,PaintSkin.Accent);
         var groupLink = new LinkLabel { Text=L.T("交流群 339639634"), AutoSize=false, TextAlign=ContentAlignment.MiddleRight, Location=new Point(472,15), Size=new Size(302,33), Font=new Font("Microsoft YaHei UI",14F,FontStyle.Bold), LinkColor=Color.FromArgb(212,238,247), ActiveLinkColor=Color.White, VisitedLinkColor=Color.FromArgb(212,238,247), LinkBehavior=LinkBehavior.HoverUnderline };
         groupLink.LinkClicked += (sender,e)=>Process.Start(new ProcessStartInfo(ProductInfo.GroupUrl){UseShellExecute=true});Controls.Add(groupLink);
-        var tiebaLink = new LinkLabel { Text=L.T("死亡空间贴吧"), AutoSize=false, TextAlign=ContentAlignment.MiddleRight, Location=new Point(472,49), Size=new Size(302,29), Font=new Font("Microsoft YaHei UI",12F,FontStyle.Bold), LinkColor=Color.FromArgb(165,209,229), ActiveLinkColor=Color.FromArgb(212,238,247), LinkBehavior=LinkBehavior.HoverUnderline };
+        var tiebaLink = new LinkLabel { Text=L.T("死亡空间贴吧"), AutoSize=false, TextAlign=ContentAlignment.MiddleRight, Location=new Point(614,49), Size=new Size(160,29), Font=new Font("Microsoft YaHei UI",12F,FontStyle.Bold), LinkColor=Color.FromArgb(165,209,229), ActiveLinkColor=Color.FromArgb(212,238,247), LinkBehavior=LinkBehavior.HoverUnderline };
         tiebaLink.LinkClicked += (sender,e)=>Process.Start(new ProcessStartInfo(ProductInfo.TiebaUrl){UseShellExecute=true});Controls.Add(tiebaLink);
+        var releasesButton = MakeButton(L.T("GitHub 发布页"),472,50,128,28,false); releasesButton.Name="githubReleasesButton";
+        releasesButton.Click += (sender,e)=>OpenPage(ProductInfo.OwnReleasesPage); Controls.Add(releasesButton);
         AddLabel(this,L.T("选择安装内容"),10F,FontStyle.Regular,26,96,Color.FromArgb(177,199,210));
         selectionHint=AddLabel(this,L.T("可多选"),8.5F,FontStyle.Regular,844,98,Color.FromArgb(112,137,151));
         var languageLabel=AddLabel(this,"Language",8.5F,FontStyle.Regular,510,98,Color.FromArgb(157,185,201));L.KeepLiteral(languageLabel);
@@ -208,8 +229,8 @@ internal sealed class InstallerForm : Form
         ConfigureCheck(ignoreErrorsBox,L.T("允许跳过基础版本识别（建议使用原版游戏）"),new Point(16,570),false);
         markerOptionsList.CheckOnClick=true; markerOptionsList.IntegralHeight=false; markerOptionsList.BackColor=PaintSkin.Panel; markerOptionsList.ForeColor=Color.White; markerOptionsList.HorizontalScrollbar=true;
         foreach(var option in InstallerEngine.GetMarkerPatchOptions()){int i=markerOptionsList.Items.Add(option);markerOptionsList.SetItemChecked(i,option.Recommended);}
-        markerBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary(); dlcBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary(); chineseBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary();
-        ApplyLanguage(); FormClosing+=(sender,e)=>{if(busy)e.Cancel=true;};
+        markerBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary(); dlcBox.CheckedChanged+=(sender,e)=>OnDlcSelectionChanged(); chineseBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary();
+        InitializeMaintenanceUi(); ApplyLanguage(); FormClosing+=(sender,e)=>{if(busy)e.Cancel=true;};
     }
     private static Label AddLabel(Control parent,string text,float size,FontStyle style,int x,int y,Color color)
     {
@@ -240,6 +261,7 @@ internal sealed class InstallerForm : Form
         selectionHint.Left=L.IsEnglish?770:844;
         subtitleScaleBox.Left=L.IsEnglish?130:108;subtitleUnit.Left=L.IsEnglish?217:194;
         UpdateSelectionSummary();
+        ApplyMaintenanceLanguage();
     }
     private SkinButton MakeButton(string text,int x,int y,int width,int height,bool primary)
     {
@@ -257,8 +279,9 @@ internal sealed class InstallerForm : Form
         if(busy)return;
         int count=(markerBox.Checked?1:0)+(dlcBox.Checked?1:0)+(chineseBox.Checked?1:0);
         statusLabel.Text=count==0?L.T("请选择需要安装的内容"):L.T("已选择 ")+count+L.T(" 个组件");
-        if(dlcBox.Checked&&!markerBox.Checked)statusLabel.Text+=L.T("\r\nDLC 将包含所需运行组件");
-        installButton.Enabled=count>0;
+
+        installButton.Enabled=count>0 || installedSelection != null && installedSelection.HasRecord;
+        UpdateMaintenanceSummary();
     }
     private Form MakeDialog(string title,Size size)
     {
@@ -284,6 +307,7 @@ internal sealed class InstallerForm : Form
     {
         if(string.IsNullOrWhiteSpace(dlcPathBox.Text)||!System.IO.File.Exists(dlcPathBox.Text))
             dlcPathBox.Text=GameLocations.FindPackage(AppDomain.CurrentDomain.BaseDirectory,gameBox.Text);
+        RefreshInstalledState();
     }
     private void ShowLog()
     {
@@ -311,11 +335,11 @@ internal sealed class InstallerForm : Form
         {
             var tabs=new TabControl{Location=new Point(14,14),Size=new Size(792,573)};
             var switches=new TabPage(L.T("功能开关")){BackColor=PaintSkin.Background,ForeColor=Color.White};var parameters=new TabPage(L.T("数值参数")){BackColor=PaintSkin.Background,ForeColor=Color.White,AutoScroll=true};tabs.TabPages.Add(switches);tabs.TabPages.Add(parameters);dialog.Controls.Add(tabs);
-            AddLabel(switches,L.T("默认开启 12 项，其余默认关闭。选择一项查看功能说明。"),9F,FontStyle.Regular,14,14,Color.FromArgb(170,196,210));
+            AddLabel(switches,(markerBox.Checked ? L.T("预设启用 12 项；DLC 所需选项按当前选择自动启用。") : L.T("未勾选 MarkerPatch：只启用 DLC 依赖，其他功能需在主页面勾选。")),9F,FontStyle.Regular,14,14,Color.FromArgb(170,196,210));
             AddLabel(switches,L.T("尚未测试全部功能组合及与其他模组的兼容性。"),9F,FontStyle.Regular,14,37,Color.FromArgb(219,193,139));
             markerOptionsList.Location=new Point(14,66);markerOptionsList.Size=new Size(432,456);switches.Controls.Add(markerOptionsList);
             var help=new TextBox{Location=new Point(460,66),Size=new Size(302,456),Multiline=true,ReadOnly=true,ScrollBars=ScrollBars.Vertical,BackColor=PaintSkin.Panel,ForeColor=Color.White,BorderStyle=BorderStyle.FixedSingle};switches.Controls.Add(help);
-            EventHandler updateHelp=(sender,e)=>{var option=markerOptionsList.SelectedItem as MarkerOption;if(option==null)return;var info=MarkerCatalog.Find(option.Key);help.Text=L.T(info.Title)+"\r\n\r\n"+L.T(info.Description)+"\r\n\r\n"+(option.Recommended?L.T("默认开启"):L.T("默认关闭"))+L.T("\r\n\r\n配置项：")+option.Key;};
+            EventHandler updateHelp=(sender,e)=>{var option=markerOptionsList.SelectedItem as MarkerOption;if(option==null)return;var info=MarkerCatalog.Find(option.Key);help.Text=L.T(info.Title)+"\r\n\r\n"+L.T(info.Description)+"\r\n\r\n"+option.StatusText+L.T("\r\n\r\n配置项：")+option.Key;};
             markerOptionsList.SelectedIndexChanged+=updateHelp;if(markerOptionsList.Items.Count>0)markerOptionsList.SelectedIndex=0;updateHelp(null,EventArgs.Empty);
             AddLabel(parameters,L.T("尚未测试全部功能组合及与其他模组的兼容性。"),9F,FontStyle.Regular,16,14,Color.FromArgb(219,193,139));
             var edited=new Dictionary<string,Control>();int y=48;
@@ -330,13 +354,14 @@ internal sealed class InstallerForm : Form
                 {
                     var number=new NumericUpDown{Minimum=param.Min,Maximum=param.Max,Increment=param.Step,DecimalPlaces=param.Decimals,Value=decimal.Parse(parameterValues[param.Key],CultureInfo.InvariantCulture),Location=new Point(552,y),Size=new Size(190,28)};input=number;
                 }
-                parameters.Controls.Add(input);edited[param.Key]=input;
+                input.Enabled=markerBox.Checked;parameters.Controls.Add(input);edited[param.Key]=input;
                 AddLabel(parameters,L.T("默认值：")+param.Default.ToString(CultureInfo.InvariantCulture),8.5F,FontStyle.Regular,16,y+30,Color.FromArgb(125,163,182));
                 var description=new Label{Text=L.T(param.Description),Location=new Point(16,y+51),Size=new Size(726,32),ForeColor=Color.FromArgb(161,183,197)};parameters.Controls.Add(description);y+=94;
             }
             AddLabel(parameters,L.T("字幕倍率在主页面调整；当前为 ")+subtitleScaleBox.Value.ToString("0.0",CultureInfo.InvariantCulture)+L.T("倍，默认 1.0倍。"),9F,FontStyle.Regular,16,y,PaintSkin.Accent);parameters.AutoScrollMinSize=new Size(0,y+50);
             ignoreErrorsBox.Location=new Point(18,600);dialog.Controls.Add(ignoreErrorsBox);var done=MakeButton(L.T("完成"),690,594,110,36,true);done.DialogResult=DialogResult.OK;dialog.Controls.Add(done);
-            L.ApplyTree(dialog);try{dialog.ShowDialog(this);foreach(var param in MarkerCatalog.Parameters){var input=edited[param.Key];if(input is NumericUpDown)parameterValues[param.Key]=((NumericUpDown)input).Value.ToString(CultureInfo.InvariantCulture);else {int index=((ComboBox)input).SelectedIndex;parameterValues[param.Key]=(param.Key=="MaxAnisotropy"?new[]{0,2,4,8,16}[index]:index).ToString(CultureInfo.InvariantCulture);}}}
+            var save=MakeButton(L.T("保存至游戏"),510,594,164,36,false);save.DialogResult=DialogResult.Yes;dialog.Controls.Add(save);
+            L.ApplyTree(dialog);try{var answer=dialog.ShowDialog(this);foreach(var param in MarkerCatalog.Parameters){var input=edited[param.Key];if(input is NumericUpDown)parameterValues[param.Key]=((NumericUpDown)input).Value.ToString(CultureInfo.InvariantCulture);else {int index=((ComboBox)input).SelectedIndex;parameterValues[param.Key]=(param.Key=="MaxAnisotropy"?new[]{0,2,4,8,16}[index]:index).ToString(CultureInfo.InvariantCulture);}}if(answer==DialogResult.Yes)SaveCurrentConfiguration();}
             finally{markerOptionsList.SelectedIndexChanged-=updateHelp;switches.Controls.Remove(markerOptionsList);dialog.Controls.Remove(ignoreErrorsBox);}
         }
     }
@@ -392,6 +417,7 @@ internal sealed class InstallerForm : Form
         uninstallButton.Enabled = !busy;
         closeButton.Enabled = !busy;
         gameBox.Enabled = dlcPathBox.Enabled = !busy;
+        SetMaintenanceBusy(busy);
         foreach(var editor in pathEditors)editor.Enabled=!busy;
         progressBar.Style = busy ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
         progressBar.MarqueeAnimationSpeed = busy ? 30 : 0;
@@ -415,45 +441,45 @@ internal sealed class InstallerForm : Form
             SubtitleScale = subtitleScaleBox.Value,
             DlcArchivePath = dlcPathBox.Text.Trim(),
             MarkerParameters = new Dictionary<string,string>(parameterValues),
-            MarkerValues = values
+            MarkerValues = RequestedMarkerValues(values),
+            NodeFix = nodeFixBox.Checked,
+            DeployManager = keepManagerBox.Checked
         };
     }
 
     private void RunInstall()
     {
         if (PreviewOnly) { MessageBox.Show(this,L.T("界面预览，不执行安装。"),L.T("预览")); return; }
-        if (MessageBox.Show(this,
-            L.T("将备份受影响的 DAT/插件文件，并写入所选组件。\r\n\r\n") +
-            L.T("本补丁按 Steam/EA 原版制作。整合版、免安装版或已有汉化请先恢复原版。") +
-            (ignoreErrorsBox.Checked
-                ? L.T("\r\n\r\n已启用“忽略兼容性错误”：遇到未知版本会继续，但汉化、DLC 或 MarkerPatch 不保证可用。")
-                : L.T("\r\n\r\n如遇版本不匹配，安装器会停止并保留回退信息。")) +
-            L.T("\r\n\r\n继续安装？"),
+        if (MessageBox.Show(this, MaintenanceConfirmationText(),
             L.T("确认安装"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
         {
             return;
         }
+        bool installationCompleted = false;
         SetBusy(true);
         logBox.Clear();
         try
         {
-            InstallerEngine.Install(gameBox.Text, ReadOptions(), AppendLog);
+            InstallerEngine.ApplySelection(gameBox.Text, ReadOptions(), AppendLog);
             progressBar.Style = ProgressBarStyle.Continuous;
             progressBar.Value = 100;
             AppendLog(L.T("安装完成。"));
-            MessageBox.Show(this, L.T("安装完成。") + (string.IsNullOrEmpty(InstallerEngine.LastInstallNote) ? "" : "\r\n" + InstallerEngine.LastInstallNote), L.T("完成"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            RefreshInstalledState();
+            MessageBox.Show(this, ProductInfo.InstallationComplete(dlcBox.Checked) + (dlcBox.Checked && installedSelection != null && !installedSelection.MarkerEnabled ? "\r\n" + L.T("当前随包 MarkerPatch 已停用，启用后才能使用 DLC 入口和运行修正。") : "") + (string.IsNullOrEmpty(InstallerEngine.LastInstallNote) ? "" : "\r\n" + InstallerEngine.LastInstallNote), L.T("完成"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            installationCompleted = true;
         }
         catch (Exception ex)
         {
             AppendLog(L.T("安装失败：") + ex.Message);
             progressBar.Style = ProgressBarStyle.Continuous;
             progressBar.Value = 0;
-            MessageBox.Show(this, ex.Message, L.T("安装失败"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(this, InstallerEngine.MaintenanceFailure(ex), L.T("安装失败"), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
             SetBusy(false);
         }
+        if (installationCompleted) Close();
     }
 
     private void RunUninstall()
@@ -473,7 +499,8 @@ internal sealed class InstallerForm : Form
             progressBar.Style = ProgressBarStyle.Continuous;
             progressBar.Value = 100;
             AppendLog(L.T("卸载完成。"));
-            MessageBox.Show(this, L.T("卸载完成，已恢复可用的安装前备份。安装前已有的 DLC 或插件可能仍会保留。"), L.T("完成"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            RefreshInstalledState();
+            MessageBox.Show(this, L.T("已卸载本工具安装的全部组件并清理已识别残留，原文件已按备份还原。程序自身与 Severed.marker 保留。"), L.T("完成"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
@@ -490,7 +517,7 @@ internal sealed class InstallerForm : Form
     }
 }
 
-internal static class InstallerEngine
+internal static partial class InstallerEngine
 {
     private const string OriginalDat0Sha =
         "fd7d1bdbb5ec6b92324cd877465a029942c78396468695b4551068f4c3562e23";
@@ -503,9 +530,13 @@ internal static class InstallerEngine
     private const string ChineseAssetsSha =
         "8c035b6ba2b0ad9e96967866281607b55db14a5a1261b413ec3faee93bd7105a";
     private const string MarkerDllSha =
-        "c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5";
+        "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55";
+    private const string LegacyMarkerDllSha = "c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5";
     private const string SeveredAsiSha =
-        "9a4542eccdbf88ab3ca0c02c52aca34eff9d0ccf3d2fdf71fd1a6314cb561a46";
+        "cbc5d2a6a0eb28353e2af8c833469cd238de74a3535906501e77f235eafea475";
+    private const string Candidate1SeveredAsiSha = "62e35b4d9187b5e4a96ee1290db2f79d50c39998a2563eb2b5bab0080ac1a66c";
+    private const string LegacySeveredAsiSha = "9a4542eccdbf88ab3ca0c02c52aca34eff9d0ccf3d2fdf71fd1a6314cb561a46";
+    private static readonly string RuntimeConfig = Path.Combine("plugins", "SeveredRuntimeFixes.ini");
     private const string MarkerSha =
         "becb3529597bb84d8eb216a5d4ded7efd0191ea4493a24e7ec956078947de097";
     private const long ChineseAssetsBytes = 6981480;
@@ -587,6 +618,9 @@ internal static class InstallerEngine
         bool previousChinese = ReadState(game, "chinese") == "True";
         bool previousRuntime = ReadState(game, "owns_dlc_runtime") == "True" || ReadState(game, "dlc") == "True";
         bool previousMarker = ReadState(game, "marker_patch") == "True";
+        bool previousMarkerAssets = ReadState(game, "owns_marker_assets") == "True";
+        string previousAssetManifest = ReadState(game, "marker_assets_manifest_b64");
+        bool previousRuntimeConfig = ReadState(game, "owns_runtime_config") == "True";
         string previousBaseHash = ReadState(game, "english_base_sha256");
         DlcPackage package = null;
 
@@ -615,6 +649,7 @@ internal static class InstallerEngine
             {
                 log(L.T("步骤 1/3：安装 MarkerPatch 核心与所选设置..."));
                 InstallMarkerPatch(game, temp, options, log, undo);
+                InstallMarkerAssets(game, undo, log);
             }
             else if (options.Dlc)
             {
@@ -631,6 +666,8 @@ internal static class InstallerEngine
                 InstallOwnedBytes(
                     game, Path.Combine("plugins", "SeveredPC.asi"),
                     ReadResource("DS2_SEVERED_ASI"), SeveredAsiSha, undo, log);
+                InstallOwnedText(game, RuntimeConfig, RuntimeConfiguration(options.NodeFix), null, undo, log);
+                log(options.NodeFix ? L.T("已启用 Severed 能量节点修正（仅节点；保留原价格）。依赖 EnableHackerDLC，也会开放本体黑客装备。") : L.T("能量节点修正已关闭，沿用原版商店判断。"));
                 InstallOwnedText(
                     game, "DS2DAT2.DAT.severed",
                     "DS2DAT2.DAT was created by DS2SeveredPC (Dead Space 2: Severed for PC). Keep this file: it lets the converter update or remove that archive. Remove both with Remove-SeveredTest.bat.",
@@ -648,13 +685,17 @@ internal static class InstallerEngine
                 log(L.T("未选择汉化：DLC 保持原始英文。"));
             File.WriteAllText(
                 Path.Combine(game, "DS2SeveredOneClick.install.txt"),
-                "version=9\r\n" +
+                "version=10\r\n" +
                 "chinese=" + (chineseApplied || previousChinese) + "\r\n" +
                 "dlc_variant=" + (dlcLocalized ? "zh-workbook-v1" : package != null ? package.Variant : InstalledDlcVariant(game)) + "\r\n" +
                 "owns_dat2=" + (options.Dlc || dlcLocalized || wasManagedDat2) + "\r\n" +
                 "dlc=" + (options.Dlc || previousRuntime) + "\r\n" +
                 "owns_dlc_runtime=" + (options.Dlc || previousRuntime) + "\r\n" +
+                "runtime_asi_sha256=" + (options.Dlc ? SeveredAsiSha : previousRuntime ? RuntimeHashForUninstall(game) : "") + "\r\n" +
+                "owns_runtime_config=" + (options.Dlc || previousRuntimeConfig) + "\r\n" +
                 "marker_patch=" + (options.MarkerPatch || options.Dlc || previousMarker) + "\r\n" +
+                "owns_marker_assets=" + (options.MarkerPatch || previousMarkerAssets) + "\r\n" +
+                "marker_assets_manifest_b64=" + (options.MarkerPatch ? MarkerAssetManifestBase64() : previousAssetManifest) + "\r\n" +
                 "marker_profile=" + (options.MarkerPatch ? "selected" : options.Dlc ? "minimal-or-preserved" : "unchanged") + "\r\n" +
                 "subtitle_scale=" + options.SubtitleScale.ToString("0.0#", CultureInfo.InvariantCulture) + "\r\n" +
                 "english_base_sha256=" + (package != null ? package.PayloadSha256 : previousBaseHash) + "\r\n" +
@@ -665,6 +706,7 @@ internal static class InstallerEngine
                     string.Join(";", Regex.Matches(File.ReadAllText(Path.Combine(game, "MarkerPatch.ini")), @"(?m)^\s*(\w+)\s*=\s*([01])\s*$")
                         .Cast<Match>().Where(match=>MarkerCatalog.Find(match.Groups[1].Value)!=null).Select(match => match.Groups[1].Value + "=" + match.Groups[2].Value)) : "") + "\r\n",
                 Encoding.UTF8);
+            WriteSelectionState(game, options);
             log(L.T("所选步骤已完成；校验结果及跳过原因见上方日志。"));
         }
         catch
@@ -682,7 +724,7 @@ internal static class InstallerEngine
         }
     }
 
-    public static void Uninstall(string gamePath, Action<string> log)
+    private static void UninstallCore(string gamePath, Action<string> log)
     {
         string game = ValidateGame(gamePath);
         EnsureGameStopped();
@@ -695,7 +737,10 @@ internal static class InstallerEngine
         bool ownsMarker = !stateExists || ReadState(game, "marker_patch") == "True";
         bool ownsDat2 = !stateExists || ReadState(game, "owns_dat2") == "True" || ReadState(game, "dlc") == "True";
         string recordedDat2Hash = ReadState(game, "installed_dat2_sha256");
-        PreflightUninstall(game, ownsChinese, ownsRuntime, ownsMarker, ownsDat2, recordedDat2Hash);
+        string runtimeHash = ownsRuntime ? RuntimeHashForUninstall(game) : null;
+        string markerHash = ownsMarker ? MarkerHashForUninstall(game) : null;
+        bool ownsRuntimeConfig = ReadState(game, "owns_runtime_config") == "True";
+        PreflightUninstall(game, ownsChinese, ownsRuntime, ownsMarker, ownsDat2, recordedDat2Hash, runtimeHash, ownsRuntimeConfig, markerHash);
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
         string dat0Backup = dat0 + ".ds2oneclick.bak";
         if (ownsChinese && (!File.Exists(dat0) || Sha256(dat0) == PatchedDat0Sha))
@@ -721,15 +766,19 @@ internal static class InstallerEngine
         }
         if (ownsRuntime)
         {
-            RemoveOwned(game, "DS2DAT2.DAT.severed", MarkerSha, log);
-            RestoreOrRemoveOwned(game, Path.Combine("plugins", "SeveredPC.asi"), SeveredAsiSha, log);
+            RestoreOrRemoveOwned(game, "DS2DAT2.DAT.severed", MarkerSha, log);
+            RestoreOrRemoveOwned(game, Path.Combine("plugins", "SeveredPC.asi"), runtimeHash, log);
+            if (ownsRuntimeConfig) RestoreOrRemoveOwned(game, RuntimeConfig, null, log);
         }
         if (ownsMarker)
         {
-            RestoreOrRemoveOwned(game, "dinput8.dll", MarkerDllSha, log);
+            RemoveOwned(game, DisabledMarker, markerHash, log);
+            RestoreOrRemoveOwned(game, "dinput8.dll", markerHash, log);
             RestoreOrRemoveOwned(game, "MarkerPatch.ini", null, log);
             RestoreLegacyMarkerPlugin(game, log);
         }
+        foreach (var asset in OwnedMarkerAssets(game)) RestoreOrRemoveOwned(game, asset.Relative, asset.Sha256, log);
+        CleanupKnownResidue(game, log);
         string plugins = Path.Combine(game, "plugins");
         if (Directory.Exists(plugins) && !Directory.EnumerateFileSystemEntries(plugins).Any())
             Directory.Delete(plugins);
@@ -737,7 +786,22 @@ internal static class InstallerEngine
         if (File.Exists(state)) File.Delete(state);
     }
 
-    private static void PreflightUninstall(string game, bool chinese, bool runtime, bool marker, bool dat2, string dat2Hash)
+    private static string RuntimeHashForUninstall(string game)
+    {
+        string recorded = ReadState(game, "runtime_asi_sha256");
+        if (!string.IsNullOrEmpty(recorded))
+        {
+            if (recorded != SeveredAsiSha && recorded != LegacySeveredAsiSha && recorded != Candidate1SeveredAsiSha)
+                throw new InvalidDataException(L.T("安装记录中的 DLC 插件版本不受支持；保留文件和备份。"));
+            return recorded;
+        }
+        string path = Path.Combine(game, "plugins", "SeveredPC.asi");
+        // Legacy v9 records did not carry a runtime hash. Recognize only these
+        // two frozen binaries; unknown changes still fail uninstall preflight.
+        return File.Exists(path) && Sha256(path) == SeveredAsiSha ? SeveredAsiSha : File.Exists(path) && Sha256(path) == Candidate1SeveredAsiSha ? Candidate1SeveredAsiSha : LegacySeveredAsiSha;
+    }
+
+    private static void PreflightUninstall(string game, bool chinese, bool runtime, bool marker, bool dat2, string dat2Hash, string runtimeHash, bool runtimeConfig, string markerHash)
     {
         if (!chinese && !runtime && !marker && !dat2)
             throw new InvalidDataException(L.T("安装记录缺少组件信息，无法安全卸载。"));
@@ -768,11 +832,13 @@ internal static class InstallerEngine
         if (runtime)
         {
             owned["DS2DAT2.DAT.severed"] = MarkerSha;
-            owned[Path.Combine("plugins", "SeveredPC.asi")] = SeveredAsiSha;
+            owned[Path.Combine("plugins", "SeveredPC.asi")] = runtimeHash;
+            if (runtimeConfig) owned[RuntimeConfig] = null;
         }
         if (marker)
         {
-            owned["dinput8.dll"] = MarkerDllSha;
+            owned["dinput8.dll"] = markerHash;
+            owned[DisabledMarker] = markerHash;
             owned["MarkerPatch.ini"] = null;
             foreach (string name in new[] { "MarkerPatch.asi", "MarkerPatch.ini" })
             {
@@ -781,6 +847,7 @@ internal static class InstallerEngine
                 if (File.Exists(disabled)) owned[Path.Combine("plugins", name + ".ds2oneclick-disabled")] = null;
             }
         }
+        foreach (var asset in OwnedMarkerAssets(game)) owned[asset.Relative] = asset.Sha256;
         owned["DS2SeveredOneClick.install.txt"] = null;
         foreach (var item in owned)
         {
@@ -939,6 +1006,14 @@ internal static class InstallerEngine
         string target = Path.Combine(game, "DS2DAT2.DAT");
         if (File.Exists(target) && Sha256(target) == package.PayloadSha256)
         {
+            if (keepOriginalBackup)
+            {
+                string backup = target + ".ds2oneclick.bak";
+                if (File.Exists(backup)) throw new IOException(L.T("已有 DLC 备份但缺少可确认的安装归属，请保留文件并核对旧安装。"));
+                File.Copy(target, backup);
+                if (Sha256(backup) != package.PayloadSha256) throw new IOException(L.T("原有 DLC 备份校验失败。"));
+                undo.Add(() => { if (File.Exists(backup)) File.Delete(backup); });
+            }
             log(L.T("DS2DAT2.DAT 已是此包的英文数据，跳过替换。"));
             return;
         }
@@ -1015,15 +1090,16 @@ internal static class InstallerEngine
             ini = File.ReadAllText(path);
             ini = SetIni(ini, "LoadASIPlugins", "1");
             ini = SetIni(ini, "EnableSeveredDLC", "1");
-            log(L.T("保留已有 MarkerPatch 设置，仅确保 DLC 加载与所需物品开关启用。"));
+            if (options.NodeFix) ini = SetIni(ini, "EnableHackerDLC", "1");
+            log(DependencyDescription(options));
         }
         else
         {
-            var minimal = new InstallOptions { SubtitleScale = options.SubtitleScale };
+            var minimal = new InstallOptions { SubtitleScale = options.SubtitleScale, NodeFix = options.NodeFix };
             minimal.MarkerValues = RecommendedMarkerValues().Keys.ToDictionary(key => key,
-                key => key == "LoadASIPlugins" || key == "EnableSeveredDLC", StringComparer.OrdinalIgnoreCase);
+                key => key == "LoadASIPlugins" || key == "EnableSeveredDLC" || (options.NodeFix && key == "EnableHackerDLC"), StringComparer.OrdinalIgnoreCase);
             ini = ConfigureMarkerPatch(ReadResourceText("DS2_MARKER_INI"), minimal);
-            log(L.T("最小配置：仅 LoadASIPlugins、EnableSeveredDLC 开启；字幕与其他增强关闭。"));
+            log(DependencyDescription(options));
         }
         InstallText(game, "MarkerPatch.ini", ini, null, undo, log);
     }
@@ -1070,20 +1146,22 @@ internal static class InstallerEngine
     {
         foreach (var pair in options.MarkerValues)
         {
-            text = SetIni(text, pair.Key, pair.Value ? "1" : "0");
+            text = SetIni(text, pair.Key, options.MarkerPatch && pair.Value ? "1" : "0");
         }
         text = SetIni(text, "FontScalingFactor", options.SubtitleScale.ToString("0.0#", CultureInfo.InvariantCulture));
         foreach(var pair in options.MarkerParameters) text=SetIni(text,pair.Key,pair.Value);
-        if(options.Dlc) text=SetIni(text,"LoadASIPlugins","1");
+        if(options.Dlc)
+        {
+            text=SetIni(text,"LoadASIPlugins","1");
+            text=SetIni(text,"EnableSeveredDLC","1");
+            if (options.NodeFix) text=SetIni(text,"EnableHackerDLC","1");
+        }
         return text;
     }
 
     private static string SetIni(string text, string key, string value)
     {
-        string pattern = @"(?m)^(\s*" + Regex.Escape(key) + @"\s*=\s*).*$";
-        if (Regex.IsMatch(text, pattern))
-            return Regex.Replace(text, pattern, m => m.Groups[1].Value + value);
-        return text.TrimEnd() + Environment.NewLine + key + " = " + value + Environment.NewLine;
+        return SetMarkerIniValue(text, key, value);
     }
 
     private static void ValidateBase(string game, bool ignoreErrors, Action<string> log)
@@ -1189,21 +1267,33 @@ internal static class InstallerEngine
     {
         string path = Path.Combine(game, relative);
         Directory.CreateDirectory(Path.GetDirectoryName(path));
-        if (hash != null && File.Exists(path) && Sha256(path) == hash) return;
+        bool sameBytes = hash != null && File.Exists(path) && Sha256(path) == hash;
         string backup = path + ".ds2oneclick.bak";
         bool existed = File.Exists(path);
         byte[] previous = existed ? File.ReadAllBytes(path) : null;
         string statePath = Path.Combine(game, "DS2SeveredOneClick.install.txt");
         bool ownConfig = relative == "MarkerPatch.ini" && File.Exists(statePath) &&
             File.ReadAllLines(statePath).Any(line => line == "marker_patch=True");
-        bool createdBackup = existed && !File.Exists(backup) && !ownConfig;
+        bool ownRuntime = relative == Path.Combine("plugins", "SeveredPC.asi") &&
+            (ReadState(game, "owns_dlc_runtime") == "True" || ReadState(game, "dlc") == "True") &&
+            existed && (Sha256(path) == LegacySeveredAsiSha || Sha256(path) == SeveredAsiSha);
+        bool ownMarkerBinary = relative == "dinput8.dll" && ReadState(game, "marker_patch") == "True" && existed && IsKnownMarkerHash(Sha256(path));
+        bool ownDlcMarker = relative == "DS2DAT2.DAT.severed" && (ReadState(game, "owns_dlc_runtime") == "True" || ReadState(game, "dlc") == "True");
+        bool ownRuntimeConfig = relative == RuntimeConfig && ReadState(game, "owns_runtime_config") == "True";
+        bool ownMarkerAsset = IsOwnedMarkerAsset(game, relative, existed ? Sha256(path) : null);
+        bool ownManager = relative == ManagerName && File.Exists(Path.Combine(game, ManagerInfo)) &&
+            Regex.IsMatch(File.ReadAllText(Path.Combine(game, ManagerInfo)), "\"sha256\"\\s*:\"" + (existed ? Sha256(path) : "missing") + "\"");
+        if (existed && File.Exists(backup) && !ownConfig && !ownRuntime && !ownRuntimeConfig && !ownManager && !ownMarkerBinary && !ownDlcMarker && !ownMarkerAsset)
+            throw new IOException(relative + L.T(" 已有原始备份且当前文件又被改动，已停止覆盖。"));
+        bool createdBackup = existed && !File.Exists(backup) && !ownConfig && !ownRuntime && !ownRuntimeConfig && !ownManager && !ownMarkerBinary && !ownDlcMarker && !ownMarkerAsset;
         undo.Add(() =>
         {
-            if (existed) File.WriteAllBytes(path, previous);
+            if (existed) { if (!sameBytes) File.WriteAllBytes(path, previous); }
             else if (File.Exists(path)) File.Delete(path);
             if (createdBackup && File.Exists(backup)) File.Delete(backup);
         });
         if (createdBackup) File.Copy(path, backup);
+        if (sameBytes) return;
         File.WriteAllBytes(path, data);
         if (hash != null && Sha256(path) != hash) throw new InvalidDataException(relative + L.T(" 写入校验失败。"));
         log(L.T("已安装 ") + relative + L.T("。"));

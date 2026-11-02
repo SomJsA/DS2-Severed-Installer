@@ -1,0 +1,19 @@
+{
+  "upstream_commit": "051fad379a7fdd9598a3e7fb96279f393ba91730",
+  "markerpatch_reference_commit": "292d42acdfb62e635dcbbaacd6874307154e9f3e",
+  "policy_items": 20,
+  "upstream_probe_sha256": "bd136667dc125a01bb42ce46ef648b9d78a4458bc5c1f30da4b3773a24380001",
+  "modified_probe_sha256": "546364b5e71c50d1efe00c09a4de6284ec670a47471a4256edbb6997b6cf4539",
+  "notes": "Candidate 2 included in installer 2026.11.2.1; detailed hook diagnostics and validated callback fallback. Gameplay validation is pending.",
+  "bundled_marker_version": "3.0.7",
+  "bundled_marker_commit": "d40f9ce31175c8fa5d59cca9dc3b417a396076f8",
+  "gameplay_with_bundled_3_0_7_verified": false,
+  "candidate": 2,
+  "asi_sha256": "cbc5d2a6a0eb28353e2af8c833469cd238de74a3535906501e77f235eafea475",
+  "asi_bytes": 711680,
+  "shop_runtime_sha256": "ef0a010e2fd0d2a9d218337d9855dff07ec2b869604f10cf5f5af0e77d6dcc3b",
+  "native_checks": 71,
+  "gameplay_verified": false,
+  "known_candidate1_ea_failure": "store/list hook failed with official MarkerPatch 3.0.7",
+  "installer_release": "2026.11.2.1"
+}

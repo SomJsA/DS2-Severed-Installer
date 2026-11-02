@@ -29,6 +29,8 @@ internal static class MarkerCatalog
   new MarkerHelp("ExtraMouseButtonBinding","输入与手柄","额外鼠标键绑定","允许将鼠标第 4 至第 8 键绑定到原本仅接受键盘输入的动作。"),
   new MarkerHelp("AutoHideMouseCursor","输入与手柄","自动隐藏菜单鼠标","使用手柄时隐藏菜单鼠标指针，重新移动鼠标后再显示。"),
   new MarkerHelp("GyroEnabled","输入与手柄","陀螺仪瞄准","启用兼容手柄的体感瞄准，需要原始鼠标输入。漂移时可将手柄放稳数秒校准。"),
+  new MarkerHelp("GyroInvertX","输入与手柄","陀螺仪横向反转","反转陀螺仪的水平瞄准方向；需先启用陀螺仪瞄准。"),
+  new MarkerHelp("GyroInvertY","输入与手柄","陀螺仪纵向反转","反转陀螺仪的垂直瞄准方向；需先启用陀螺仪瞄准。"),
   new MarkerHelp("GyroCalibrationPersistence","输入与手柄","保存陀螺仪校准","为具有唯一序列号的手柄保存校准记录，并在重新连接后恢复。"),
   new MarkerHelp("TouchpadEnabled","输入与手柄","触摸板模拟鼠标","用兼容手柄的触摸板模拟鼠标移动。"),
   new MarkerHelp("InvertABXYButtons","输入与手柄","任天堂手柄按键交换","交换 A/B、X/Y 的对应关系，适配任天堂手柄布局。"),

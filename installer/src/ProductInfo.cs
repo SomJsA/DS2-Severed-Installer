@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 internal static class ProductInfo
 {
-    public const string ReleaseVersion = "2026.11.1";
+    public const string ReleaseVersion = "2026.11.2.1";
     public static string GroupTitle { get { return L.T("死亡空间贴吧汉化组移植&汉化"); } }
     public static string Contact { get { return L.T("交流群339639634 && 死亡空间贴吧"); } }
     public const string GroupUrl = "https://qm.qq.com/q/AsZY1d8WxG";
@@ -14,6 +14,7 @@ internal static class ProductInfo
     public const string MarkerRepository = "https://github.com/Wemino/MarkerPatch";
     public const string DlcRepository = "https://github.com/Tubzbuster/DS2SeveredPC";
     public const string OwnRepository = "https://github.com/SomJsA/DS2-Severed-Installer";
+    public const string OwnReleasesPage = OwnRepository + "/releases";
     public static string CurrentCredits
     {
         get { return L.T("当前版本基石：")+"Wemino/MarkerPatch、Tubzbuster/DS2SeveredPC\r\n"+
@@ -55,8 +56,21 @@ internal static class ProductInfo
             using(var icon=new Icon(stream))return (Icon)icon.Clone();
         }
     }
+    public static string VersionHistory
+    {
+        get { return "2026.11.1 — " + L.T("Playable：Severed 已可游玩。") + "\r\n" +
+            "2026.11.2 — " + L.T("新增能量节点购买修正与提示优化。") + "\r\n" +
+            "2026.11.2.1 — " + L.T("完善更新提示与安装流程。") + "\r\n" +
+            L.T("支持更改安装、保存设置、根目录管理器与更新检查。"); }
+    }
+    public static string InstallationComplete(bool dlc)
+    {
+        return L.T("安装完成。") + (dlc ? "\r\n\r\n" + L.T("进入游戏后，在“新游戏”中选择 Severed，即可进入 DLC。") : "") + "\r\n\r\n" + L.T("点击确定后退出安装器。");
+    }
     public static DialogResult ShowStartupNotice()
     {
-        return MessageBox.Show(StartupNotice,L.T("使用须知"),MessageBoxButtons.OKCancel,MessageBoxIcon.Information);
+        DialogResult result = MessageBox.Show(StartupNotice,L.T("使用须知"),MessageBoxButtons.OKCancel,MessageBoxIcon.Information);
+        if (result == DialogResult.OK) MessageBox.Show(VersionHistory,L.T("累计更新"),MessageBoxButtons.OK,MessageBoxIcon.Information);
+        return result;
     }
 }

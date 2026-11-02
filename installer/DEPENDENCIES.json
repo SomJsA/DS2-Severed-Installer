@@ -2,15 +2,31 @@
   "schema": 3,
   "markerpatch": {
     "repository": "https://github.com/Wemino/MarkerPatch",
-    "source_commit": "292d42acdfb62e635dcbbaacd6874307154e9f3e",
-    "dinput8_bytes": 1725952,
-    "dinput8_sha256": "c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5"
+    "source_commit": "d40f9ce31175c8fa5d59cca9dc3b417a396076f8",
+    "dinput8_bytes": 1718784,
+    "dinput8_sha256": "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55",
+    "release_tag": "3.0.7",
+    "build_kind": "official release asset",
+    "legacy_managed_dll_sha256": "c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5",
+    "assets_zip_bytes": 1191931,
+    "assets_zip_sha256": "95781f153738dbc7a67d014476fea730195933812e36e746051279a0218b62e9",
+    "asset_files": 64,
+    "feature_count": 61
   },
   "severedpc": {
     "repository": "https://github.com/Tubzbuster/DS2SeveredPC",
     "release_tag": "v1.1.5",
-    "asi_bytes": 46080,
-    "asi_sha256": "9a4542eccdbf88ab3ca0c02c52aca34eff9d0ccf3d2fdf71fd1a6314cb561a46"
+    "asi_bytes": 711680,
+    "asi_sha256": "cbc5d2a6a0eb28353e2af8c833469cd238de74a3535906501e77f235eafea475",
+    "upstream_asi_sha256": "9a4542eccdbf88ab3ca0c02c52aca34eff9d0ccf3d2fdf71fd1a6314cb561a46",
+    "local_patch": "Candidate 2: detailed hook errors and validated MarkerPatch callback fallback; gameplay pending",
+    "source_path": "runtime-fixes",
+    "required_marker_switches": [
+      "LoadASIPlugins",
+      "EnableSeveredDLC",
+      "EnableHackerDLC"
+    ],
+    "candidate1_sha256": "62e35b4d9187b5e4a96ee1290db2f79d50c39998a2563eb2b5bab0080ac1a66c"
   },
   "sevenzip": {
     "version_used": "26.05",
@@ -63,8 +79,8 @@
     "Chinese localization (optional)"
   ],
   "installer": {
-    "release": "2026.11.1",
-    "assembly_version": "2026.11.1.0",
+    "release": "2026.11.2.1",
+    "assembly_version": "2026.11.2.1",
     "repository": "https://github.com/SomJsA/DS2-Severed-Installer",
     "default_subtitle_scale": 1.0,
     "languages": [
@@ -73,7 +89,15 @@
     ],
     "startup_language": "Windows preferred display languages in order",
     "manual_language_switch": true,
-    "english_catalog_sha256": "117cf1339e856747481c70b5aa1675ab4d5c94f52cfc272df178e50132811bb1"
+    "english_catalog_sha256": "9c55dcfa52c4b514f4ddf59585d2045240bb4d946de5cb4db9e3f6e13a648ebd",
+    "install_record_version": 11,
+    "change_installation": true,
+    "save_settings_without_dat_rewrite": true,
+    "root_manager": "DS2PatchManager.exe",
+    "github_update_behavior": "read metadata and combined notes; Yes opens release webpage, No continues; no program download or self-update",
+    "release_page_button": "https://github.com/SomJsA/DS2-Severed-Installer/releases",
+    "exit_after_successful_install_confirmation": true,
+    "distributed_2026_11_2_exe_sha256": "0bd2c673fe03d819bf5ea328ee476bfd83ccfa35344a62188645ddc0e8f4990b"
   },
   "ui_assets": {
     "app.ico": {

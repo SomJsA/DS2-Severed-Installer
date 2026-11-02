@@ -5,6 +5,7 @@ param(
     [Parameter(Mandatory = $true)][string]$SevenZipExe,
     [Parameter(Mandatory = $true)][string]$SevenZipDll,
     [string]$AssetsRoot,
+    [string]$MarkerAssets,
     [string]$UiAssetsDir,
     [string]$ChineseAssets,
     [string]$MarkerIni,
@@ -18,6 +19,7 @@ $root = Split-Path -Parent $PSScriptRoot
 if (-not $AssetsRoot) { $AssetsRoot = Join-Path $root 'assets' }
 if (-not $UiAssetsDir) { $UiAssetsDir = Join-Path $AssetsRoot 'ui' }
 if (-not $ChineseAssets) { $ChineseAssets = Join-Path $AssetsRoot 'Chinese.assets.R8.7z' }
+if (-not $MarkerAssets) { $MarkerAssets = Join-Path $root 'build-deps\MarkerPatch.3.0.7.zip' }
 if (-not $MarkerIni) { $MarkerIni = Join-Path $AssetsRoot 'MarkerPatch.ini' }
 if (-not $OutputExe) { $OutputExe = Join-Path $root 'output\DS2SeveredOneClick.exe' }
 if (-not $Csc) { $Csc = 'C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe' }
@@ -30,10 +32,11 @@ function Assert-Hash {
     if ($actual -ne $Expected) { throw "SHA256 mismatch: $Path`n$actual" }
 }
 
-Assert-Hash $MarkerPatchDll 'c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5' 1725952
-Assert-Hash $SeveredAsi '9a4542eccdbf88ab3ca0c02c52aca34eff9d0ccf3d2fdf71fd1a6314cb561a46' 46080
+Assert-Hash $MarkerPatchDll '30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55' 1718784
+Assert-Hash $SeveredAsi 'cbc5d2a6a0eb28353e2af8c833469cd238de74a3535906501e77f235eafea475' 711680
 Assert-Hash $SevenZipExe '94205cfc054dd3bbeb978905bc619a65b3f04e9e73bb2717841110b6f46d962e' 577536
 Assert-Hash $SevenZipDll '78bf6b668d75801e3aa180b4ccb16e6d8395fba80dec8a065055bb6f8dfabb82' 1908736
+Assert-Hash $MarkerAssets '95781f153738dbc7a67d014476fea730195933812e36e746051279a0218b62e9' 1191931
 Assert-Hash $ChineseAssets '8c035b6ba2b0ad9e96967866281607b55db14a5a1261b413ec3faee93bd7105a' 6981480
 
 
@@ -56,6 +59,7 @@ $compileArgs = @(
     "/out:$OutputExe",
     '/reference:System.dll',
     '/reference:System.Core.dll',
+    '/reference:System.IO.Compression.dll',
     '/reference:System.Windows.Forms.dll',
     '/reference:System.Drawing.dll',
     '/reference:System.Web.Extensions.dll',
@@ -70,7 +74,9 @@ $compileArgs = @(
     "/resource:$ChineseAssets,DS2_CHINESE_ASSETS",
     "/resource:$MarkerPatchDll,DS2_MARKER_DLL",
     "/resource:$SeveredAsi,DS2_SEVERED_ASI",
-    "/resource:$MarkerIni,DS2_MARKER_INI"
+    "/resource:$MarkerIni,DS2_MARKER_INI",
+    "/resource:$MarkerAssets,DS2_MARKER_ASSETS",
+    "/resource:$(Join-Path $AssetsRoot 'MarkerAssets.version.json'),DS2_MARKER_ASSET_MANIFEST"
 )
 $compileArgs += $sources
 & $Csc @compileArgs

@@ -1,0 +1,10 @@
+﻿using System;using System.IO;using System.Reflection;
+class UpdateCompatibilityCheck {
+ static BindingFlags flags=BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic;static int n;
+ static void Check(bool ok,string text){if(!ok)throw new Exception(text);n++;Console.WriteLine("PASS "+text);}
+ static object Field(object x,string name){return x.GetType().GetField(name).GetValue(x);}
+ static int Main(string[]a){try{var asm=Assembly.LoadFrom(a[0]);asm.GetType("L").GetMethod("Initialize",flags).Invoke(null,new object[]{"en"});var checker=asm.GetType("UpdateChecker");var parse=checker.GetMethod("ParseInstallerUpdates",flags);string json=File.ReadAllText(a[1]);
+ var report=parse.Invoke(null,new object[]{json,"2026.11.2"});Check((string)Field(Field(report,"Installer"),"Tag")=="v2026.11.2.1","distributed 2026.11.2 detects four-part 2026.11.2.1");string notes=(string)Field(report,"CombinedNotes");Check(notes.Contains("maintenance-2.1")&&!notes.Contains("older-2.0"),"distributed version receives only newer release notes");Check(!notes.Contains("preview-hidden")&&!notes.Contains("draft-hidden"),"old checker excludes prereleases and drafts");
+ report=parse.Invoke(null,new object[]{json,"2026.11.2.1"});Check(Field(report,"Installer")==null,"new version does not repeatedly offer itself");
+ report=parse.Invoke(null,new object[]{json,"2026.11.1"});notes=(string)Field(report,"CombinedNotes");Check(notes.IndexOf("maintenance-2.1")<notes.IndexOf("older-2.0"),"multiple release logs combine newest first");Check(checker.GetMethod("DownloadVerified",flags)==null,"checker has no binary download or self-update method");Check((string)asm.GetType("ProductInfo").GetField("ReleaseVersion").GetRawConstantValue()==a[2],"embedded version matches expected release");Console.WriteLine("ALL UPDATE COMPATIBILITY CHECKS PASSED "+n);return 0;}catch(Exception e){Console.WriteLine("FAIL "+e);return 1;}}
+}
