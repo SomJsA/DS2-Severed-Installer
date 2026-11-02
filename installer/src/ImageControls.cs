@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -152,7 +152,7 @@ internal sealed class SkinButton : Button
                 g.Restore(saved);
             }
         }
-        TextRenderer.DrawText(g,Text,Font,ClientRectangle,Primary ? PaintSkin.Background : ForeColor,TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter);
+        TextRenderer.DrawText(g,Text,Font,ClientRectangle,!Enabled ? Color.FromArgb(171,190,201) : Primary ? PaintSkin.Background : ForeColor,TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter);
         if(Focused)ControlPaint.DrawFocusRectangle(g,new Rectangle(4,4,Width-8,Height-8));
     }
     protected override void Dispose(bool disposing){if(disposing)glowTimer.Dispose();base.Dispose(disposing);}

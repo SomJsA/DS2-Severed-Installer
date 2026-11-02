@@ -79,8 +79,8 @@
     "Chinese localization (optional)"
   ],
   "installer": {
-    "release": "2026.11.2.1",
-    "assembly_version": "2026.11.2.1",
+    "release": "2026.11.3",
+    "assembly_version": "2026.11.3.0",
     "repository": "https://github.com/SomJsA/DS2-Severed-Installer",
     "default_subtitle_scale": 1.0,
     "languages": [
@@ -89,7 +89,7 @@
     ],
     "startup_language": "Windows preferred display languages in order",
     "manual_language_switch": true,
-    "english_catalog_sha256": "9c55dcfa52c4b514f4ddf59585d2045240bb4d946de5cb4db9e3f6e13a648ebd",
+    "english_catalog_sha256": "c0ebe70962a0014f5540e7ee13b2f47788bc7ef579ff388d780f8035d34e505e",
     "install_record_version": 11,
     "change_installation": true,
     "save_settings_without_dat_rewrite": true,
@@ -97,7 +97,18 @@
     "github_update_behavior": "read metadata and combined notes; Yes opens release webpage, No continues; no program download or self-update",
     "release_page_button": "https://github.com/SomJsA/DS2-Severed-Installer/releases",
     "exit_after_successful_install_confirmation": true,
-    "distributed_2026_11_2_exe_sha256": "0bd2c673fe03d819bf5ea328ee476bfd83ccfa35344a62188645ddc0e8f4990b"
+    "distributed_2026_11_2_exe_sha256": "0bd2c673fe03d819bf5ea328ee476bfd83ccfa35344a62188645ddc0e8f4990b",
+    "marker_preset_default_count": 18,
+    "first_install_marker_review_seconds": 3,
+    "default_additional_fixes": [
+      "HighCoreCPUFix",
+      "FixInputHistory",
+      "FixSolarArrayElevator",
+      "FixMenuSpeed",
+      "FixExplosionDamage",
+      "FixOffscreenEffects"
+    ],
+    "external_dlc_distribution": "reuse existing Severed.marker; not bundled by default"
   },
   "ui_assets": {
     "app.ico": {

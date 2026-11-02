@@ -1,6 +1,8 @@
-# 2026.11.2 构建
+# 2026.11.3 构建
 
-2026.11.2 集成 SomJs 编写的 Severed 能量节点修正，沿用用户已在 Steam 确认恢复显示的候选 1 二进制。仅在 Severed 构建商店列表时对能量节点临时绕过章节/轮次门槛，保留原价格，调用后恢复字段；默认 Profile=1，消息追踪默认关闭。
+当前仍使用节点候选 2（C2），对应 SHA-256 见 DEPENDENCIES.json；此前 Steam 恢复节点显示的反馈来自旧 C1，不能替代 C2 实机验证。
+
+新增六项默认修复，MarkerPatch 预设共 18 项。MarkerInstallReview.cs 在每个目标首次安装前显示 3 秒确认；只确认了解提示，不强制保留默认选项。CLI 保持非交互。原版 INI 模板保留，实际安装由 ConfigureMarkerPatch 写入当前选择。
 
 **当前依赖与影响：**安装 DLC 会确保 LoadASIPlugins、EnableSeveredDLC、EnableHackerDLC 三项开启。节点修正逻辑限定在 DLC；依赖的 EnableHackerDLC 同时会在本体开放黑客套装与黑客接触光束。这不是完全不影响本体的配置。仅汉化、仅 MarkerPatch 安装不新增该插件。
 
@@ -65,7 +67,7 @@ UI 资源目录需包含 `app.ico`（遗产图标）、`ChinesePatch.logo.jpg`�
 源语言为简体中文，English 文案集中在 `src/Locales/en.json`，构建脚本将其嵌入 EXE。`src/I18n.cs` 按 Windows `GetUserPreferredUILanguages` 返回顺序选择中文或英语，其他语言跳过，无法获取时回退到 UI culture 和英语。主页面 Language 按钮即时切换，不重新创建安装选项。
 
 `--language zh-CN` / `--language en` 可显式覆盖本次启动语言，也可用于命令行安装/卸载。`--preview --language en` 仅预览英语界面。
-语言扩展需要补全主界面、59 项功能/13 项参数、提示、日志和错误文案，并做版面与选项保留检查；不能只翻译按钮。
+语言扩展需要补全主界面、61 项功能/13 项参数、提示、日志和错误文案，并做版面与选项保留检查；不能只翻译按钮。
 
 ## 2026.11.2 维护与 MarkerPatch 3.0.7
 

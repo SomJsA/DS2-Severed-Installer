@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -35,7 +35,7 @@ internal static class MarkerCatalog
   new MarkerHelp("TouchpadEnabled","输入与手柄","触摸板模拟鼠标","用兼容手柄的触摸板模拟鼠标移动。"),
   new MarkerHelp("InvertABXYButtons","输入与手柄","任天堂手柄按键交换","交换 A/B、X/Y 的对应关系，适配任天堂手柄布局。"),
   new MarkerHelp("HavokPhysicsFix","帧率与物理","高帧率物理修复","以 30 FPS 物理步长并插值显示尸体、断肢与物品，减轻高帧率下乱飞的问题。"),
-  new MarkerHelp("HighCoreCPUFix","帧率与物理","多核心处理器启动修复","针对超过 10 个核心的处理器相关崩溃。无此问题时可保持关闭。"),
+  new MarkerHelp("HighCoreCPUFix","帧率与物理","高核 CPU 修复","防止超过 10 个 CPU 核心的系统发生崩溃。游戏检测核心时使用容量固定的数组，超出 10 个核心会写越界、破坏内存，并可能在后续运行中崩溃。此修复会提前结束检测循环，避免溢出。"),
   new MarkerHelp("ThreadAffinityFix","帧率与物理","解除线程核心限制","允许 Windows 将主线程和渲染线程分配到不同核心，不再都固定于第一个核心。"),
   new MarkerHelp("VSyncRefreshRateFix","帧率与物理","垂直同步刷新率修复","让垂直同步使用所选刷新率，避免锁定在 30 FPS。"),
   new MarkerHelp("FixFrameLimiter","帧率与物理","帧率限制节奏修复","改善垂直同步限帧的帧间隔，并减少限帧等待时持续占用处理器。"),
@@ -44,22 +44,22 @@ internal static class MarkerCatalog
   new MarkerHelp("FixHazardSuitIcon","修复","Hazard 服装图标修复","修正商店中 Hazard 工程服错误显示精英高级服头盔的问题。"),
   new MarkerHelp("FixSaveStringHandling","修复","存档字符串处理修复","修正存档字符串处理中的缓冲区越界。对游戏版本的函数匹配有要求，默认关闭。"),
   new MarkerHelp("FixAutomaticWeaponFireRate","帧率与物理","自动武器射速修复","减轻自动武器在不同帧率下射速不一致的问题。"),
-  new MarkerHelp("FixSolarArrayElevator","修复","第七章电梯门修复","修正高于 30 FPS 时重载检查点导致太阳能阵列电梯门卡住的问题。"),
+  new MarkerHelp("FixSolarArrayElevator","修复","太阳能阵列电梯修复","修复第七章太阳能阵列电梯在高于 30 FPS 时重载检查点后门卡住、无法继续的问题。高帧率下电梯移动前门的位置可能未正确设置，此项会修正门的位置。"),
   new MarkerHelp("FixBlurResolution","画面","高分辨率模糊效果修复","修正高于 720p 时景深、泛光、发光与热浪效果的模糊强度。"),
   new MarkerHelp("FixShadowBlur","画面","柔和阴影模糊修复","修正高于 720p 时柔和阴影的模糊强度。"),
   new MarkerHelp("FixVertexNormals","画面","顶点法线与着色修复","修正部分着色器误读法线所导致的玻璃反射、手电、粒子照明与动态模糊异常。"),
   new MarkerHelp("FixFlareArtifacts","画面","耀斑方块修复 / D3D9","修复 NVIDIA 显卡开启耀斑时出现的块状光影异常。该修复使用 Direct3D9 挂钩路径。"),
   new MarkerHelp("FixClothPhysics","帧率与物理","头发与布料物理修复","减轻高于 30 FPS 时头发与布料变轻、漂浮的现象。"),
-  new MarkerHelp("FixMenuSpeed","修复","高帧率菜单速度修复","减轻高帧率下菜单滚动、菜单镜头跟随鼠标过快的问题。"),
+  new MarkerHelp("FixMenuSpeed","修复","高帧率菜单速度修复","让菜单在不同帧率下保持一致的动画速度。游戏原本按帧计算列表滚动与菜单镜头跟随，高于 30 FPS 时会使存档列表滚动过快、镜头迅速偏向角落；此项修正这些计时。"),
   new MarkerHelp("FixGameClock","帧率与物理","游戏时钟修复","减轻不限帧时游戏时间快于真实时间，以及帧间隔不稳定的问题。"),
   new MarkerHelp("FixMainLoopSpin","性能","主循环空转优化","让主线程等待音频时休眠，减少持续空转占用处理器。"),
   new MarkerHelp("FixStreamingBudget","性能","高帧率场景流送优化","按真实帧时间处理下一地区的数据，减轻高帧率时的流送卡顿。"),
   new MarkerHelp("FixAudioSyncStall","性能","音频载入卡顿修复","缩短区域音频加载时产生的停顿。"),
   new MarkerHelp("PreloadStreamedTextures","性能","场景纹理预上传","在场景流送期间上传新纹理，减轻首次显示新纹理时的卡顿。"),
-  new MarkerHelp("FixInputHistory","帧率与物理","移动转向停顿修复","减轻高帧率下边移动边转向时角色短暂停顿的问题。"),
+  new MarkerHelp("FixInputHistory","帧率与物理","移动转向停顿修复","修复高于 30 FPS 时边移动边用鼠标转向造成的短暂停顿。游戏按近期输入记录判断移动，高帧率下转向输入会在几毫秒内填满这段记录；此项修正其处理方式。"),
   new MarkerHelp("FixImpalingProjectiles","帧率与物理","钉墙弹体修复","修正高帧率下钉刺弹体力度不足、敌人未能钉在墙上的表现。"),
-  new MarkerHelp("FixExplosionDamage","帧率与物理","持续爆炸伤害修复","让持续爆炸按预期频率计算伤害与推力，避免高帧率时每帧重复命中。"),
-  new MarkerHelp("FixOffscreenEffects","画面","视野外特效时长修复","修正高帧率下身后火焰、蒸汽、火花与爆炸过早停止的问题。"),
+  new MarkerHelp("FixExplosionDamage","帧率与物理","持续爆炸伤害修复","让持续爆炸按设计基准每秒命中 30 次，避免高于 30 FPS 时每帧重复伤害和更强的尸体推力。"),
+  new MarkerHelp("FixOffscreenEffects","画面","视野外特效时长修复","将视野外特效的 30 帧停止门槛改为按时间计算，保持约 1 秒。避免高于 30 FPS 时，摄像机后方的火焰、蒸汽和爆炸在几分之一秒内过早结束。"),
   new MarkerHelp("FixSuitChangeTiming","修复","换装动画时序修复","修正载入更快时换装柜门过早打开，与灯光扫过不同步的问题。"),
   new MarkerHelp("AchievementSupport","常规","游戏内成就提示","显示成就进度、解锁提示和成就列表。默认使用 HOME 键打开列表。"),
   new MarkerHelp("DisableOnlineFeatures","常规","关闭失效在线连接","阻止连接已经失效的在线服务，并隐藏相关断线提示。"),
