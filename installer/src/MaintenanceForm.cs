@@ -21,7 +21,7 @@ internal sealed partial class InstallerForm
 
     private void InitializeMaintenanceUi()
     {
-        ClientSize = new Size(920, 798);
+        ClientSize = new Size(920, 822);
         ConfigureCheck(nodeFixBox, L.T("修正 Severed 商店能量节点"), new Point(26, 582), true);
         ConfigureCheck(keepManagerBox, L.T("安装 / 更新游戏根目录管理器"), new Point(26, 616), true);
         nodeFixBox.ForeColor = keepManagerBox.ForeColor = Color.FromArgb(192, 215, 226);
@@ -33,15 +33,17 @@ internal sealed partial class InstallerForm
         reloadSettingsButton.Click += (s, e) => RefreshInstalledState();
         startupControlButton.Click += (s, e) => ToggleMarkerStartup();
         updateCheckButton.Click += (s, e) => CheckUpdates(false);
-        dependencyHint.Location = new Point(26, 650); dependencyHint.Size = new Size(868, 36);
+        var markerNotice = AddLabel(this,L.T("MarkerPatch 已预设常用修复，可在上方调整；仅支持随包版本。"),8.5F,FontStyle.Regular,26,650,Color.FromArgb(161,183,197));
+        markerNotice.Name="markerPresetNotice";
+        dependencyHint.Location = new Point(26, 674); dependencyHint.Size = new Size(868, 36);
         dependencyHint.Font = new Font(Font.FontFamily, 8.5F); dependencyHint.ForeColor = Color.FromArgb(201, 190, 151);
-        installedHint.Location = new Point(26, 691); installedHint.Size = new Size(690, 24); installedHint.ForeColor = Color.FromArgb(146, 178, 193);
+        installedHint.Location = new Point(26, 715); installedHint.Size = new Size(690, 24); installedHint.ForeColor = Color.FromArgb(146, 178, 193);
         markerIssuesLink.Text = "MarkerPatch Issues"; L.KeepLiteral(markerIssuesLink);
-        markerIssuesLink.Location = new Point(731, 691); markerIssuesLink.Size = new Size(163, 24); markerIssuesLink.LinkColor = PaintSkin.Accent;
+        markerIssuesLink.Location = new Point(731, 715); markerIssuesLink.Size = new Size(163, 24); markerIssuesLink.LinkColor = PaintSkin.Accent;
         markerIssuesLink.LinkClicked += (s, e) => OpenPage("https://github.com/Wemino/MarkerPatch/issues");
         Controls.Add(dependencyHint); Controls.Add(installedHint); Controls.Add(markerIssuesLink);
-        progressBar.Top = 724; statusLabel.Top = 741;
-        uninstallButton.Top = installButton.Top = 740;
+        progressBar.Top = 748; statusLabel.Top = 765;
+        uninstallButton.Top = installButton.Top = 764;
         nodeFixBox.CheckedChanged += (s, e) => UpdateSelectionSummary();
         gameBox.Leave += (s, e) => RefreshInstalledState();
         markerOptionsList.ItemCheck += (s, e) =>

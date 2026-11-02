@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 internal static class ProductInfo
 {
-    public const string ReleaseVersion = "2026.11.3";
+    public const string ReleaseVersion = "2026.11.3.1";
     public static string GroupTitle { get { return L.T("死亡空间贴吧汉化组移植&汉化"); } }
     public static string Contact { get { return L.T("交流群339639634 && 死亡空间贴吧"); } }
     public const string GroupUrl = "https://qm.qq.com/q/AsZY1d8WxG";
@@ -62,6 +62,7 @@ internal static class ProductInfo
             "2026.11.2 — " + L.T("新增能量节点购买修正与提示优化。") + "\r\n" +
             "2026.11.2.1 — " + L.T("完善更新提示与安装流程。") + "\r\n" +
             "2026.11.3 — " + L.T("新增安装前 MarkerPatch 功能确认与推荐勾选。") + "\r\n" +
+            "2026.11.3.1 — " + L.T("功能提示移至主页面，按需打开详细设置。") + "\r\n" +
             L.T("支持更改安装、保存设置、根目录管理器与更新检查。"); }
     }
     public static string InstallationComplete(bool dlc)

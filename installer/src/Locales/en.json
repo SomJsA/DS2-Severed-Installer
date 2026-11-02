@@ -511,5 +511,7 @@
   "否，返回": "No, return",
   "是，继续（{0}秒）": "Yes, continue ({0}s)",
   "新增安装前 MarkerPatch 功能确认与推荐勾选。": "Adds a required MarkerPatch review before installation and recommended selections.",
-  "取消并返回": "Cancel and return"
+  "取消并返回": "Cancel and return",
+  "MarkerPatch 已预设常用修复，可在上方调整；仅支持随包版本。": "MarkerPatch fixes are preselected. Adjust above; only the bundled version is supported.",
+  "功能提示移至主页面，按需打开详细设置。": "Feature notes are now on the main page; open detailed settings when needed."
 }

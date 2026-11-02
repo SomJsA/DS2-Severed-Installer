@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.3.0")]
-[assembly: AssemblyFileVersion("2026.11.3.0")]
-[assembly: AssemblyInformationalVersion("2026.11.3")]
+[assembly: AssemblyVersion("2026.11.3.1")]
+[assembly: AssemblyFileVersion("2026.11.3.1")]
+[assembly: AssemblyInformationalVersion("2026.11.3.1")]
 
 internal sealed class InstallOptions
 {
@@ -331,7 +331,7 @@ internal sealed partial class InstallerForm : Form
     }
     private void ShowMarkerSettings()
     {
-        ShowMarkerSettingsDialog(false);
+        ShowMarkerSettingsDialog();
     }
 
     private static void ConfigureCheck(CheckBox box, string text, Point location, bool value)
@@ -418,7 +418,6 @@ internal sealed partial class InstallerForm : Form
     private void RunInstall()
     {
         if (PreviewOnly) { MessageBox.Show(this,L.T("界面预览，不执行安装。"),L.T("预览")); return; }
-        if (!EnsureMarkerReviewBeforeInstall()) return;
         if (MessageBox.Show(this, MaintenanceConfirmationText(),
             L.T("确认安装"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
         {

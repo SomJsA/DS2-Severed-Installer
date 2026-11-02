@@ -1,8 +1,8 @@
-# 2026.11.3 构建
+# 2026.11.3.1 构建
 
 当前仍使用节点候选 2（C2），对应 SHA-256 见 DEPENDENCIES.json；此前 Steam 恢复节点显示的反馈来自旧 C1，不能替代 C2 实机验证。
 
-新增六项默认修复，MarkerPatch 预设共 18 项。MarkerInstallReview.cs 在每个目标首次安装前显示 3 秒确认；只确认了解提示，不强制保留默认选项。CLI 保持非交互。原版 INI 模板保留，实际安装由 ConfigureMarkerPatch 写入当前选择。
+MarkerPatch 预设共 18 项，已有自定义值保留。MarkerSettingsForm.cs 只在用户点击设置按钮时打开；主页面显示简短预设与兼容性说明。无首装强制审阅或倒计时。CLI 保持非交互。原版 INI 模板保留，实际安装由 ConfigureMarkerPatch 写入当前选择。
 
 **当前依赖与影响：**安装 DLC 会确保 LoadASIPlugins、EnableSeveredDLC、EnableHackerDLC 三项开启。节点修正逻辑限定在 DLC；依赖的 EnableHackerDLC 同时会在本体开放黑客套装与黑客接触光束。这不是完全不影响本体的配置。仅汉化、仅 MarkerPatch 安装不新增该插件。
 
