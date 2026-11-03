@@ -1,0 +1,23 @@
+{
+  ".gitignore": "be091810b9a0f91199ea4b81d84af819934cdff588c5c41c0e97fb1fbd0a4a9f",
+  "build.cmd": "e6dce6ae00ddeea2e0df1e406977ff251e1bb2afd959e7b070f419e9aee7b274",
+  "licenses/DS2SeveredPC-LICENSE.txt": "fc96901d7c4e2801520f63dc5e9b4eb8c008ad0832e52b02bacd3c375f9e083b",
+  "licenses/MarkerPatch-LICENSE.txt": "11c4a8b414a534365f02da7dad9dc3e471d35b15ed31df9d4006fb2a144c4443",
+  "licenses/SafetyHook-MIT.txt": "8d8291caf1cee26d23acf3eb67c9f9a2d58f1c681b16a4fbe8cbfb9e3c0b5a9b",
+  "licenses/Zydis-MIT.txt": "e5e99718209e94baaf3e9cbf6f64aa3329c9e73c63b1ab47e10f29d81974e6f3",
+  "README.md": "d5d01c4b8672b9ef6a2b1f28923129986df521f11902dbb069dc589ab6895eff",
+  "src/extras_main.cpp": "10b0c2cbcf8744ad7e98f22674f8d0df1735041e44b2021ee5b89f48514fad75",
+  "src/runtime_config.hpp": "b6e005f4ecd48e291776ba1d06636d0342fc25d79507776222201a51da6e8205",
+  "src/save_catalog.hpp": "e7976a2f40514e5321e020c81b4a0176d3fc867bcbab2e5e6c00d2816534ec1f",
+  "src/save_icon_contract.hpp": "b9b0560b797e9f920bd579d5d2a67eded21d4fe3b9d165f5ef4aa3e5a0b13adf",
+  "src/save_titles.cpp": "174faed16d9a3b5a2e4ec5433ac4db65ecce4dff55af47d081c6cf39574752ff",
+  "src/shop_runtime.cpp": "ef0a010e2fd0d2a9d218337d9855dff07ec2b869604f10cf5f5af0e77d6dcc3b",
+  "src/store_policy.hpp": "88e9d3dcab8d8e1ca65ddc78e9647230ee1997f34160e128c383ac4633ccee02",
+  "tests/extras_observer_tests.cpp": "393dbd908a48858015cc8d3b3d31e52ef296c957bcf6edb7284ea0ab609e1284",
+  "tests/save_title_tests.cpp": "5cf3b56523986301ebcbf352ecc7f780abd9051fe851658e92c6a0aea65c0d34",
+  "tests/shop_policy_tests.cpp": "b695f1fe579eeae5e0884cc45ad629d8c4edefd258d3e3850e7e27cb44eed1c6",
+  "vendor/safetyhook/safetyhook.cpp": "a5d2377e424d7d222ba4968537daf12b03741ea1ef09f31ad32bd527728ac4d6",
+  "vendor/safetyhook/safetyhook.hpp": "6f8499aadcbc346690c33c877f0a522e689796e8aaef4ea05fb5586416e2c857",
+  "vendor/safetyhook/Zydis.c": "322dd920a8ef476cf28d5462f51440a96f6b1025e8d613a902815a39e6945671",
+  "vendor/safetyhook/Zydis.h": "3bdb00d1a3a5a21b2084cd0508c992d83c9d5a374a4a984782d266e77d64a8c7"
+}

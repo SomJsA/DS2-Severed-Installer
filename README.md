@@ -1,33 +1,35 @@
 # DS2 Severed Installer
 
-当前维护版本：**2026.11.3.1**。 [GitHub 发布页](https://github.com/SomJsA/DS2-Severed-Installer/releases)。已分发的 2026.11.2／2026.11.2.1 可检查到此递增版本，确认后打开网页；节点 C2 实机仍待验证。
+当前版本：**2026.11.3.9** · [下载 / Releases](https://github.com/SomJsA/DS2-Severed-Installer/releases/tag/v2026.11.3.9)
 
-死亡空间贴吧汉化组移植&汉化。支持 Steam / EA 游戏目录，安装器界面支持简体中文 / English。
+死亡空间贴吧汉化组移植&汉化。支持 Steam / EA，安装器界面支持简体中文 / English。
 
-- 三张卡片选择简体中文汉化、Severed DLC、MarkerPatch。安装顺序为 MarkerPatch → 原始英文 DLC → 汉化；未选步骤跳过。只装 DLC 保持英文／启动器语言，勾选汉化后本体与 DLC 使用简体中文。
-- DLC 自动带必需 Patch，无需另勾 MarkerPatch。节点修正为独立选项；启用时额外需要 EnableHackerDLC，会开放黑客装备。Ignition 房间是另一个独立开关。
-- MarkerPatch 更新为官方 3.0.7，提供 61 项功能和 13 项数值设置，包括陀螺仪横向／纵向反转。标注“默认启用”“默认不启用”“随 DLC 自动启用”；节点依赖单独说明。字幕默认 1.0 倍。
-- 主页面简短说明 MarkerPatch 预设与随包版本的兼容性；详细设置按需打开，安装前不再强制弹窗或等待。保留六项默认修复、18 项预设与已有自定义值。
-- 读取所选游戏的实际安装与配置，支持更改组件组合。保存设置只写配置，不重写 DAT；未知配置项、注释与原始备份保留。已识别旧版可以直接升级，异常时提示先备份存档，再尝试全新安装或平台修复。
-- 可在游戏根目录安装／更新 DS2PatchManager.exe，调整设置或切换随包 MarkerPatch 启动状态。停用后 DLC 入口与相关运行修正不可用。外置／未知版本会提示兼容性与作者 Issue 链接。
-- GitHub 更新检查合并显示版本日志。选择“是”打开发布网页，选择“否”继续使用。本程序不下载或自动替换更新。
-- 安装完成后，从游戏“新游戏”中选择 Severed 进入 DLC。开场后显示简短累计日志：初版 Playable；新版新增节点购买修正与提示优化。
+- 三项选择：简体中文汉化、Severed DLC、MarkerPatch。安装顺序为 MarkerPatch → 原始英文 DLC → 汉化；未选步骤跳过。仅 DLC 保持英文／启动器语言，选择汉化后本体与 DLC 使用简体中文。
+- MarkerPatch 的位置、勾选、默认值和依赖不变；字幕默认 1.0 倍。仅 DLC 自动安装最小必需组件，其余增强仍按选项启用。
+- 能量节点修正与 DLC 存档显示修复现由独立的 `plugins/SeveredExtras.asi` 提供，MarkerPatch 官方 3.0.7 保持原文件。汉化仍使用原有数据补丁方式。
+- DLC 存档按章节显示名称与两张图片；中文仅随游戏汉化启用，未安装汉化时使用 `Severed, chapter 1 / chapter 2`。这只调整显示，不转换存档内容。
+- 游戏内 DLC 名称和说明可随汉化显示为“死亡空间2：阻断”“盖伯·维勒的故事。”。
+- 支持已知旧版直接升级、更改安装、保存设置和根目录管理器；已有自定义值与原始备份保留。若升级异常，请先备份存档，再尝试全新安装或平台修复。
+- 更新检查显示累计日志。确认后打开发布网页，不自动下载／替换程序；打不开时可复制地址手动打开。
+- 安装完成后，在“新游戏”中选择 Severed 进入 DLC。
 
-DLC 数据包仍使用原 Severed.marker，无需重新制作。此仓库不含 DAT、汉化数据、字体、美术素材或第三方 PE；构建所需资源另行提供。EXE 分发与源码提交按各自范围处理。
+继续使用原 **Severed.marker**，本版不重发数据包。本仓库只公开程序源码与许可证，不包含 DAT、汉化资源、字体、美术素材或第三方二进制。
 
-能量节点当前采用候选 2：旧候选 C1 在 EA + 官方 MarkerPatch 3.0.7 中出现商店钩子失败。候选 2 增加错误诊断及已校验 MarkerPatch 回调回退，71 项原生检查通过，仍待实机验证。此前 Steam 节点恢复显示的反馈对应旧 C1 组合，不能替代本候选验收。矿区面板、存档名称／图标、游戏内 Severed 菜单汉化仍待单独修复。
+能量节点修正仍依赖 `EnableHackerDLC`，会开放本体黑客装备；不自动开启 Ignition 房间。独立 ASI 沿用已有修正行为，不扩大开放范围。图标使用安装器管理的 `DS2DAT3.DAT`；已有用户建议通过新版安装器更改安装，避免与旧合并插件重复加载。
 
-卸载会检查归属与改动，恢复可验证备份；不会覆盖存档。异常保留记录、文件和恢复点。管理器保留在根目录，关闭后可手动移除。平台验证／修复可能保留第三方文件，不保证恢复所有未知模组组合。
+矿区死亡／读档后面板无法互动的问题仍未修复。DLC 存档需要 DLC 与运行组件；停用、卸载或回到原版后，请勿读取这些存档，备份后重新启用 DLC 继续。卸载按文件归属恢复可验证备份，未知或被修改文件会保留并提示。
+
+## English
+
+A bilingual installer for Steam and EA: Simplified Chinese localization, original Severed DLC, and MarkerPatch. Installation order is MarkerPatch → English DLC → selected Chinese localization. DLC-only installs retain the original English/launcher language.
+
+2026.11.3.9 separates the existing Power Node and DLC save-display fixes into `SeveredExtras.asi`, without moving controls or changing defaults/dependencies. Chinese localization remains data-based. The DLC core retains its existing episode/menu/gameplay handling. Upgrades preserve settings; updates open a webpage rather than downloading binaries. Reuse the existing `Severed.marker`.
+
+DLC saves receive chapter-specific titles and pictures; English labels remain when Chinese localization is not selected. Display changes do not convert saves. DLC saves still require the DLC/runtime. The mine interaction issue after death/reload remains unresolved.
+
+## 致谢 / Credits
 
 当前版本基石：[Wemino/MarkerPatch](https://github.com/Wemino/MarkerPatch)、[Tubzbuster/DS2SeveredPC](https://github.com/Tubzbuster/DS2SeveredPC)。
-simgroup 异版简单修复和整合：SomJs。超级校对：lxyun_2（腹黑小喵）、MisakaCharlotte（是的呀啊）。提供部分 Token：天雷本雷。
+simgroup 异版简单修复和整合：SomJs。超级校对：lxyun_2（腹黑小喵）、MisakaCharlotte（是的呀啊）。提供部分 Token：天雷本雷。AI 参与 / AI assisted.
 
-[交流群 339639634](https://qm.qq.com/q/AsZY1d8WxG) · [死亡空间贴吧](https://tieba.baidu.com/f?kw=%E6%AD%BB%E4%BA%A1%E7%A9%BA%E9%97%B4&fr=personalize_page)
-
-[安装器构建方法](installer/BUILDING.md) · [节点插件源码](runtime-fixes/README.md) · [保留的上游说明](README.upstream.md)
-
-勾选或重新勾选 DLC 时默认勾选能量节点修正，仍可手动取消；读取已有安装时保留已保存的选择。
-
-卸载默认清理本工具安装的全部组件、已确认日志、管理器版本文件和空目录；保留管理器 EXE 与 Severed.marker，恢复原先文件。不依据当前卡片勾选来缩小卸载范围。无记录时仅清理可确认的旧残留，不删除未知文件。
-
-右上交流群旁新增 GitHub 发布页按钮；安装成功后显示 DLC 的“新游戏 → Severed”入口提示，确认后关闭安装器主窗口。取消或安装失败时保留窗口。
+[交流群 339639634](https://qm.qq.com/q/AsZY1d8WxG) · [死亡空间贴吧](https://tieba.baidu.com/f?kw=%E6%AD%BB%E4%BA%A1%E7%A9%BA%E9%97%B4&fr=personalize_page) · [构建方法](installer/BUILDING.md) · [独立 ASI 源码](extras/README.md) · [保留的上游说明](README.upstream.md)

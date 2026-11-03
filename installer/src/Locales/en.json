@@ -1,4 +1,4 @@
-﻿{
+{
   "死亡空间贴吧汉化组移植&汉化": "Dead Space 2 Community Patch",
   "交流群339639634 && 死亡空间贴吧": "QQ group 339639634 · Dead Space Tieba",
   "当前版本基石：": "Built on: ",
@@ -513,5 +513,31 @@
   "新增安装前 MarkerPatch 功能确认与推荐勾选。": "Adds a required MarkerPatch review before installation and recommended selections.",
   "取消并返回": "Cancel and return",
   "MarkerPatch 已预设常用修复，可在上方调整；仅支持随包版本。": "MarkerPatch fixes are preselected. Adjust above; only the bundled version is supported.",
-  "功能提示移至主页面，按需打开详细设置。": "Feature notes are now on the main page; open detailed settings when needed."
+  "功能提示移至主页面，按需打开详细设置。": "Feature notes are now on the main page; open detailed settings when needed.",
+  "测试候选：DLC 菜单名称与说明汉化，游戏内显示待验证。": "Test candidate: Chinese DLC menu title and description; in-game rendering needs validation.",
+  "测试候选：章节选择中的本体名称改为“死亡空间2本体”。": "Test candidate: clearer base-game episode label when Chinese localization is enabled.",
+  "存档名称测试候选：只在确认 DLC 条目时改显示；图标尚未替换。": "Save-title test candidate: changes only identified DLC entries; icons are not replaced yet.",
+  "DLC 存档需要 Severed DLC 及运行组件。卸载、停用或回到原版后，请勿读取这些存档；原版读档失败的具体表现尚未验证。请备份存档，重新安装并启用 DLC 后继续。名称和图标修复只改显示，不转换存档。": "DLC saves require Severed DLC and its runtime components. Do not load them after uninstalling, disabling DLC, or returning to the base game; the exact failure behavior in the unmodified game has not been verified. Back up your saves, then reinstall and enable DLC to continue. The title and icon fix changes the display only; it does not convert saves.",
+  "存档图标安装记录不受支持，已保留现有文件。": "The save-icon ownership record is unsupported. Existing files were preserved.",
+  "DS2DAT3.DAT 属于其他模组或已被修改，已停止覆盖。请保留该文件并核对兼容性。": "DS2DAT3.DAT belongs to another mod or has been changed. Installation stopped without overwriting it. Preserve the file and check compatibility.",
+  "基础图片资源版本未匹配，已保留原图片；本次只启用存档名称候选。读取 DLC 存档仍需要启用 DLC。": "The base picture resources did not match the supported version. Original pictures were retained; only the save-title candidate is enabled. Loading DLC saves still requires DLC.",
+  "存档图标资源校验失败，已停止安装。": "Save-icon resource verification failed. Installation stopped.",
+  "存档图标测试候选：新增两章原始图片与 DLC 存档兼容性提示，实机待验证。": "Save-icon test candidate: adds both original chapter pictures and DLC-save compatibility notices. In-game verification pending.",
+  "按安装记录移除本工具的改动，并恢复安装前备份。\r\n如文件已被改动或原备份不可用，会停止卸载并提示处理方法。": "Remove changes owned by this installer and restore the original backups.\r\nIf files were changed or backups are unavailable, uninstall stops and provides guidance.",
+  "\r\n\r\n继续卸载？": "\r\n\r\nContinue uninstalling?",
+  "请使用更改安装修复缺失或被改动的存档图标资源。": "Use Change installation to repair missing or modified save-icon resources.",
+  "存档识别修正候选：只读核对存档关卡，修正列表仍显示本体章节的问题。": "Save-identification candidate: checks campaign metadata read-only to correct base-game chapter labels in the save list.",
+  "存档显示候选：修正读档列表的 DLC 章节名称与两章图片。": "Save display candidate: correct DLC chapter names and both chapter previews in the load menu.",
+  "改进网页打开兼容性，打不开时可复制发布页地址。": "Improved browser launch compatibility; copy the release-page address if it cannot open.",
+  "更新检查未完成，可打开发布页手动查看。": "The update check could not finish. You can check the release page manually.",
+  "部分更新信息未能获取，可打开发布页查看。": "Some update information could not be retrieved. Check the release page for details.",
+  "发布页地址（也可复制到浏览器）：": "Release page (you can also copy this into your browser):",
+  "复制链接": "Copy link",
+  "链接已复制。": "Link copied.",
+  "复制失败，请选中地址后手动复制。": "Copy failed. Select the address and copy it manually.",
+  "手动打开网页": "Open the page manually",
+  "系统未能打开浏览器。请复制下面的地址，粘贴到浏览器中打开；关闭此窗口后可继续使用。": "Windows could not open a browser. Copy the address below and paste it into your browser. Close this window to keep using the installer.",
+  "继续使用": "Continue using the installer",
+  "独立修复插件的安装记录不受支持，已保留现有文件。": "The standalone fix plugin record is unsupported. Existing files were preserved.",
+  "能量节点与 DLC 存档修复改为独立 ASI，原有选项与汉化方式不变。": "Power Node and DLC save-display fixes now use a separate ASI. Existing options and data-based Chinese localization are unchanged."
 }

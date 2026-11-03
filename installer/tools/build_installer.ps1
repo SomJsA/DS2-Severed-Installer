@@ -1,7 +1,8 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string]$MarkerPatchDll,
     [Parameter(Mandatory = $true)][string]$SeveredAsi,
+    [Parameter(Mandatory = $true)][string]$ExtrasAsi,
     [Parameter(Mandatory = $true)][string]$SevenZipExe,
     [Parameter(Mandatory = $true)][string]$SevenZipDll,
     [string]$AssetsRoot,
@@ -33,9 +34,12 @@ function Assert-Hash {
 }
 
 Assert-Hash $MarkerPatchDll '30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55' 1718784
-Assert-Hash $SeveredAsi 'cbc5d2a6a0eb28353e2af8c833469cd238de74a3535906501e77f235eafea475' 711680
+Assert-Hash $SeveredAsi '48874e8ea9ebe97191e7058cc1832eed5d164a62b22c1bd4e875698d2023158f' 124416
+Assert-Hash $ExtrasAsi 'e9adf81e28a3010ed7755927a5e41f56a6ac30e445f7525a5bebf2e8aa42b0a3' 734720
 Assert-Hash $SevenZipExe '94205cfc054dd3bbeb978905bc619a65b3f04e9e73bb2717841110b6f46d962e' 577536
 Assert-Hash $SevenZipDll '78bf6b668d75801e3aa180b4ccb16e6d8395fba80dec8a065055bb6f8dfabb82' 1908736
+Assert-Hash (Join-Path $root 'assets\save-icons\SaveIcons.tail.bin') '30b1b4dbb505faead10878fceac4f5cbcb70d5d1a99502aad4007aeac4eb1af0' 729022
+Assert-Hash (Join-Path $root 'assets\save-icons\SaveIcons.toc.bin') 'bb86263f00028a0f545239a9d28d8829cded328c7f7ed62b1085e18c6df0917c' 2048
 Assert-Hash $MarkerAssets '95781f153738dbc7a67d014476fea730195933812e36e746051279a0218b62e9' 1191931
 Assert-Hash $ChineseAssets '8c035b6ba2b0ad9e96967866281607b55db14a5a1261b413ec3faee93bd7105a' 6981480
 
@@ -74,6 +78,9 @@ $compileArgs = @(
     "/resource:$ChineseAssets,DS2_CHINESE_ASSETS",
     "/resource:$MarkerPatchDll,DS2_MARKER_DLL",
     "/resource:$SeveredAsi,DS2_SEVERED_ASI",
+    "/resource:$ExtrasAsi,DS2_EXTRAS_ASI",
+    "/resource:$(Join-Path $root 'assets\save-icons\SaveIcons.tail.bin'),DS2_SAVE_ICON_TAIL",
+    "/resource:$(Join-Path $root 'assets\save-icons\SaveIcons.toc.bin'),DS2_SAVE_ICON_TOC",
     "/resource:$MarkerIni,DS2_MARKER_INI",
     "/resource:$MarkerAssets,DS2_MARKER_ASSETS",
     "/resource:$(Join-Path $AssetsRoot 'MarkerAssets.version.json'),DS2_MARKER_ASSET_MANIFEST"

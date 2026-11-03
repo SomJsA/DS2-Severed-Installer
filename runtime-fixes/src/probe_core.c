@@ -29,13 +29,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include "menu_localization.hpp"
 
-#define HOOK_VERSION "56+SomJs-shop-test1"
+#define HOOK_VERSION "56+SomJs-core-split1"
 
-/* Modified derivative: optional Severed-only store trial and event tracing. */
-extern "C" void ds2fix_campaign(int active);
-extern "C" void ds2fix_install(int level_hook_ready);
-extern "C" void ds2fix_message(DWORD hash);
+/* Node and save-display fixes are in the independent SeveredExtras.asi. */
 
 static HANDLE g_log = INVALID_HANDLE_VALUE;
 static CRITICAL_SECTION g_cs;
@@ -281,13 +279,44 @@ typedef void *(__thiscall *ctor_fn)(void *self);
 static ctor_fn g_ctor_tramp;
 static add_episode_fn g_add;
 
+typedef void (__thiscall *game_string_assign_fn)(void*,const char*);
+static game_string_assign_fn g_assign_base_name;
+struct EpisodeStringView { const char* text; DWORD length,capacity; void* release; };
+struct EpisodeListView { BYTE* entries; DWORD count,capacity; };
+static_assert(sizeof(EpisodeStringView)==16,"Expected 32-bit game string layout");
+static bool executable_code(const void* p) {
+    MEMORY_BASIC_INFORMATION mi;
+    return p && VirtualQuery(p,&mi,sizeof(mi)) && mi.State==MEM_COMMIT && !(mi.Protect&(PAGE_GUARD|PAGE_NOACCESS)) && (mi.Protect&(PAGE_EXECUTE|PAGE_EXECUTE_READ|PAGE_EXECUTE_READWRITE|PAGE_EXECUTE_WRITECOPY));
+}
+static game_string_assign_fn resolve_name_assignment(BYTE* add) {
+    static const BYTE prefix[]={0x56,0x81,0xC1,0x80,0x09,0,0,0xE8};
+    if(!mem_ok(add,26)||memcmp(add,prefix,sizeof(prefix))||add[21]!=0xE8)return nullptr;
+    int delta;memcpy(&delta,add+22,sizeof(delta));BYTE* target=add+26+delta;
+    return executable_code(target)?reinterpret_cast<game_string_assign_fn>(target):nullptr;
+}
+static unsigned rename_base_episode(void* self,bool chinese) {
+    if(!chinese||!g_assign_base_name||!self||!mem_ok(self,0x980+sizeof(EpisodeListView)))return 0;
+    EpisodeListView list;memcpy(&list,static_cast<BYTE*>(self)+0x980,sizeof(list));
+    if(!list.entries||list.count==0||list.count>64||list.capacity<list.count||list.capacity>64||!mem_ok(list.entries,list.count*0x68))return 0;
+    unsigned renamed=0;
+    for(DWORD i=0;i<list.count;++i) {
+        BYTE* entry=list.entries+i*0x68;EpisodeStringView folder;memcpy(&folder,entry+0x20,sizeof(folder));
+        if(folder.length!=4||folder.capacity<4||!mem_ok(folder.text,5)||memcmp(folder.text,"ds_2",5))continue;
+        g_assign_base_name(entry,"\xE6\xAD\xBB\x20\xE4\xBA\xA1\x20\xE7\xA9\xBA\x20\xE9\x97\xB4\x20\x32\x20\xE6\x9C\xAC\x20\xE4\xBD\x93");++renamed;
+    }
+    return renamed;
+}
+
+
 static void *__fastcall hook_frontend_ctor(void *self, void *unused_edx)
 {
     (void)unused_edx;
     void *r = g_ctor_tramp(self);
-    g_add(self, "Dead Space 2: Severed", "Gabe Weller's story",
+    const SeveredMenuText& menu = severed_menu_for_game();
+    const unsigned base_labels = rename_base_episode(self,menu.chinese);
+    g_add(self, menu.title, menu.description,
           "pdlc1_ch01_mng", "pdlc1_ch01_mng.str", "XONTREALPR_CB22182_E50854D_v3", 0, 0, NULL);
-    log_line("front end: Severed added to the episode list");
+    log_line("front end: Severed added to the episode list; menu=%s base_labels=%u",menu.chinese ? "zh-CN" : "en",base_labels);
     return r;
 }
 
@@ -300,6 +329,7 @@ static int hook_episode_list(BYTE *add, BYTE *ctor)
     t[5] = 0xE9; *(DWORD *)(t + 6) = (DWORD)(ctor + 5) - (DWORD)(t + 10);
     g_ctor_tramp = (ctor_fn)t;
     g_add = (add_episode_fn)add;
+    g_assign_base_name = resolve_name_assignment(add);
     if (!VirtualProtect(ctor, 5, PAGE_EXECUTE_READWRITE, &old)) { VirtualFree(t, 0, MEM_RELEASE); return 0; }
     ctor[0] = 0xE9; *(DWORD *)(ctor + 1) = (DWORD)hook_frontend_ctor - (DWORD)(ctor + 5);
     VirtualProtect(ctor, 5, old, &old);
@@ -320,7 +350,6 @@ static void upgrade_schedule(const char *why);
 
 static void __cdecl on_level_start(void *self)
 {
-    ds2fix_campaign(0);
     const char *folder = self && mem_ok((BYTE *)self + 0x28, 4) ? *(const char **)((BYTE *)self + 0x28) : NULL;
     char name[128];
     int n;
@@ -331,7 +360,6 @@ static void __cdecl on_level_start(void *self)
     n = lstrlenA(name);
     while (n && (name[n - 1] == '\\' || name[n - 1] == '/')) name[--n] = 0;
     g_severed_level = !lstrcmpiA(name, "pdlc1_ch01_mng");
-    ds2fix_campaign(g_severed_level);
     if (g_severed_level) upgrade_schedule("Severed level start");
 }
 
@@ -437,7 +465,6 @@ static void __cdecl note_msgsend(const void *arg)
 {
     const DWORD *msg = (const DWORD *)arg;
     if (!msg || !mem_ok(msg, 4)) return;
-    ds2fix_message(msg[0]);
     if (msg[0] == g_equip_hash && g_severed_level) upgrade_schedule("equip_player_upgrade_nodes");
     if (g_upg_due && (LONG)(GetTickCount() - g_upg_due) >= 0 && GetCurrentThreadId() == g_game_thread)
         upgrade_rifle();
@@ -572,7 +599,6 @@ static DWORD WINAPI hook_thread(LPVOID p)
     log_line("end of game: %d match(es) at exe+0x%lx%s", ne, exe_off(eog), ending ? ", hooked" : "");
     log_line("message send (F7): %d match(es) at exe+0x%lx", ns, exe_off(g_sendmsg));
     log_line("upgrade manager: %s", g_upgmgr ? "found" : "not found (no Pulse Rifle upgrades)");
-    ds2fix_install(level);
     return 0;
 }
 
@@ -647,6 +673,7 @@ static void start(void)
     install("PeekMessageW", (void *)h_PeekMessageW, (void **)&o_PeekMessageW);
     CloseHandle(CreateThread(NULL, 0, hotkey_thread, NULL, 0, NULL));
     CloseHandle(CreateThread(NULL, 0, hook_thread, NULL, 0, NULL));
+
     AddVectoredExceptionHandler(1, crash_handler);
 }
 
@@ -715,4 +742,8 @@ BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID reserved)
 
 #ifdef DS2FIX_CORE_TEST
 extern "C" void* ds2fix_core_ctor_test(void* self,void* ctor,void* add) { g_ctor_tramp=(ctor_fn)ctor; g_add=(add_episode_fn)add; return hook_frontend_ctor(self,NULL); }
+extern "C" void* ds2fix_core_ctor_config_test(void* self,void* ctor,void* add,const wchar_t* ini) { g_menu_test_ini=ini; void* result=ds2fix_core_ctor_test(self,ctor,add); g_menu_test_ini=nullptr; return result; }
+extern "C" bool ds2fix_core_menu_ini_path_test(wchar_t* out,DWORD capacity) { return severed_menu_ini_path(out,capacity); }
+extern "C" void* ds2fix_core_base_ctor_test(void* self,void* ctor,void* add,void* assign,const wchar_t* ini) { game_string_assign_fn previous=g_assign_base_name;g_assign_base_name=reinterpret_cast<game_string_assign_fn>(assign);void* result=ds2fix_core_ctor_config_test(self,ctor,add,ini);g_assign_base_name=previous;return result; }
+extern "C" void* ds2fix_core_resolve_assign_test(BYTE* add) { return reinterpret_cast<void*>(resolve_name_assignment(add)); }
 #endif

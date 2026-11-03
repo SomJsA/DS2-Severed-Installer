@@ -141,6 +141,14 @@ internal static class UpdateChecker
         }
         return list;
     }
+    internal static string BrowserPage(UpdateReport report)
+    {
+        string fallback=report.Installer!=null || !report.MarkerUpdate ? ProductInfo.OwnReleasesPage : "https://github.com/Wemino/MarkerPatch/releases";
+        string offered=report.Installer!=null ? report.Installer.Page : report.MarkerUpdate ? report.MarkerPage : fallback;
+        Uri candidate;
+        if(!Uri.TryCreate(offered,UriKind.Absolute,out candidate) || candidate.Host!="github.com")offered=fallback;
+        return WebLinks.Normalize(offered,fallback);
+    }
     public static UpdateReport Check()
     {
         var result = new UpdateReport();

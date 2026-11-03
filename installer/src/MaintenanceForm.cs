@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -197,6 +197,7 @@ internal sealed partial class InstallerForm
         if (PreviewOnly || installedSelection == null) return;
         bool enable = !installedSelection.MarkerEnabled;
         string prompt = enable ? L.T("启用随包 MarkerPatch？重新启动游戏后生效。") : L.T("停用随包 MarkerPatch 后，DLC 入口与依赖它的运行修正将不再生效。继续？");
+        if (!enable) prompt += "\r\n\r\n" + ProductInfo.SaveCompatibility;
         if (MessageBox.Show(this, prompt, L.T("MarkerPatch 启动控制"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
         SetBusy(true);
         try { InstallerEngine.SetMarkerEnabled(gameBox.Text, enable, AppendLog); RefreshInstalledState(); }
@@ -212,15 +213,11 @@ internal sealed partial class InstallerForm
             "Severed DLC：" + (options.Dlc ? yes : no) + "\r\nMarkerPatch：" + (options.MarkerPatch ? yes : L.T("只保留 DLC 必需依赖；没有 DLC 时移除")) +
             "\r\n\r\n" + InstallerEngine.DependencyDescription(options) + "\r\n\r\n" +
             L.T("识别到旧版时直接迁移，保留自定义值和原始备份。异常时请备份存档并尝试全新安装。") +
+            (!options.Dlc && installedSelection != null && installedSelection.Options.Dlc ? "\r\n\r\n" + ProductInfo.SaveCompatibility : "") +
             (installedSelection != null && installedSelection.ExternalMarker ? "\r\n\r\n" + L.T("检测到外置加载器或其他版本，可能不兼容；请核对来源，必要时向对应作者提 Issue。") : "") + L.T("\r\n\r\n继续安装？");
     }
     public void SelectGameDirectory(string path) { gameBox.Text = path; RefreshNearbyPackage(); RefreshInstalledState(); }
-    private static void OpenPage(string url)
-    {
-        Uri uri;
-        if (!Uri.TryCreate(url, UriKind.Absolute, out uri) || uri.Scheme != "https" || uri.Host != "github.com") throw new InvalidDataException("Invalid GitHub link");
-        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-    }
+    private void OpenPage(string url) { WebLinks.Show(this,url); }
     private void CheckUpdates(bool automatic)
     {
         if (checkingUpdates || busy || PreviewOnly) return;
@@ -233,26 +230,29 @@ internal sealed partial class InstallerForm
             catch (InvalidOperationException) { }
         });
     }
+    private Form CreateUpdateDialog(UpdateReport report)
+    {
+            var dialog = MakeDialog(L.T("更新与累计日志"), new Size(790,590));
+            bool available = report.Installer != null || report.MarkerUpdate;
+            string body = report.Installer == null ? (string.IsNullOrWhiteSpace(report.Error) ? L.T("本程序没有发现更新版本。") : L.T("更新检查未完成，可打开发布页手动查看。")) : L.T("发现新版：") + report.Installer.Tag + "\r\n\r\n" + report.CombinedNotes;
+            body += "\r\n\r\nMarkerPatch " + L.T("随包版本：") + UpdateChecker.BundledMarkerVersion + "\r\n" +
+                (report.MarkerUpdate ? L.T("上游有更新；新版本与当前节点修正的兼容性尚需验证。") + "\r\n" + report.MarkerNotes : (string.IsNullOrWhiteSpace(report.Error) ? L.T("未发现较新的上游发行版本。") : L.T("部分更新信息未能获取，可打开发布页查看。")));
+            if (!string.IsNullOrWhiteSpace(report.Error)) body += "\r\n\r\n" + report.Error;
+            bool canOpen = available || !string.IsNullOrWhiteSpace(report.Error);
+            string page = UpdateChecker.BrowserPage(report);
+            if (canOpen) body += "\r\n\r\n" + L.T("是否打开 GitHub 发布网页？选择否则继续正常使用。");
+            var text = new TextBox { ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Text = body, Location = new Point(16,16), Size = new Size(758,410), BackColor = PaintSkin.Panel, ForeColor = Color.White };
+            L.KeepLiteral(text); dialog.Controls.Add(text);
+            var addressLabel = new Label { Text=L.T("发布页地址（也可复制到浏览器）："),AutoSize=true,Location=new Point(16,440),ForeColor=Color.White }; dialog.Controls.Add(addressLabel);
+            var address = new TextBox { ReadOnly=true,Text=page,Location=new Point(16,470),Size=new Size(758,32) }; L.KeepLiteral(address); dialog.Controls.Add(address);
+            var copy=MakeButton(L.T("复制链接"),16,530,180,40,false); copy.Click+=(s,e)=>WebLinks.CopyAddress(address,addressLabel); dialog.Controls.Add(copy);
+            var yes = MakeButton(L.T("是，打开网页"),206,530,280,40,true); yes.Enabled=canOpen; yes.DialogResult=DialogResult.Yes; dialog.Controls.Add(yes);
+            var no = MakeButton(L.T("否，继续使用"),534,530,240,40,false); no.DialogResult=DialogResult.No; dialog.Controls.Add(no);
+            dialog.CancelButton=no; L.ApplyTree(dialog);return dialog;
+    }
     private void ShowUpdateReport(UpdateReport report)
     {
-        using (var dialog = MakeDialog(L.T("更新与累计日志"), new Size(790, 590)))
-        {
-            bool available = report.Installer != null || report.MarkerUpdate;
-            string body = report.Installer == null ? L.T("本程序没有发现更新版本。") : L.T("发现新版：") + report.Installer.Tag + "\r\n\r\n" + report.CombinedNotes;
-            body += "\r\n\r\nMarkerPatch " + L.T("随包版本：") + UpdateChecker.BundledMarkerVersion + "\r\n" +
-                (report.MarkerUpdate ? L.T("上游有更新；新版本与当前节点修正的兼容性尚需验证。") + "\r\n" + report.MarkerNotes : L.T("未发现较新的上游发行版本。"));
-            if (!string.IsNullOrWhiteSpace(report.Error)) body += "\r\n\r\n" + report.Error;
-            if (available) body += "\r\n\r\n" + L.T("是否打开 GitHub 发布网页？选择否则继续正常使用。");
-            var text = new TextBox { ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Text = body, Location = new Point(16,16), Size = new Size(758,490), BackColor = PaintSkin.Panel, ForeColor = Color.White };
-            L.KeepLiteral(text); dialog.Controls.Add(text);
-            var yes = MakeButton(L.T("是，打开网页"),16,530,240,40,true); yes.Enabled=available; yes.DialogResult=DialogResult.Yes; dialog.Controls.Add(yes);
-            var no = MakeButton(L.T("否，继续使用"),534,530,240,40,false); no.DialogResult=DialogResult.No; dialog.Controls.Add(no);
-            dialog.CancelButton=no; L.ApplyTree(dialog);
-            if (dialog.ShowDialog(this) == DialogResult.Yes)
-            {
-                try { OpenPage(report.Installer != null ? report.Installer.Page : report.MarkerPage); }
-                catch (Exception ex) { MessageBox.Show(this,L.T("无法打开更新网页：")+ex.Message); }
-            }
-        }
+        using(var dialog=CreateUpdateDialog(report))
+            if(dialog.ShowDialog(this)==DialogResult.Yes)OpenPage(UpdateChecker.BrowserPage(report));
     }
 }

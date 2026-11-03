@@ -16,17 +16,30 @@
   "severedpc": {
     "repository": "https://github.com/Tubzbuster/DS2SeveredPC",
     "release_tag": "v1.1.5",
-    "asi_bytes": 711680,
-    "asi_sha256": "cbc5d2a6a0eb28353e2af8c833469cd238de74a3535906501e77f235eafea475",
+    "asi_bytes": 124416,
+    "asi_sha256": "48874e8ea9ebe97191e7058cc1832eed5d164a62b22c1bd4e875698d2023158f",
     "upstream_asi_sha256": "9a4542eccdbf88ab3ca0c02c52aca34eff9d0ccf3d2fdf71fd1a6314cb561a46",
-    "local_patch": "Candidate 2: detailed hook errors and validated MarkerPatch callback fallback; gameplay pending",
+    "local_patch": "Existing DLC core/menu/base labels retained; node and save hooks removed",
     "source_path": "runtime-fixes",
     "required_marker_switches": [
       "LoadASIPlugins",
       "EnableSeveredDLC",
       "EnableHackerDLC"
     ],
-    "candidate1_sha256": "62e35b4d9187b5e4a96ee1290db2f79d50c39998a2563eb2b5bab0080ac1a66c"
+    "candidate1_sha256": "62e35b4d9187b5e4a96ee1290db2f79d50c39998a2563eb2b5bab0080ac1a66c",
+    "candidate2_sha256": "cbc5d2a6a0eb28353e2af8c833469cd238de74a3535906501e77f235eafea475",
+    "menu_localization": {
+      "config_section": "Localization",
+      "config_key": "SimplifiedChinese",
+      "based_on": "successfully applied game localization, not installer UI language"
+    },
+    "menu_candidate1_sha256": "b0738f7c3fcb299991f96dacb04625c9185a76abd483d97c9783d6b011a3ed21",
+    "menu_candidate2_sha256": "44825f30ded51c224e79371d04807432e5896315e372e6da35fbf613f5f2b716",
+    "save_title_candidate1_sha256": "02ca50558e5f2cbe6fd1c7c6fcc153869ad8b4efd261a9771eff746698569603",
+    "save_display_candidate2_sha256": "68a6e822ba54da3b248fb882ce121d712143644ed396f63b14bffe46f0aaad8a",
+    "save_display_candidate3_sha256": "bee028e9b49fb9bd0a73042f99c97d4ea4b8222be32bfdcba388a5fbbaa301a5",
+    "save_display_candidate4_sha256": "fec3972b90bc48a41f854fcc783b9f18e580ff6c332f32776d6e77c07ab52fd5",
+    "save_display_in_core": false
   },
   "sevenzip": {
     "version_used": "26.05",
@@ -79,8 +92,8 @@
     "Chinese localization (optional)"
   ],
   "installer": {
-    "release": "2026.11.3.1",
-    "assembly_version": "2026.11.3.1",
+    "release": "2026.11.3.9",
+    "assembly_version": "2026.11.3.9",
     "repository": "https://github.com/SomJsA/DS2-Severed-Installer",
     "default_subtitle_scale": 1.0,
     "languages": [
@@ -89,7 +102,7 @@
     ],
     "startup_language": "Windows preferred display languages in order",
     "manual_language_switch": true,
-    "english_catalog_sha256": "6f8b03d77325182a20ab4e6df569147afad6f76fffd0f57ff133a189875530a7",
+    "english_catalog_sha256": "5ff2d11ffe6aab0eafbcadc86fd68fb248b7a7fc1791ee934bb8c454c07bddd6",
     "install_record_version": 11,
     "change_installation": true,
     "save_settings_without_dat_rewrite": true,
@@ -110,7 +123,8 @@
     ],
     "external_dlc_distribution": "reuse existing Severed.marker; not bundled by default",
     "mandatory_marker_review": false,
-    "marker_notice": "main window; detailed settings opened manually"
+    "marker_notice": "main window; detailed settings opened manually",
+    "status": "release-2026.11.3.9"
   },
   "ui_assets": {
     "app.ico": {
@@ -134,5 +148,114 @@
       "sha256": "f1f5aba78bcc8203e12bf7ed2f5f8fb726fe25fa8e0fd0b25bd7b9d9ad7a86a2",
       "source": "user-supplied Titan Station image"
     }
+  },
+  "save_icons": {
+    "status": "LOCAL_CANDIDATE_TWO_CHAPTER_PC_ACCEPTANCE_PENDING",
+    "source_stream_sha256": "7dc56fe9483c09a4645cfa3172a48298c0525b8b851e7adb753c47186eeec114",
+    "source_toc_sha256": "852cb55463f539c9e635d2dac40f403ed09302a9577e384d528c180371eae7d8",
+    "source_stream_bytes": 20054016,
+    "output_stream_sha256": "dc3f5e03dd753142d2a63e1f983bfbb1f0f73c57c62aee998f9ed085ad8ee562",
+    "output_stream_bytes": 20578304,
+    "archive_sha256": "3e237c3d9650c39920881b6717939e47c75f0cacc99f60b1390b3769399e6db8",
+    "archive_bytes": 20582400,
+    "apx_original_sha256": "dcc335c2234decbda5199c559f9247d14edd8d0ebd0cad6dcea669361111b2f4",
+    "apx_patched_sha256": "693eadbff3fbcc7fd1c2c733f4c3fae4ec889d56bc81e94168c67f3e629540c8",
+    "old_frames": 18,
+    "new_frames": 20,
+    "new_shape_ids": [
+      159,
+      161
+    ],
+    "source_art_original": true,
+    "aspect_preserved": true,
+    "original_texture_blocks_unchanged": true,
+    "all_other_asset_payloads_unchanged": true,
+    "save_files_untouched": true,
+    "delta_bytes": 729022,
+    "copy_instructions": 5,
+    "native_preview_indices": [
+      18,
+      19
+    ]
+  },
+  "save_catalog": {
+    "read_only": true,
+    "directory": "Windows known Documents/EA Games/Dead Space 2",
+    "files": "ds_slot_01..20.deadspace2saved",
+    "prefix_read_limit_bytes": 65536,
+    "formats": [
+      "RGMH v1",
+      "NMSD v1",
+      "MC02 metadata tag 8 / 368 bytes"
+    ],
+    "custom_save_directories_verified": false,
+    "full_save_checksum_verified": false,
+    "refresh": "before each list build, on the same thread",
+    "per_row_callback_file_io": false,
+    "save_writes": false,
+    "no_save_chapter_renumbering": true,
+    "binding": "actual SP11 controller owner + native row slot + expected original preview frame"
+  },
+  "save_preview_apx": {
+    "status": "LOCAL_CANDIDATE_TWO_CHAPTER_PC_ACCEPTANCE_PENDING",
+    "source_stream_sha256": "7dc56fe9483c09a4645cfa3172a48298c0525b8b851e7adb753c47186eeec114",
+    "source_toc_sha256": "852cb55463f539c9e635d2dac40f403ed09302a9577e384d528c180371eae7d8",
+    "source_stream_bytes": 20054016,
+    "output_stream_sha256": "dc3f5e03dd753142d2a63e1f983bfbb1f0f73c57c62aee998f9ed085ad8ee562",
+    "output_stream_bytes": 20578304,
+    "archive_sha256": "3e237c3d9650c39920881b6717939e47c75f0cacc99f60b1390b3769399e6db8",
+    "archive_bytes": 20582400,
+    "apx_original_sha256": "dcc335c2234decbda5199c559f9247d14edd8d0ebd0cad6dcea669361111b2f4",
+    "apx_patched_sha256": "693eadbff3fbcc7fd1c2c733f4c3fae4ec889d56bc81e94168c67f3e629540c8",
+    "old_frames": 18,
+    "new_frames": 20,
+    "new_shape_ids": [
+      159,
+      161
+    ],
+    "source_art_original": true,
+    "aspect_preserved": true,
+    "original_texture_blocks_unchanged": true,
+    "all_other_asset_payloads_unchanged": true,
+    "save_files_untouched": true,
+    "delta_bytes": 729022,
+    "copy_instructions": 5,
+    "native_preview_indices": [
+      18,
+      19
+    ]
+  },
+  "legacy_save_icon_archive_sha256": [
+    "b9900b89f2a2e9b18ba900f47c6aa4d78ca473ff10eb088883b1ed6c17cf1b93"
+  ],
+  "extras": {
+    "filename": "plugins/SeveredExtras.asi",
+    "sha256": "e9adf81e28a3010ed7755927a5e41f56a6ac30e445f7525a5bebf2e8aa42b0a3",
+    "bytes": 734720,
+    "loader": "official MarkerPatch 3.0.7, unchanged",
+    "ini": "plugins/SeveredRuntimeFixes.ini",
+    "features": [
+      "existing Node C2",
+      "existing APX save display"
+    ],
+    "native_dlc_core_import": false,
+    "level_observer_offset": 86,
+    "localization_data_changed": false,
+    "save_display": {
+      "title_fix": true,
+      "icon_fix": true,
+      "trace_rows": true,
+      "persistent_save_writes": false,
+      "ui": "APX/SP11SaveSlot",
+      "native_row_stride": 40,
+      "preview_indices": [
+        18,
+        19
+      ],
+      "english_without_localization": true,
+      "unknown_layout_behavior": "retain original display",
+      "development_assertion_observers_in_production": false
+    },
+    "source_path": "extras"
   }
 }
