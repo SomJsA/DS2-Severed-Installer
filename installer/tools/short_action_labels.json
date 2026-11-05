@@ -1,0 +1,128 @@
+[
+  {
+    "id": "230F8273",
+    "english": "continue",
+    "chinese_before": "\u7ee7 \u7eed",
+    "chinese_trial": "\u7ee7\u7eed"
+  },
+  {
+    "id": "27136402",
+    "english": "Activate",
+    "chinese_before": "\u542f \u52a8",
+    "chinese_trial": "\u542f\u52a8"
+  },
+  {
+    "id": "2FC2D918",
+    "english": "CANCEL",
+    "chinese_before": "\u53d6 \u6d88",
+    "chinese_trial": "\u53d6\u6d88"
+  },
+  {
+    "id": "5C466DC7",
+    "english": "Back",
+    "chinese_before": "\u8fd4 \u56de",
+    "chinese_trial": "\u8fd4\u56de"
+  },
+  {
+    "id": "5C466DD4",
+    "english": "Back",
+    "chinese_before": "\u8fd4 \u56de",
+    "chinese_trial": "\u8fd4\u56de"
+  },
+  {
+    "id": "5C4F6FFE",
+    "english": "Back",
+    "chinese_before": "\u8fd4 \u56de",
+    "chinese_trial": "\u8fd4\u56de"
+  },
+  {
+    "id": "5C4F700B",
+    "english": "Back",
+    "chinese_before": "\u8fd4 \u56de",
+    "chinese_trial": "\u8fd4\u56de"
+  },
+  {
+    "id": "5C60FDCC",
+    "english": "confirm",
+    "chinese_before": "\u786e \u8ba4",
+    "chinese_trial": "\u786e\u8ba4"
+  },
+  {
+    "id": "63BB13E3",
+    "english": "BACK",
+    "chinese_before": "\u8fd4 \u56de",
+    "chinese_trial": "\u8fd4\u56de"
+  },
+  {
+    "id": "68686F1E",
+    "english": "LAUNCH",
+    "chinese_before": "\u542f \u52a8",
+    "chinese_trial": "\u542f\u52a8"
+  },
+  {
+    "id": "6EFCAA64",
+    "english": "back",
+    "chinese_before": "\u8fd4 \u56de",
+    "chinese_trial": "\u8fd4\u56de"
+  },
+  {
+    "id": "6EFDAAA3",
+    "english": "back",
+    "chinese_before": "\u8fd4 \u56de",
+    "chinese_trial": "\u8fd4\u56de"
+  },
+  {
+    "id": "7D194F63",
+    "english": "select",
+    "chinese_before": "\u9009 \u62e9",
+    "chinese_trial": "\u9009\u62e9"
+  },
+  {
+    "id": "827EDBD3",
+    "english": "CONTINUE",
+    "chinese_before": "\u7ee7 \u7eed",
+    "chinese_trial": "\u7ee7\u7eed"
+  },
+  {
+    "id": "967AD51E",
+    "english": "Confirm",
+    "chinese_before": "\u786e \u8ba4",
+    "chinese_trial": "\u786e\u8ba4"
+  },
+  {
+    "id": "AE56176F",
+    "english": "select",
+    "chinese_before": "\u9009 \u62e9",
+    "chinese_trial": "\u9009\u62e9"
+  },
+  {
+    "id": "AE5717AE",
+    "english": "select",
+    "chinese_before": "\u9009 \u62e9",
+    "chinese_trial": "\u9009\u62e9"
+  },
+  {
+    "id": "B818A4EE",
+    "english": "continue",
+    "chinese_before": "\u7ee7 \u7eed",
+    "chinese_trial": "\u7ee7\u7eed"
+  },
+  {
+    "id": "C6BE8D98",
+    "english": "CONFIRM",
+    "chinese_before": "\u786e \u8ba4",
+    "chinese_trial": "\u786e\u8ba4"
+  },
+  {
+    "id": "D1E6CC21",
+    "english": "cancel",
+    "chinese_before": "\u53d6 \u6d88",
+    "chinese_trial": "\u53d6\u6d88"
+  },
+  {
+    "id": "F45BC2AE",
+    "english": "back",
+    "chinese_before": "\u8fd4 \u56de",
+    "chinese_trial": "\u8fd4\u56de"
+  }
+]

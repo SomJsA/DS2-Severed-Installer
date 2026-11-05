@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Web.Script.Serialization;
 
 internal static partial class InstallerEngine
 {
-    private static readonly string[] GeneratedOutputPaths = { "severed_probe.log", "plugins\\SeveredRuntimeFixes.log", "plugins\\SeveredExtras.log", ManagerInfo, ManagerName + ".ds2oneclick.bak" };
+    private static readonly string[] GeneratedOutputPaths = { "severed_probe.log", "plugins\\SeveredRuntimeFixes.log", "plugins\\SeveredExtras.log", "plugins\\SeveredPowerNodeFix.bootstrap.log", "plugins\\SeveredPowerNodeFix.log", "plugins\\SeveredSaveDisplay.log", "plugins\\SeveredMiningCampFix.log", ManagerInfo, ManagerName + ".ds2oneclick.bak" };
     private static bool KnownGeneratedOutput(string game, string relative)
     {
         AssertPlain(game, relative);
@@ -32,6 +32,10 @@ internal static partial class InstallerEngine
             char[] buffer = new char[4096]; string head = new string(buffer, 0, reader.Read(buffer, 0, buffer.Length));
             return relative == "severed_probe.log" ? Regex.IsMatch(head, @"\bsevered hook (?:[0-9]+|[0-9]+\+SomJs-shop-(?:test1|candidate2)|[0-9]+\+SomJs-core-split1)\b") :
                 relative == "plugins\\SeveredExtras.log" ? head.Contains("SeveredExtras standalone-1;") :
+                relative == "plugins\\SeveredPowerNodeFix.bootstrap.log" ? head.Contains("Optional standalone Power Node ASI enabled;") :
+                relative == "plugins\\SeveredPowerNodeFix.log" ? head.Contains("Optional Severed Power Node fix enabled;") :
+                relative == "plugins\\SeveredSaveDisplay.log" ? head.Contains("Optional standalone DLC save-display ASI enabled;") :
+                relative == "plugins\\SeveredMiningCampFix.log" ? head.Contains("MINING_INIT constructor hooked;") :
                 head.Contains("SomJs shop-test1 profile=") || head.Contains("SomJs shop-candidate2 profile=");
         }
     }

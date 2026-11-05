@@ -1,0 +1,44 @@
+{
+  "source_sha256": "5645b0a0358966b1966bb066ba90a337fbeb539be4fbaf4450cc5d47171982dd",
+  "source_toc_sha256": "fc4b37b2abda391c47c1835cd303cf19f521ead40f8368d3d122386aa24d3afc",
+  "source_bytes": 20578304,
+  "result_sha256": "5c3ab219ab76d0a22f404dc0782eaca41493effd60ea8556acf6f57681c06e30",
+  "result_bytes": 20709376,
+  "recipe_sha256": "847c35a2053387e5057e78629139148194ffb3430ec2c528cd33abff0c177385",
+  "recipe_bytes": 195320,
+  "toc_sha256": "e31493cf6b8fa0ecb99212ea8f9decb801847f688d33e0f91eeb38ae5efdddc3",
+  "toc_bytes": 32768,
+  "archive_sha256": "adc7195c9a32a14fa8087f07d870d271e14aa039ba947db141d17fdebcaaf1b6",
+  "archive_bytes": 41324544,
+  "native_guids": [
+    [
+      1058053896,
+      1058053896,
+      1058053896,
+      4256961761
+    ],
+    [
+      2197618185,
+      2197618185,
+      2197618185,
+      4273500662
+    ]
+  ],
+  "only_original_asset_with_new_fields": "global_assets.simgroup.bin",
+  "other_original_assets_unchanged": true,
+  "icon_table": {
+    "original_properties": 3912,
+    "new_properties": 3916,
+    "original_icon_fields": 36,
+    "new_icon_fields": 40,
+    "added_parameter_slots": [
+      16,
+      17
+    ],
+    "old_references_relocated": 2536,
+    "existing_icon_mappings_preserved": true,
+    "original_object_records_preserved": true
+  },
+  "saves_untouched": true,
+  "gameplay_validated": false
+}

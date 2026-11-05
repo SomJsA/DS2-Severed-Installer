@@ -19,7 +19,7 @@
     "asi_bytes": 124416,
     "asi_sha256": "48874e8ea9ebe97191e7058cc1832eed5d164a62b22c1bd4e875698d2023158f",
     "upstream_asi_sha256": "9a4542eccdbf88ab3ca0c02c52aca34eff9d0ccf3d2fdf71fd1a6314cb561a46",
-    "local_patch": "Existing DLC core/menu/base labels retained; node and save hooks removed",
+    "local_patch": "Existing DLC core/menu labels retained; one independent ASI per runtime issue",
     "source_path": "runtime-fixes",
     "required_marker_switches": [
       "LoadASIPlugins",
@@ -55,15 +55,18 @@
     "dat2_sha256": "81a145da647660d34a6fcb15ea3a8709c74855cf1beef23fc668a3ae42eb6ea0"
   },
   "font": {
-    "font_name": "Swei Shear Sans CJK SC Medium",
-    "font_file_size": 10759464,
-    "source": "DeadSpace汉化遗产.zip: ds工具包/字体生成/data/font.ttf"
+    "story_font_name": "Swei Shear Sans CJK SC Regular",
+    "story_font_file_size": 10900088,
+    "story_font_sha256": "df140c929d10307ca270de1161134d20bf1cc3b12aaee7b6df50ebfb4b8ceb2d",
+    "title_font_name": "MStiffHei",
+    "title_font_file_size": 1767244,
+    "title_font_sha256": "c14c692b526830a48bfa7d946afb3beb350f078abad3cd67d245877fed52b751"
   },
   "generated": {
-    "font_stream_sha256": "3b70cff50748d8d931a04bb6ba1286bdef97a0a5f1e2acabaef916043e843dcb",
-    "chinese_assets_bytes": 6981480,
-    "chinese_assets_sha256": "8c035b6ba2b0ad9e96967866281607b55db14a5a1261b413ec3faee93bd7105a",
-    "dat0_sha256": "e9a5a0d212c1848009543ace7876a745d39f498b4c514673bd02df123c182583",
+    "font_stream_sha256": "d5c09c975a48fa130dfab5fb3c7e49a8591c45dce5a188f13b585adf36743c78",
+    "chinese_assets_bytes": 21705707,
+    "chinese_assets_sha256": "990a5bb9590cfc65724e206134a8b6806f5061672241cc0468261b511a5d83a7",
+    "dat0_sha256": "1e2363ed8613f910ca4bb0345d5a5eb3157fad5f51f935c53661bda9a803d803",
     "dat2_sha256": "90301421956be9de44c2dbc89d64f3a928bc8cc468ad82927ef059f48b454876",
     "dlc_marker_bytes": 1170665452,
     "dlc_marker_sha256": "e35109e970c9d6e5aed4873f9efcc6f317cf17cb1a17177e14087dada6028b4c"
@@ -92,8 +95,8 @@
     "Chinese localization (optional)"
   ],
   "installer": {
-    "release": "2026.11.3.9",
-    "assembly_version": "2026.11.3.9",
+    "release": "2026.11.4.14",
+    "assembly_version": "2026.11.4.14",
     "repository": "https://github.com/SomJsA/DS2-Severed-Installer",
     "default_subtitle_scale": 1.0,
     "languages": [
@@ -102,7 +105,7 @@
     ],
     "startup_language": "Windows preferred display languages in order",
     "manual_language_switch": true,
-    "english_catalog_sha256": "5ff2d11ffe6aab0eafbcadc86fd68fb248b7a7fc1791ee934bb8c454c07bddd6",
+    "english_catalog_sha256": "e8dd6bb8088e3482f1089b064ee8aeccaf95cb3eede7ff92874a830164a076c8",
     "install_record_version": 11,
     "change_installation": true,
     "save_settings_without_dat_rewrite": true,
@@ -124,7 +127,7 @@
     "external_dlc_distribution": "reuse existing Severed.marker; not bundled by default",
     "mandatory_marker_review": false,
     "marker_notice": "main window; detailed settings opened manually",
-    "status": "release-2026.11.3.9"
+    "status": "local-font-candidate3"
   },
   "ui_assets": {
     "app.ico": {
@@ -257,5 +260,79 @@
       "development_assertion_observers_in_production": false
     },
     "source_path": "extras"
+  },
+  "install_audit": {
+    "default_full_md5_and_sha256": true,
+    "snapshots": [
+      "before",
+      "after",
+      "after-failure"
+    ],
+    "schema": 14,
+    "reference_sha256": "3855555423af4a9b6cb1ed6db1489832181b0733844513b1d6f5e0c0f7f48bce",
+    "baseline_data_and_native": "published2026.11.3.9",
+    "in_game_changes": "none in logger; normal installation applies selected components",
+    "publish": false
+  },
+  "runtime_prerequisite": {
+    "resource": "DS2_VC_REDIST_X86",
+    "bytes": 6941536,
+    "sha256": "f0bab33a302b3cdb2e11113760d016f54fd3d2632c65ba7834fac4f0abd7f1a3",
+    "minimum_validated": "14.51.36247.0",
+    "newer_accepted": true,
+    "selected_marker_or_dlc": true,
+    "localization_only_skips": true,
+    "original_microsoft_ui": true,
+    "norestart": true,
+    "source": "https://aka.ms/vc14/vc_redist.x86.exe"
+  },
+  "font_spacing_candidate": {
+    "policy": 3,
+    "cjk_advance_delta": 0,
+    "latin_digit_delta": 1,
+    "space_advance": 5,
+    "story_atlas_source": "user-supplied SweiShearSansCJKsc-Regular",
+    "title_atlas_source": "3.13 MStiffHei atlas retained",
+    "line_height_exact": true,
+    "candidate_dat0_md5": "7660995dff9ff1452edcd8efdd59253c"
+  },
+  "standalone_bug_plugins": {
+    "node": {
+      "name": "SeveredPowerNodeFix.asi",
+      "bytes": 726528,
+      "sha256": "b4433be75687bef192914bc39e8a2c0ac31e3115d098a4c153f25ae722dfc55a",
+      "source": "plugins/power_node_fix",
+      "pr": "https://github.com/Tubzbuster/DS2SeveredPC/pull/9",
+      "upstream_status": "Draft; independent live acceptance pending"
+    },
+    "save": {
+      "name": "SeveredSaveDisplay.asi",
+      "bytes": 730112,
+      "sha256": "add55bbb72932bf70ff177fb71e9bba8358790f5e2c0b8208a1f50cf97014f35",
+      "source": "plugins/save_display_fix",
+      "pr": "https://github.com/Tubzbuster/DS2SeveredPC/pull/11",
+      "upstream_status": "Draft; independent live acceptance pending"
+    },
+    "mining": {
+      "name": "SeveredMiningCampFix.asi",
+      "bytes": 718848,
+      "sha256": "114042713c525ad46485d5e02b3e52b705f7c5e0dc08b7e94159c0043e62e944",
+      "source": "plugins/mining_camp_fix",
+      "pr": "https://github.com/Tubzbuster/DS2SeveredPC/pull/13",
+      "upstream_status": "Draft; independent live acceptance pending"
+    }
+  },
+  "native_save_icon_references": {
+    "original_properties": 3912,
+    "new_properties": 3916,
+    "original_icon_fields": 36,
+    "new_icon_fields": 40,
+    "added_parameter_slots": [
+      16,
+      17
+    ],
+    "old_references_relocated": 2536,
+    "existing_icon_mappings_preserved": true,
+    "original_object_records_preserved": true
   }
 }

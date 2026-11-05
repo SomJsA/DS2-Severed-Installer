@@ -23,6 +23,8 @@ def main():
    if hashlib.sha256(data).hexdigest()!=want:raise SystemExit('Chinese member mismatch: '+name)
    (folder/name).write_bytes(data)
  target=target.resolve();target.parent.mkdir(parents=True,exist_ok=True)
- subprocess.run([args.sevenzip,'a','-t7z','-m0=lzma2:d64m','-mx=9','-mmt=4',str(target),'4564F3D7.str','D22D5B5A.str','DLC.4F21D71F.str','DLC.4F9AE556.toc'],cwd=folder,check=True)
+ for name in ['Frontend.title.str','Frontend.title.toc']:
+  if not (folder/name).is_file():raise SystemExit('Build the verified title-font overlay first: '+name)
+ subprocess.run([args.sevenzip,'a','-t7z','-m0=lzma2:d64m','-mx=9','-mmt=4',str(target),'4564F3D7.str','D22D5B5A.str','DLC.4F21D71F.str','DLC.4F9AE556.toc','Frontend.title.str','Frontend.title.toc'],cwd=folder,check=True)
  print(json.dumps({'path':str(target),'bytes':target.stat().st_size,'sha256':digest(target)},indent=2))
 if __name__=='__main__':main()

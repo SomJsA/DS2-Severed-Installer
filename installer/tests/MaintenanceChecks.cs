@@ -98,7 +98,7 @@ class MaintenanceChecks
             File.WriteAllLines(state,lines.Select(l=>l.StartsWith("version=")?"version="+version:l).ToArray(),Encoding.UTF8);
             Call("ApplySelection",game,Current(game),Log("upgrade-"+version));
             if(version==9)Check(!File.Exists(Path.Combine(game,"dinput8.dll")) && File.Exists(Path.Combine(game,"dinput8.dll.ds2oneclick-off")),"upgrade preserves disabled MarkerPatch state");
-            Check(File.ReadAllText(state).Contains("version=12"),"migrate recognized legacy record "+version);
+            Check(File.ReadAllText(state).Contains("version=15"),"migrate recognized legacy record "+version);
             Check((decimal)Get(Current(game),"SubtitleScale")==1.3m,"legacy custom scale retained "+version);
             Check(File.ReadAllText(Path.Combine(game,"MarkerPatch.ini")).Contains("unknown_extra=retained"),"legacy unknown INI entry retained "+version);
             Check(Hash(Path.Combine(game,"dinput8.dll.ds2oneclick.bak"))==backup,"original third-party backup preserved "+version);
@@ -149,6 +149,8 @@ class MaintenanceChecks
         string native=Path.Combine(game,"plugins","SeveredPC.asi");Directory.CreateDirectory(Path.GetDirectoryName(native));Invoke(engine,"ExtractResource","DS2_SEVERED_ASI",native);
         File.WriteAllText(Path.Combine(game,"plugins","SeveredRuntimeFixes.ini"),"[Shop]\r\nProfile=0\r\n[Diagnostics]\r\nTraceMessages=0\r\n");
         string nodeState=Path.Combine(game,"DS2SeveredOneClick.install.txt");string nodeText=File.ReadAllText(nodeState).Replace("selected_dlc=False","selected_dlc=True").Replace("dlc=False","dlc=True").Replace("owns_dlc_runtime=False","owns_dlc_runtime=True");
+        Call("InstallBugPlugins",game,new List<Action>(),Log("node-standalone-seed"));
+        nodeText=string.Join("\r\n",nodeText.Split(new[]{"\r\n","\n"},StringSplitOptions.None).Where(l=>!l.StartsWith("owns_bug_plugins=")&&!l.StartsWith("bug_plugin_")))+"\r\n"+(string)Call("BugPluginState",game,true);
         File.WriteAllText(nodeState,nodeText,Encoding.UTF8);
         var nodeOptions=Current(game);Set(nodeOptions,"NodeFix",true);var switches=(Dictionary<string,bool>)Get(nodeOptions,"MarkerValues");foreach(var key in switches.Keys.ToArray())switches[key]=false;
         var dataBefore=new[]{Hash(Path.Combine(game,"DS2DAT0.DAT")),Hash(Path.Combine(game,"DS2DAT2.DAT"))};

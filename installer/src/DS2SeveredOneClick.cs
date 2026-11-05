@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.3.9")]
-[assembly: AssemblyFileVersion("2026.11.3.9")]
-[assembly: AssemblyInformationalVersion("2026.11.3.9-standalone-extras-candidate1")]
+[assembly: AssemblyVersion("2026.11.6.19")]
+[assembly: AssemblyFileVersion("2026.11.6.19")]
+[assembly: AssemblyInformationalVersion("2026.11.6.19-separate-bug-plugins-ingame-save")]
 
 internal sealed class InstallOptions
 {
@@ -94,6 +94,7 @@ internal static class Program
 
     private static int RunSilentInstall(string[] args)
     {
+        RuntimePrerequisite.AllowInteractive=false;
         string game = ArgValue(args, "--install") ?? ArgValue(args, "--change");
         string logPath = ArgValue(args, "--log");
         var options = new InstallOptions
@@ -433,15 +434,22 @@ internal sealed partial class InstallerForm : Form
             progressBar.Value = 100;
             AppendLog(L.T("安装完成。"));
             RefreshInstalledState();
-            MessageBox.Show(this, ProductInfo.InstallationComplete(dlcBox.Checked) + (dlcBox.Checked && installedSelection != null && !installedSelection.MarkerEnabled ? "\r\n" + L.T("当前随包 MarkerPatch 已停用，启用后才能使用 DLC 入口和运行修正。") : "") + (string.IsNullOrEmpty(InstallerEngine.LastInstallNote) ? "" : "\r\n" + InstallerEngine.LastInstallNote), L.T("完成"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, ProductInfo.InstallationComplete(dlcBox.Checked) + InstallerEngine.DiagnosticReportText + (dlcBox.Checked && installedSelection != null && !installedSelection.MarkerEnabled ? "\r\n" + L.T("当前随包 MarkerPatch 已停用，启用后才能使用 DLC 入口和运行修正。") : "") + (string.IsNullOrEmpty(InstallerEngine.LastInstallNote) ? "" : "\r\n" + InstallerEngine.LastInstallNote), L.T("完成"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             installationCompleted = true;
+        }
+        catch (OperationCanceledException ex)
+        {
+            AppendLog(ex.Message);
+            progressBar.Style = ProgressBarStyle.Continuous;
+            progressBar.Value = 0;
+            MessageBox.Show(this, ex.Message + InstallerEngine.DiagnosticReportText, L.T("已取消安装"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
             AppendLog(L.T("安装失败：") + ex.Message);
             progressBar.Style = ProgressBarStyle.Continuous;
             progressBar.Value = 0;
-            MessageBox.Show(this, InstallerEngine.MaintenanceFailure(ex), L.T("安装失败"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(this, InstallerEngine.MaintenanceFailure(ex) + InstallerEngine.DiagnosticReportText, L.T("安装失败"), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
@@ -490,13 +498,13 @@ internal static partial class InstallerEngine
     private const string OriginalDat0Sha =
         "fd7d1bdbb5ec6b92324cd877465a029942c78396468695b4551068f4c3562e23";
     private const string PatchedDat0Sha =
-        "e9a5a0d212c1848009543ace7876a745d39f498b4c514673bd02df123c182583";
+        "1e2363ed8613f910ca4bb0345d5a5eb3157fad5f51f935c53661bda9a803d803";
     private const string OriginalDat2Sha =
         "81a145da647660d34a6fcb15ea3a8709c74855cf1beef23fc668a3ae42eb6ea0";
     private const string ChineseDat2Sha =
         "90301421956be9de44c2dbc89d64f3a928bc8cc468ad82927ef059f48b454876";
     private const string ChineseAssetsSha =
-        "8c035b6ba2b0ad9e96967866281607b55db14a5a1261b413ec3faee93bd7105a";
+        "990a5bb9590cfc65724e206134a8b6806f5061672241cc0468261b511a5d83a7";
     private const string MarkerDllSha =
         "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55";
     private const string LegacyMarkerDllSha = "c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5";
@@ -513,9 +521,9 @@ internal static partial class InstallerEngine
     private static readonly string RuntimeConfig = Path.Combine("plugins", "SeveredRuntimeFixes.ini");
     private const string MarkerSha =
         "becb3529597bb84d8eb216a5d4ded7efd0191ea4493a24e7ec956078947de097";
-    private const long ChineseAssetsBytes = 6981480;
+    private const long ChineseAssetsBytes = 21705707;
     private const long ChineseDat2Bytes = 3187759104;
-    private const long PatchedDat0Bytes = 2163148800;
+    private const long PatchedDat0Bytes = 2200768512;
     private const int BigArchiveAlign = 0x800;
 
     private static readonly Dictionary<string, string> BaseHashes =
@@ -644,7 +652,7 @@ internal static partial class InstallerEngine
                 InstallOwnedBytes(
                     game, Path.Combine("plugins", "SeveredPC.asi"),
                     ReadResource("DS2_SEVERED_ASI"), SeveredAsiSha, undo, log);
-                InstallOwnedBytes(game,ExtrasRelative,ReadResource("DS2_EXTRAS_ASI"),ExtrasSha,undo,log);
+                InstallBugPlugins(game,undo,log);
                 if (iconArchive != null) { InstallOwnedBytes(game, SaveIconsArchive, File.ReadAllBytes(iconArchive), SaveIconsSha, undo, log); iconsApplied = true; }
                 log(options.NodeFix ? L.T("已启用 Severed 能量节点修正（仅节点；保留原价格）。依赖 EnableHackerDLC，也会开放本体黑客装备。") : L.T("能量节点修正已关闭，沿用原版商店判断。"));
                 InstallOwnedText(
@@ -660,8 +668,10 @@ internal static partial class InstallerEngine
                     dlcLocalized = InstallDlcChinese(game, temp, log, undo, !options.Dlc && !wasManagedDat2,
                         package != null ? package.PayloadSha256 : previousBaseHash);
             }
-            if (options.Dlc)
+            if (options.Dlc) {
                 InstallOwnedText(game, RuntimeConfig, RuntimeConfiguration(options.NodeFix, options.Chinese && chineseApplied && dlcLocalized), null, undo, log);
+                WriteBugConfiguration(game,options.NodeFix,options.Chinese && chineseApplied && dlcLocalized,undo,log);
+            }
             if (options.Dlc && !options.Chinese)
                 log(L.T("未选择汉化：DLC 保持原始英文。"));
             File.WriteAllText(
@@ -675,8 +685,9 @@ internal static partial class InstallerEngine
                 "dlc=" + (options.Dlc || previousRuntime) + "\r\n" +
                 "owns_dlc_runtime=" + (options.Dlc || previousRuntime) + "\r\n" +
                 "runtime_asi_sha256=" + (options.Dlc ? SeveredAsiSha : previousRuntime ? RuntimeHashForUninstall(game) : "") + "\r\n" +
-                "owns_extras_runtime=" + (options.Dlc || OwnsExtras(game)) + "\r\n" +
-                "extras_runtime_sha256=" + (options.Dlc || OwnsExtras(game) ? ExtrasSha : "") + "\r\n" +
+                "owns_extras_runtime=" + OwnsExtras(game) + "\r\n" +
+                "extras_runtime_sha256=" + (OwnsExtras(game) ? ExtrasSha : "") + "\r\n" +
+                BugPluginState(game,options.Dlc) +
                 "owns_runtime_config=" + (options.Dlc || previousRuntimeConfig) + "\r\n" +
                 "marker_patch=" + (options.MarkerPatch || options.Dlc || previousMarker) + "\r\n" +
                 "owns_marker_assets=" + (options.MarkerPatch || previousMarkerAssets) + "\r\n" +
@@ -729,11 +740,11 @@ internal static partial class InstallerEngine
         PreflightUninstall(game, ownsChinese, ownsRuntime, ownsMarker, ownsDat2, recordedDat2Hash, runtimeHash, ownsRuntimeConfig, markerHash);
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
         string dat0Backup = dat0 + ".ds2oneclick.bak";
-        if (ownsChinese && (!File.Exists(dat0) || Sha256(dat0) == PatchedDat0Sha))
+        if (ownsChinese && (!File.Exists(dat0) || IsKnownPatchedDat0Hash(Sha256(dat0))))
         {
             if (!File.Exists(dat0Backup) || Sha256(dat0Backup) != OriginalDat0Sha)
                 throw new InvalidOperationException(L.T("找不到可验证的 DS2DAT0.DAT 原始备份，拒绝卸载汉化。"));
-            RestoreOrRemoveOwned(game, "DS2DAT0.DAT", File.Exists(dat0) ? PatchedDat0Sha : null, log);
+            RestoreOrRemoveOwned(game, "DS2DAT0.DAT", File.Exists(dat0) ? Sha256(dat0) : null, log);
         }
         else if (ownsChinese && File.Exists(dat0) && Sha256(dat0) != OriginalDat0Sha)
         {
@@ -751,6 +762,7 @@ internal static partial class InstallerEngine
             else throw new InvalidOperationException(L.T("DS2DAT2.DAT 已被其他工具修改，已保留文件及卸载记录。"));
         }
         if (OwnsExtras(game)) RestoreOrRemoveOwned(game,ExtrasRelative,ExtrasHashForUninstall(game),log);
+        RemoveBugPlugins(game,log);
         if (OwnsSaveIcons(game)) RestoreOrRemoveOwned(game, SaveIconsArchive, ReadState(game,"save_icons_sha256"), log);
         if (ownsRuntime)
         {
@@ -803,7 +815,7 @@ internal static partial class InstallerEngine
         if (chinese)
         {
             string current = File.Exists(dat0) ? Sha256(dat0) : null;
-            if (current == PatchedDat0Sha || current == null)
+            if (IsKnownPatchedDat0Hash(current) || current == null)
             {
                 string backup = dat0 + ".ds2oneclick.bak";
                 if (!File.Exists(backup) || Sha256(backup) != OriginalDat0Sha)
@@ -841,6 +853,7 @@ internal static partial class InstallerEngine
         }
         if (OwnsSaveIcons(game)) { if (!KnownSaveIconsSha(ReadState(game,"save_icons_sha256"))) problems.Add(L.T("存档图标安装记录不受支持，已保留现有文件。")); owned[SaveIconsArchive] = ReadState(game,"save_icons_sha256"); }
         if(OwnsExtras(game)) owned[ExtrasRelative]=ExtrasHashForUninstall(game);
+        ValidateBugPlugins(game,owned);
         foreach (var asset in OwnedMarkerAssets(game)) owned[asset.Relative] = asset.Sha256;
         owned["DS2SeveredOneClick.install.txt"] = null;
         foreach (var item in owned)
@@ -871,8 +884,13 @@ internal static partial class InstallerEngine
         Run7Zip(sevenZip, "x -y -o\"" + root + "\" \"" + assets + "\"");
         string font = Path.Combine(root, "4564F3D7.str");
         string text = Path.Combine(root, "D22D5B5A.str");
-        if (Sha256(font) != "3b70cff50748d8d931a04bb6ba1286bdef97a0a5f1e2acabaef916043e843dcb" ||
-            Sha256(text) != "0a75e1bc191e2127e2cab7f01c2f3ba6dc45e4c3452803aeac97aa403a0546e7")
+        string titleUi = Path.Combine(root, "Frontend.title.str");
+        string titleToc = Path.Combine(root, "Frontend.title.toc");
+        if(Sha256(titleUi)!="009e420c33771ff3694c22b0f0317a30c0f46472452b2adc50a9e9c87252442c" ||
+           Sha256(titleToc)!="29a17fc868d38d198aecdaf7759bca847dc967b822a7a564491f633a77023db2")
+            throw new InvalidDataException(L.T("内置标题字体界面资源校验失败。"));
+        if (Sha256(font) != "d5c09c975a48fa130dfab5fb3c7e49a8591c45dce5a188f13b585adf36743c78" ||
+            Sha256(text) != "06bd09bf7304dc2336379a089a045baaa6ee4cc3cf5ea56cb043e5fbc1161121")
             throw new InvalidDataException(L.T("内置字体或译文资源校验失败。"));
 
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
@@ -890,6 +908,7 @@ internal static partial class InstallerEngine
             return false;
         }
 
+        ValidateTitleFontSource(game);
         string backup = dat0 + ".ds2oneclick.bak";
         if (File.Exists(backup) && Sha256(backup) != OriginalDat0Sha)
             throw new InvalidOperationException(L.T("已有 DAT0 备份哈希不匹配，拒绝覆盖。"));
@@ -897,7 +916,9 @@ internal static partial class InstallerEngine
         RebuildBigh(dat0, rebuilt, new Dictionary<uint, string>
         {
             { 0x4564F3D7, font },
-            { 0xD22D5B5A, text }
+            { 0xD22D5B5A, text },
+            { 0x15C7731F, titleUi },
+            { 0x16408156, titleToc }
         });
         if (new FileInfo(rebuilt).Length != PatchedDat0Bytes || Sha256(rebuilt) != PatchedDat0Sha)
             throw new InvalidDataException(L.T("重建后的 DS2DAT0.DAT 校验失败。"));
@@ -1163,7 +1184,7 @@ internal static partial class InstallerEngine
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
         if (!File.Exists(dat0)) throw new FileNotFoundException(L.T("缺少 DS2DAT0.DAT。"), dat0);
         string dat0Hash = Sha256(dat0);
-        if (dat0Hash != OriginalDat0Sha && dat0Hash != PatchedDat0Sha)
+        if (dat0Hash != OriginalDat0Sha && !IsKnownPatchedDat0Hash(dat0Hash))
         {
             if (!ignoreErrors)
                 throw new InvalidDataException(L.T("DS2DAT0.DAT 不属于 Steam/EA pristine 或本补丁版本。"));
@@ -1271,6 +1292,7 @@ internal static partial class InstallerEngine
         bool ownRuntime = relative == Path.Combine("plugins", "SeveredPC.asi") &&
             (ReadState(game, "owns_dlc_runtime") == "True" || ReadState(game, "dlc") == "True") &&
             existed && IsKnownSeveredRuntimeHash(Sha256(path));
+        bool ownBug = OwnsBugPath(game,relative,existed ? Sha256(path) : null);
         bool ownExtras = relative==ExtrasRelative && OwnsExtras(game) && existed && Sha256(path)==ExtrasHashForUninstall(game);
         bool ownMarkerBinary = relative == "dinput8.dll" && ReadState(game, "marker_patch") == "True" && existed && IsKnownMarkerHash(Sha256(path));
         bool ownDlcMarker = relative == "DS2DAT2.DAT.severed" && (ReadState(game, "owns_dlc_runtime") == "True" || ReadState(game, "dlc") == "True");
@@ -1279,9 +1301,9 @@ internal static partial class InstallerEngine
         bool ownMarkerAsset = IsOwnedMarkerAsset(game, relative, existed ? Sha256(path) : null);
         bool ownManager = relative == ManagerName && File.Exists(Path.Combine(game, ManagerInfo)) &&
             Regex.IsMatch(File.ReadAllText(Path.Combine(game, ManagerInfo)), "\"sha256\"\\s*:\"" + (existed ? Sha256(path) : "missing") + "\"");
-        if (existed && File.Exists(backup) && !ownConfig && !ownRuntime && !ownRuntimeConfig && !ownManager && !ownMarkerBinary && !ownDlcMarker && !ownSaveIcons && !ownMarkerAsset && !ownExtras)
+        if (existed && File.Exists(backup) && !ownConfig && !ownRuntime && !ownRuntimeConfig && !ownManager && !ownMarkerBinary && !ownDlcMarker && !ownSaveIcons && !ownMarkerAsset && !ownExtras && !ownBug)
             throw new IOException(relative + L.T(" 已有原始备份且当前文件又被改动，已停止覆盖。"));
-        bool createdBackup = existed && !File.Exists(backup) && !ownConfig && !ownRuntime && !ownRuntimeConfig && !ownManager && !ownMarkerBinary && !ownDlcMarker && !ownSaveIcons && !ownMarkerAsset && !ownExtras;
+        bool createdBackup = existed && !File.Exists(backup) && !ownConfig && !ownRuntime && !ownRuntimeConfig && !ownManager && !ownMarkerBinary && !ownDlcMarker && !ownSaveIcons && !ownMarkerAsset && !ownExtras && !ownBug;
         undo.Add(() =>
         {
             if (existed) { if (!sameBytes) File.WriteAllBytes(path, previous); }

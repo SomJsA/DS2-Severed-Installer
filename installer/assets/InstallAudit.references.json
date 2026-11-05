@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "data_baseline": "2026.11.6.19: accepted fonts and short labels; independent runtime fixes; menu and in-game save previews",
+  "note": "Full-file MD5 and SHA256. Paths/settings/logs/install records vary by machine and are not universal reference values.",
+  "references": {
+    "dat0.original": {
+      "bytes": 2145060192,
+      "md5": "55809ff163bfe9334bec26becbc85857",
+      "sha256": "fd7d1bdbb5ec6b92324cd877465a029942c78396468695b4551068f4c3562e23"
+    },
+    "dat0.chinese.stable3.9": {
+      "bytes": 2163148800,
+      "md5": "d8f7704f23330426158ce17ac158a962",
+      "sha256": "e9a5a0d212c1848009543ace7876a745d39f498b4c514673bd02df123c182583"
+    },
+    "dat0.chinese.font-candidate3.10": {
+      "bytes": 2163148800,
+      "md5": "2d6a4719e72bf5ed3e88cb32a74767d9",
+      "sha256": "a0d682520fe71734ec110c9909c50da4409f54ee35c47ffecb43bea6300be406"
+    },
+    "dat2.english.1.1.0": {
+      "bytes": 3187759104,
+      "md5": "a28c77ac12aac9bcfffaa86e76d756fb",
+      "sha256": "81a145da647660d34a6fcb15ea3a8709c74855cf1beef23fc668a3ae42eb6ea0"
+    },
+    "dat2.chinese.workbook1": {
+      "bytes": 3187759104,
+      "md5": "75f91fc6d61ff45de77ad6b867a1fdfb",
+      "sha256": "90301421956be9de44c2dbc89d64f3a928bc8cc468ad82927ef059f48b454876"
+    },
+    "dat3.save-icons": {
+      "bytes": 41324544,
+      "md5": "b75bbc4e7c2a8f15b717fe75901a2836",
+      "sha256": "adc7195c9a32a14fa8087f07d870d271e14aa039ba947db141d17fdebcaaf1b6"
+    },
+    "marker.3.0.7": {
+      "bytes": 1718784,
+      "md5": "2a15bb38ebdef0e8aece212a1834223e",
+      "sha256": "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55"
+    },
+    "core.3.9": {
+      "bytes": 124416,
+      "md5": "cb48e6805ff5e6ef129fa2992f130205",
+      "sha256": "48874e8ea9ebe97191e7058cc1832eed5d164a62b22c1bd4e875698d2023158f"
+    },
+    "extras.3.9": {
+      "bytes": 734720,
+      "md5": "a79106d114c6ae1a0ffd5b245a6d6ed2",
+      "sha256": "e9adf81e28a3010ed7755927a5e41f56a6ac30e445f7525a5bebf2e8aa42b0a3"
+    },
+    "base.DS2DAT1.DAT": {
+      "bytes": 647362336,
+      "md5": "34df4ccb46dd827f462502c639733d94",
+      "sha256": "3537308b17237d733d6b70607dd3c84397c2b65cd53ba648d725fa7ca2584e51"
+    },
+    "base.DS2DAT6.DAT": {
+      "bytes": 1054554112,
+      "md5": "ece8373732a473d604b7fd68bbcf1772",
+      "sha256": "fed960612373e1ab42cef096812f069646cf649420fb8c6d808ecdb1e957e99f"
+    },
+    "base.DS2DAT7.DAT": {
+      "bytes": 1847844864,
+      "md5": "2782f02656d1e6039da97dbec06d6e56",
+      "sha256": "6f933272717800543794723f0395e9697e81ab3fa5820790538a50075519dd4a"
+    },
+    "base.DS2DAT8.DAT": {
+      "bytes": 1652404224,
+      "md5": "396f7b90f5166b579cca599ea15a39dc",
+      "sha256": "b9242f262963b6fd0cef755a6086e41b063a103dce8b42f34e3c0f3b3e0baa7d"
+    },
+    "base.DS2DAT9.DAT": {
+      "bytes": 1733416960,
+      "md5": "cce649039119a42cfbea740793422687",
+      "sha256": "21d507b08ef085f9b0cf9ddf0a3f8c5b86992dfd7df40f4f8ef8163c69918d3d"
+    },
+    "dat0.chinese.font-candidate2.3.13": {
+      "bytes": 2163148800,
+      "md5": "09676101360cceb4dd6079b8fa002391",
+      "sha256": "e964e79ec6fbdb6914b1aefcfd58790fcac237d0290bcb21b0a0e9a709df5dc4"
+    },
+    "dat0.chinese.font-candidate3.3.14": {
+      "bytes": 2163148800,
+      "md5": "7660995dff9ff1452edcd8efdd59253c",
+      "sha256": "36bd541560b42508672804dfa3e4fe0878c600b626249bbe1bf7d93ea533512e"
+    },
+    "dat0.chinese.font-roles4.3.15": {
+      "bytes": 2200768512,
+      "md5": "e8dbe37db268d2d5e616f7e442423014",
+      "sha256": "5bedaaf5f14c4ad526dc2926b45a0f9fb1e0a1d790aa1e3e398bb12866d1afbd"
+    },
+    "dat0.chinese.readable-spacing5.3.16": {
+      "bytes": 2200768512,
+      "md5": "43a38cdff4fa4b4e43b7b4d370efa0a1",
+      "sha256": "d899a1756d6023ba1c97747c65cfecdc532a2744f3eb5570deacaf4b2e896942"
+    },
+    "dat0.chinese.punctuation6.3.17": {
+      "bytes": 2200768512,
+      "md5": "1bb7beeda1b6a42365ef64a69c3822b0",
+      "sha256": "3311f5c137f390b6b01435403d48ba5b5faa2d2d893a54069322b55dea9a67d8"
+    },
+    "dat0.chinese.middle-dot7.3.18": {
+      "bytes": 2200768512,
+      "md5": "3a9870db26c94964758f99b68266ae68",
+      "sha256": "45786bec8ef72d41b587895c5b3ce9b49805bbf2cefdab4ca953e25702f39a18"
+    },
+    "dat0.chinese.release19": {
+      "bytes": 2200768512,
+      "md5": "d4c9b80096c2ef9ab35030da99bb9d39",
+      "sha256": "1e2363ed8613f910ca4bb0345d5a5eb3157fad5f51f935c53661bda9a803d803"
+    },
+    "node.release19": {
+      "bytes": 726528,
+      "md5": "b7f7a057935176739793b620a53bfcb5",
+      "sha256": "b4433be75687bef192914bc39e8a2c0ac31e3115d098a4c153f25ae722dfc55a"
+    },
+    "save.release19": {
+      "bytes": 730112,
+      "md5": "960d7dc6d2505e51bc61d22db2a09e77",
+      "sha256": "add55bbb72932bf70ff177fb71e9bba8358790f5e2c0b8208a1f50cf97014f35"
+    },
+    "mining.release19": {
+      "bytes": 718848,
+      "md5": "296271b8149a5db869dbfa8b20929cf6",
+      "sha256": "114042713c525ad46485d5e02b3e52b705f7c5e0dc08b7e94159c0043e62e944"
+    }
+  }
+}

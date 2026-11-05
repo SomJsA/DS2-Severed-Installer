@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -132,9 +132,9 @@ internal static partial class InstallerEngine
     private static void WriteSelectionState(string game, InstallOptions options, string fallbackIni = null)
     {
         string path = Path.Combine(game, "DS2SeveredOneClick.install.txt");
-        string text = File.Exists(path) ? File.ReadAllText(path) : "version=12\r\n";
+        string text = File.Exists(path) ? File.ReadAllText(path) : "version=15\r\n";
         var changes = new Dictionary<string, string> {
-            {"version", "12"}, {"installer_release", ProductInfo.ReleaseVersion},
+            {"version", "15"}, {"installer_release", ProductInfo.ReleaseVersion},
             {"selected_chinese", options.Chinese.ToString()}, {"selected_dlc", options.Dlc.ToString()},
             {"selected_marker", options.MarkerPatch.ToString()}, {"node_fix", (options.Dlc && options.NodeFix).ToString()},
             {"node_fix_preference", options.NodeFix.ToString()},
@@ -162,6 +162,23 @@ internal static partial class InstallerEngine
         File.WriteAllText(path, text, Encoding.UTF8);
     }
 
+    // Saving preferences does not apply the new data assets. Preserve the installed
+    // release/schema until an actual install/change completes successfully.
+    private static void WriteConfigurationState(string game, InstallOptions options)
+    {
+        string path = Path.Combine(game, "DS2SeveredOneClick.install.txt");
+        string previous = File.ReadAllText(path);
+        WriteSelectionState(game, options);
+        string text = File.ReadAllText(path);
+        foreach (string key in new[] { "version", "installer_release" })
+        {
+            Match original = Regex.Match(previous, @"(?m)^" + key + @"=[^\r\n]*");
+            text = Regex.Replace(text, @"(?m)^" + key + @"=[^\r\n]*(?:\r?\n|$)",
+                m => original.Success ? original.Value + "\r\n" : "");
+        }
+        File.WriteAllText(path, text, Encoding.UTF8);
+    }
+
     private static string[] ManagedPaths(string game)
     {
         var names = new List<string> { "DS2DAT0.DAT", "DS2DAT2.DAT", SaveIconsArchive, "dinput8.dll", "MarkerPatch.ini", "DS2DAT2.DAT.severed",
@@ -170,6 +187,7 @@ internal static partial class InstallerEngine
         var paths = names.SelectMany(n => new[] { n, n + ".ds2oneclick.bak" }).ToList();
         paths.AddRange(new[] { "DS2SeveredOneClick.install.txt", DisabledMarker,
             Path.Combine("plugins", "MarkerPatch.asi.ds2oneclick-disabled"), Path.Combine("plugins", "MarkerPatch.ini.ds2oneclick-disabled") });
+        paths.AddRange(BugPluginPaths().SelectMany(n=>new[]{n,n+".ds2oneclick.bak"}));
         paths.AddRange(MarkerAssetPaths(game));
         paths.AddRange(GeneratedOutputPaths);
         return paths.ToArray();
@@ -260,7 +278,7 @@ internal static partial class InstallerEngine
     private static void ValidateMaintenanceVersion(string game)
     {
         int version;
-        if (!int.TryParse(StateValue(game, "version"), out version) || version < 1 || version > 12)
+        if (!int.TryParse(StateValue(game, "version"), out version) || version < 1 || version > 15)
             throw new InvalidDataException(L.T("无法识别此安装记录的版本，请保留文件并尝试全新安装。"));
     }
     private static bool IsKnownMarkerHash(string hash) { return hash == MarkerDllSha || hash == LegacyMarkerDllSha; }
@@ -284,7 +302,7 @@ internal static partial class InstallerEngine
             runtime ? RuntimeHashForUninstall(game) : null, StateValue(game, "owns_runtime_config") == "True", MarkerHashForUninstall(game));
     }
 
-    public static void ApplySelection(string gamePath, InstallOptions options, Action<string> log)
+    private static void ApplySelectionCore(string gamePath, InstallOptions options, Action<string> log)
     {
         string game = ValidateGame(gamePath);
         EnsureGameStopped();
@@ -292,8 +310,10 @@ internal static partial class InstallerEngine
         if (current.HasRecord) ValidateMaintenanceVersion(game);
         bool ready = current.MarkerIsCurrent && File.Exists(Path.Combine(game, "MarkerPatch.ini")) && (!current.Options.Dlc ||
             (File.Exists(Path.Combine(game, "DS2DAT2.DAT")) && File.Exists(Path.Combine(game, RuntimeConfig)) && File.Exists(Path.Combine(game, "plugins", "SeveredPC.asi")) && Sha256(Path.Combine(game, "plugins", "SeveredPC.asi")) == SeveredAsiSha));
-        ready = ready && (!current.Options.Dlc || (OwnsExtras(game) && File.Exists(Path.Combine(game,ExtrasRelative)) && Sha256(Path.Combine(game,ExtrasRelative))==ExtrasSha));
+        ready = ready && (!current.Options.Dlc || BugPluginsReady(game));
         ready = ready && (!OwnsSaveIcons(game) || (File.Exists(Path.Combine(game, SaveIconsArchive)) && Sha256(Path.Combine(game, SaveIconsArchive)) == SaveIconsSha));
+        if(ready && current.HasRecord && current.Version==ProductInfo.ReleaseVersion && current.Options.Chinese)
+            ready=File.Exists(Path.Combine(game,"DS2DAT0.DAT")) && Sha256(Path.Combine(game,"DS2DAT0.DAT"))==PatchedDat0Sha;
         bool same = ready && current.HasRecord && current.Version == ProductInfo.ReleaseVersion &&
             current.Options.Chinese == options.Chinese && current.Options.Dlc == options.Dlc && (current.Options.MarkerPatch == options.MarkerPatch || options.Dlc);
         if (same && current.MarkerPresent && !current.ExternalMarker)
@@ -351,7 +371,7 @@ internal static partial class InstallerEngine
         ValidateMaintenanceVersion(game);
         if (OwnsSaveIcons(game) && (!File.Exists(Path.Combine(game, SaveIconsArchive)) || Sha256(Path.Combine(game, SaveIconsArchive)) != SaveIconsSha)) throw new InvalidDataException(L.T("请使用更改安装修复缺失或被改动的存档图标资源。"));
         if (!current.MarkerIsCurrent) throw new InvalidOperationException(L.T("请先使用更改安装升级随包 MarkerPatch，再保存新版设置。"));
-        Transaction(game, new[] { "MarkerPatch.ini", "DS2SeveredOneClick.install.txt", RuntimeConfig, RuntimeConfig + ".ds2oneclick.bak", ManagerName, ManagerName + ".ds2oneclick.bak", ManagerInfo }.Concat(MarkerAssetPaths(game)), () =>
+        Transaction(game, new[] { "MarkerPatch.ini", "DS2SeveredOneClick.install.txt", RuntimeConfig, RuntimeConfig + ".ds2oneclick.bak", ManagerName, ManagerName + ".ds2oneclick.bak", ManagerInfo }.Concat(MarkerAssetPaths(game)).Concat(BugPluginPaths()), () =>
         {
             string ini = Path.Combine(game, "MarkerPatch.ini");
             if (!File.Exists(ini)) throw new FileNotFoundException(L.T("MarkerPatch.ini 缺失，请使用更改安装修复。"));
@@ -361,9 +381,11 @@ internal static partial class InstallerEngine
                 if (RuntimeHashForUninstall(game) != SeveredAsiSha || !File.Exists(Path.Combine(game, "plugins", "SeveredPC.asi")) || Sha256(Path.Combine(game, "plugins", "SeveredPC.asi")) != SeveredAsiSha)
                     throw new InvalidOperationException(L.T("旧 DLC 插件需要先通过更改安装升级，再保存节点选项。"));
                 InstallOwnedText(game, RuntimeConfig, RuntimeConfiguration(options.NodeFix, InstalledMenuChinese(game, options)), null, new List<Action>(), log);
+                if(!BugPluginsReady(game))throw new InvalidOperationException(L.T("请先通过更改安装升级独立修复插件。"));
+                WriteBugConfiguration(game,options.NodeFix,InstalledMenuChinese(game,options),new List<Action>(),log);
             }
             if (options.MarkerPatch) InstallMarkerAssets(game, new List<Action>(), log);
-            WriteSelectionState(game, options);
+            WriteConfigurationState(game, options);
             if (options.DeployManager) DeployManagerCore(game, log);
             log(L.T("设置已保存，重新启动游戏后生效；没有改写 DAT。"));
         }, log);

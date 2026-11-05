@@ -1,0 +1,13 @@
+{
+  "Path": "E:\\DS2-Severed-Patch\\maintenance\\runtime-prerequisite-font2-20261103\\vc_redist.x86.exe",
+  "Bytes": 6941536,
+  "FileVersion": "14.51.36247.0",
+  "ProductVersion": "14.51.36247.0",
+  "Signature": "Valid",
+  "Publisher": "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US",
+  "SHA256": "f0bab33a302b3cdb2e11113760d016f54fd3d2632c65ba7834fac4f0abd7f1a3",
+  "minimum_validated": "14.51.36247.0",
+  "not_executed_locally": true,
+  "consent_required": true,
+  "norestart": true
+}

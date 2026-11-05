@@ -365,7 +365,7 @@ def main() -> None:
     text_data = Path(os.environ.get("DS2_TEXT_STREAM", str(default_text))).read_bytes()
     if sha256(text_data) != "0a75e1bc191e2127e2cab7f01c2f3ba6dc45e4c3452803aeac97aa403a0546e7":
         raise ValueError("base Chinese translation stream hash mismatch")
-    if sha256(font_data) != "3b70cff50748d8d931a04bb6ba1286bdef97a0a5f1e2acabaef916043e843dcb":
+    if sha256(font_data) != "88486ee526d5f5cee146adb80efb756cc645c521673e1e0df88bc053e4b8ae4b":
         raise ValueError("base Chinese font stream hash mismatch")
 
     if file_sha256(SOURCE_DAT2) != SOURCE_DAT2_SHA256:
@@ -424,7 +424,7 @@ def main() -> None:
         "translation_rows": len(records),
         "reused_base_rows": sum(bool(r["recovered_base_chinese"]) for r in records),
         "machine_translated_rows": sum(not r["recovered_base_chinese"] for r in records),
-        "font_name_chinese": "狮尾快剪黑",
+        "font_name_chinese": "剧情 Swei Shear Sans CJK SC Regular；标题 MStiffHei",
         "font_name_english": "Russell Square",
         "verification": "all unchanged DAT2 entries byte-equal; base Chinese resources remain separate",
     }
