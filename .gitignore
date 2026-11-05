@@ -19,7 +19,7 @@
 /tools/scan/extracted/
 
 # Prebuilt probe DLL (our own code, built by tools/probe/build.sh)
-!/tools/probe/bin/dinput8.dll
+/tools/probe/bin/dinput8.dll
 
 # Sample files exported from the games (EA data)
 /tools/samples/out/
@@ -40,7 +40,7 @@ __pycache__/
 # Learned conversion models (byte-order rules only, no game data) and the
 # prebuilt XAS encoder (our own code, built by tools/research/native/build.sh)
 !/tools/research/ds2/*.pkl
-!/tools/research/native/xasenc.dll
+/tools/research/native/xasenc.dll
 
 # Converter output (holds local paths)
 *.log
@@ -50,3 +50,6 @@ tools/app/dist/
 tools/app/*.spec
 tools/app/ffmpeg/
 tools/research/base_sections.zip
+
+# Compiled ASIs are release assets, not source inputs.
+*.asi
