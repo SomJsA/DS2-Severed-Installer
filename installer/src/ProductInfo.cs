@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 internal static class ProductInfo
 {
-    public const string ReleaseVersion = "2026.11.6.19";
+    public const string ReleaseVersion = "2026.11.11.20";
     public static string GroupTitle { get { return L.T("死亡空间贴吧汉化组移植&汉化"); } }
     public static string Contact { get { return L.T("交流群339639634 && 死亡空间贴吧"); } }
     public const string GroupUrl = "https://qm.qq.com/q/AsZY1d8WxG";
@@ -70,7 +70,7 @@ internal static class ProductInfo
             "2026.11.3.7 — " + L.T("存档显示候选：修正读档列表的 DLC 章节名称与两章图片。") + "\r\n" +
             "2026.11.3.8 — " + L.T("改进网页打开兼容性，打不开时可复制发布页地址。") + "\r\n" +
             "2026.11.3.9 — " + L.T("能量节点与 DLC 存档修复改为独立 ASI，原有选项与汉化方式不变。") + "\r\n" +
-            "2026.11.6.19 — " + L.T("修复短操作提示换行；按问题拆分 ASI，并补全局内存档 DLC 名称与图片。") + "\r\n" +
+            "2026.11.11.20 — " + L.T("延长现有字幕窗口；不移动后续字幕和音频起点。") + "\r\n" +
             "2026.11.4.17 — " + L.T("人名中点和常用句读标点左侧增加少量留白，保持现有中文与英数字距。") + "\r\n" +
             "2026.11.4.16 — " + L.T("收紧中文字间空格，恢复英文数字的源字体步进和左右留白；保留标题与剧情字体分工。") + "\r\n" +
             "2026.11.4.15 — " + L.T("修正标题与剧情共用字体：菜单使用 MStiffHei，剧情字幕使用 Swei Regular；中文额外字距为零。") + "\r\n" +

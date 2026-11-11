@@ -1,4 +1,9 @@
-# 2026.11.6.19 — independent runtime fixes / 独立问题修复
+# 2026.11.11.20 — subtitle windows / 字幕显示时长
+
+- Extend 24 existing DLC subtitle windows to the maximum available time before the next authored event or conservative audio-stream tail.
+- Preserve all subtitle starts, audio cue times, IDs and the 15 entries with no spare window; no timeline reordering.
+- The localized stream changes 45 duration bytes only. The primary “不确定因素” line changes from 2.0 s to 3.6 s.
+- The original DLC core, fonts, punctuation, 21 short-label fixes and independent runtime ASIs remain unchanged.
 
 ## 2026.11.6.19
 

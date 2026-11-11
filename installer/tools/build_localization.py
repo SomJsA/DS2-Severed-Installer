@@ -49,6 +49,35 @@ BASE_FONT_HASH = 0x4564F3D7
 BASE_TEXT_HASH = 0xD22D5B5A
 LH2_ORIGINAL_BYTES = 94302
 ALIGN = 0x800
+# Existing subtitle start times stay fixed. These are the largest authored
+# windows available before the next TOB event (or the end of its audio stream)
+# in the installed PC DLC timeline. Keys are (TOB asset name, string ID).
+SUBTITLE_DURATION_PATCH = {
+    ("pdlc1_at_02_02.tox", "0A9BB566"): 3600,
+    ("pdlc1_at_01_03.tox", "319A7177"): 3900,
+    ("pdlc1_at_01_12.tox", "0A9CB5A1"): 3000,
+    ("pdlc1_at_02_03.tox", "0A9CB59D"): 3000,
+    ("pdlc1_vt_01_01.tox", "6EBCA62A"): 3500,
+    ("pdlc1_igc_01_05.tox", "319C71F2"): 2500,
+    ("pdlc1_igc_02_01.tox", "A6CB400D"): 6500,
+    ("pdlc1_at_01_01.tox", "0A9AB51F"): 7000,
+    ("pdlc1_at_01_12.tox", "31A27368"): 2500,
+    ("pdlc1_at_02_04.tox", "E6FD51B5"): 5500,
+    ("pdlc1_igc_02_05.tox", "321780B3"): 7000,
+    ("pdlc1_gps_02_08.tox", "319B71B8"): 1500,
+    ("pdlc1_at_02_01.tox", "0A9BB562"): 6500,
+    ("pdlc1_vt_01_01.tox", "31997135"): 5600,
+    ("pdlc1_at_02_05.tox", "31A2736F"): 6500,
+    ("pdlc1_apa_01_01.tox", "B8066F6A"): 8900,
+    ("pdlc1_at_02_03.tox", "E6FD51B8"): 3000,
+    ("pdlc1_igc_02_05.tox", "321880F4"): 1600,
+    ("pdlc1_at_02_02.tox", "0A9BB565"): 10000,
+    ("pdlc1_at_02_03.tox", "319D7232"): 6000,
+    ("pdlc1_igc_02_01.tox", "909EDECD"): 7500,
+    ("pdlc1_at_01_01.tox", "321780BA"): 5000,
+    ("pdlc1_at_01_11.tox", "0A9CB5A0"): 5700,
+    ("pdlc1_at_01_04.tox", "319B71B0"): 3500,
+}
 RESEARCH = Path(os.environ.get("DS2_RESEARCH_DIR", str(ROOT / "research")))
 if not (RESEARCH / "ds2" / "bigarchive.py").is_file():
     raise SystemExit("Set DS2_RESEARCH_DIR to DS2SeveredPC release-source/tools/research (frozen release tag v1.1.5).")
@@ -226,7 +255,34 @@ def read_archive_entry(path: Path, name_hash: int) -> bytes:
         return handle.read(size)
 
 
-def rebuild_dlc_stream(original_stream: bytes, translated_lh2: bytes) -> bytes:
+def patch_tob_payload(asset_name: str, payload: bytes, durations: dict) -> tuple[bytes, int]:
+    """Update only selected TOB duration words; all starts and IDs stay fixed."""
+    if not durations or asset_name not in {k[0] for k in durations}:
+        return payload, 0
+    if payload[:4] != b"TOB1" or len(payload) < 0x20:
+        raise ValueError(f"unexpected TOB payload: {asset_name}")
+    count = struct.unpack_from("<I", payload, 0x18)[0]
+    out = bytearray(payload)
+    seen = set()
+    for i in range(count):
+        string_id, start_ms, old_duration, reserved = struct.unpack_from(
+            "<4I", payload, 0x20 + i * 16
+        )
+        key = (asset_name, f"{string_id:08X}")
+        if key not in durations:
+            continue
+        new_duration = durations[key]
+        if new_duration < old_duration:
+            raise ValueError(f"subtitle duration would shrink: {asset_name} {key[1]}")
+        struct.pack_into("<I", out, 0x20 + i * 16 + 8, new_duration)
+        seen.add(key)
+    missing = set(k for k in durations if k[0] == asset_name) - seen
+    if missing:
+        raise ValueError(f"subtitle duration target missing: {sorted(missing)}")
+    return bytes(out), len(seen)
+
+
+def rebuild_dlc_stream(original_stream: bytes, translated_lh2: bytes, durations=None) -> tuple[bytes, int]:
     be, assets = streamfile.read(original_stream)
     if be:
         raise ValueError("expected a PC DLC stream")
@@ -235,9 +291,14 @@ def rebuild_dlc_stream(original_stream: bytes, translated_lh2: bytes) -> bytes:
     if assets[423].type != "LH2" or "weller1" not in assets[423].path.lower():
         raise ValueError("unexpected DLC LH2 asset index")
 
+    durations = durations or {}
     writer = streamwrite.Writer()
+    patched_subtitles = 0
     for index, asset in enumerate(assets):
         payload = translated_lh2 if index == 423 else asset.payload()
+        if asset.type == "TOB":
+            payload, count = patch_tob_payload(asset.name, payload, durations)
+            patched_subtitles += count
         writer.add_asset(asset, payload)
     rebuilt = writer.data()
 
@@ -246,9 +307,13 @@ def rebuild_dlc_stream(original_stream: bytes, translated_lh2: bytes) -> bytes:
         raise ValueError("DLC stream asset count changed")
     for index, (before, after) in enumerate(zip(assets, readback)):
         expected = translated_lh2 if index == 423 else before.payload()
+        if before.type == "TOB":
+            expected, _ = patch_tob_payload(before.name, expected, durations)
         if after.payload() != expected:
             raise ValueError(f"DLC stream readback mismatch at asset {index}")
-    return rebuilt
+    if patched_subtitles != len(durations):
+        raise ValueError(f"patched subtitle count mismatch: {patched_subtitles} != {len(durations)}")
+    return rebuilt, patched_subtitles
 
 
 def update_dlc_toc(toc_data: bytes, stream_size: int) -> bytes:
@@ -353,7 +418,9 @@ def main() -> None:
     original_lh2 = original_assets[423].payload()
     translated_lh2 = build_lh2(original_lh2, records, translations)
 
-    patched_stream = rebuild_dlc_stream(original_stream, translated_lh2)
+    patched_stream, patched_subtitles = rebuild_dlc_stream(
+        original_stream, translated_lh2, SUBTITLE_DURATION_PATCH
+    )
 
     default_font = ROOT / "font_build" / "patched_font_4564F3D7.workbook.str"
     if not default_font.exists():
@@ -365,7 +432,7 @@ def main() -> None:
     text_data = Path(os.environ.get("DS2_TEXT_STREAM", str(default_text))).read_bytes()
     if sha256(text_data) != "0a75e1bc191e2127e2cab7f01c2f3ba6dc45e4c3452803aeac97aa403a0546e7":
         raise ValueError("base Chinese translation stream hash mismatch")
-    if sha256(font_data) != "88486ee526d5f5cee146adb80efb756cc645c521673e1e0df88bc053e4b8ae4b":
+    if sha256(font_data) != "d5c09c975a48fa130dfab5fb3c7e49a8591c45dce5a188f13b585adf36743c78":
         raise ValueError("base Chinese font stream hash mismatch")
 
     if file_sha256(SOURCE_DAT2) != SOURCE_DAT2_SHA256:
@@ -414,6 +481,11 @@ def main() -> None:
         "translated_lh2_sha256": sha256(translated_lh2),
         "patched_stream_bytes": len(patched_stream),
         "patched_stream_sha256": sha256(patched_stream),
+        "patched_subtitle_count": patched_subtitles,
+        "subtitle_duration_patch": {
+            f"{asset}:{string_id}": duration
+            for (asset, string_id), duration in SUBTITLE_DURATION_PATCH.items()
+        },
         "patched_toc_sha256": sha256(patched_toc),
         "base_font_bytes": len(font_data),
         "base_font_sha256": sha256(font_data),

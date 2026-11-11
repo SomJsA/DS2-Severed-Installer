@@ -1,6 +1,6 @@
 # DS2 Severed Installer
 
-当前版本：**2026.11.6.19** · [下载 / Releases](https://github.com/SomJsA/DS2-Severed-Installer/releases/tag/v2026.11.6.19)
+当前版本：**2026.11.11.20** · [下载 / Releases](https://github.com/SomJsA/DS2-Severed-Installer/releases/tag/v2026.11.11.20)
 
 死亡空间贴吧汉化组移植&汉化。支持 Steam / EA，安装器界面支持简体中文 / English。
 
@@ -18,13 +18,13 @@
 
 DLC 存档需要 DLC 及运行组件；停用、卸载或回到原版后，请重新启用 DLC 再读取这些存档。请用新版安装器执行升级或更改安装，保留原始备份和自定义配置。
 
-已通过 472 项覆盖原生钩子、存档识别、资源重建、安装审计、升级、回滚、卸载、界面及更新兼容的定向检查；Steam 实机确认主菜单与局内保存页的两章名称／图片、字体角色和多页短提示。正常退出后四份存档与游戏设置逐字节保持。详见 [验收范围](installer/VALIDATION-2026.11.6.19.md)。Steam 实机与隔离测试不能替代 EA 平台、所有检查点和连续多次死亡的完整回归。上游提案保留 Draft：[节点 #9](https://github.com/Tubzbuster/DS2SeveredPC/pull/9)、[存档显示 #11](https://github.com/Tubzbuster/DS2SeveredPC/pull/11)、[矿区 #13](https://github.com/Tubzbuster/DS2SeveredPC/pull/13)。
+已通过 472 项覆盖原生钩子、存档识别、资源重建、安装审计、升级、回滚、卸载、界面及更新兼容的定向检查；本版另将 24 条已有字幕窗口延长到不触碰后续事件的最大值，15 条无现成空档的字幕保持原时间。Steam 实机与隔离测试不能替代 EA 平台、所有检查点和连续多次死亡的完整回归。详见 [验收范围](installer/VALIDATION-2026.11.11.20.md)。上游提案保留 Draft：[节点 #9](https://github.com/Tubzbuster/DS2SeveredPC/pull/9)、[存档显示 #11](https://github.com/Tubzbuster/DS2SeveredPC/pull/11)、[矿区 #13](https://github.com/Tubzbuster/DS2SeveredPC/pull/13)。
 
 ## English
 
 A bilingual installer for Steam and EA: Simplified Chinese localization, original Severed DLC and MarkerPatch. DLC-only installations retain English/launcher language. Reuse the existing `Severed.marker`.
 
-2026.11.6.19 retains the accepted title/dialogue fonts, spacing and punctuation, and removes internal spaces from 21 short action labels. The original DLC core and official MarkerPatch remain separate. Power Node, save display and mining-camp initialization each have their own optional runtime plugin; known combined Extras installations are migrated.
+2026.11.11.20 retains the accepted title/dialogue fonts, spacing and punctuation, removes internal spaces from 21 short action labels, and extends 24 existing subtitle windows without moving later subtitle starts or audio cue times. The original DLC core and official MarkerPatch remain separate. Power Node, save display and mining-camp initialization each have their own optional runtime plugin; known combined Extras installations are migrated.
 
 DLC saves receive chapter-specific titles and previews in the menu and native in-game list. Only display buffers change; saves, chapter metadata, difficulty, time and progress remain unchanged. The mining fix corrects only the exact shared initializer responsible for the reproduced post-death/reload panel lock, preserving the three distinct puzzle steps.
 

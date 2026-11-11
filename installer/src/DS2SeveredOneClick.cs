@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.6.19")]
-[assembly: AssemblyFileVersion("2026.11.6.19")]
-[assembly: AssemblyInformationalVersion("2026.11.6.19-separate-bug-plugins-ingame-save")]
+[assembly: AssemblyVersion("2026.11.11.20")]
+[assembly: AssemblyFileVersion("2026.11.11.20")]
+[assembly: AssemblyInformationalVersion("2026.11.11.20-subtitle-window-extension")]
 
 internal sealed class InstallOptions
 {
@@ -502,9 +502,9 @@ internal static partial class InstallerEngine
     private const string OriginalDat2Sha =
         "81a145da647660d34a6fcb15ea3a8709c74855cf1beef23fc668a3ae42eb6ea0";
     private const string ChineseDat2Sha =
-        "90301421956be9de44c2dbc89d64f3a928bc8cc468ad82927ef059f48b454876";
+        "964725c2a6f93f6e46d5047ae4a27e99f685e7dd4c7660de4c59c65e69669a5b";
     private const string ChineseAssetsSha =
-        "990a5bb9590cfc65724e206134a8b6806f5061672241cc0468261b511a5d83a7";
+        "6b6643e475ca7d8ce747ca25630aa7c450a6b0d2d32dd04b8313291b95985cb8";
     private const string MarkerDllSha =
         "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55";
     private const string LegacyMarkerDllSha = "c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5";
@@ -521,7 +521,7 @@ internal static partial class InstallerEngine
     private static readonly string RuntimeConfig = Path.Combine("plugins", "SeveredRuntimeFixes.ini");
     private const string MarkerSha =
         "becb3529597bb84d8eb216a5d4ded7efd0191ea4493a24e7ec956078947de097";
-    private const long ChineseAssetsBytes = 21705707;
+    private const long ChineseAssetsBytes = 21702834;
     private const long ChineseDat2Bytes = 3187759104;
     private const long PatchedDat0Bytes = 2200768512;
     private const int BigArchiveAlign = 0x800;
@@ -1064,7 +1064,7 @@ internal static partial class InstallerEngine
         string cn = Path.Combine(temp, "cn");
         string stream = Path.Combine(cn, "DLC.4F21D71F.str");
         string toc = Path.Combine(cn, "DLC.4F9AE556.toc");
-        if (Sha256(stream) != "678cd673364ed40e96d73d4de02ff0941399be08354be252e3f340134d76e718" ||
+        if (Sha256(stream) != "a6b9f412502e12bc996cbe0290e4839189c2a59924097c39c4897b166ca9d15e" ||
             Sha256(toc) != "4771a3b58d03a6216dc5e802ca5e04676ee638ae8e1f0f49485f9f88abb6bd35")
             throw new InvalidDataException(L.T("内置 DLC 汉化资源校验失败。"));
         string rebuilt = Path.Combine(temp, "DS2DAT2.zh.DAT");

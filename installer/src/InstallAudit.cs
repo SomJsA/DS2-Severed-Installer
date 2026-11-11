@@ -45,7 +45,7 @@ internal sealed class InstallAudit
         using(var reader=new StreamReader(stream,Encoding.UTF8))references=json.Deserialize<AuditReferenceFile>(reader.ReadToEnd()).references;
         Write("START diagnostic installer "+ProductInfo.ReleaseVersion+"; local="+DateTimeOffset.Now.ToString("o")+"; game="+game);
         Write(L.T("诊断报告：")+Folder);
-        Save("expected-references.json",new { schema=1,baseline="2026.11.6.19 fonts, short labels and independent runtime fixes",references=references });
+        Save("expected-references.json",new { schema=1,baseline="2026.11.11.20 fonts, short labels, subtitle windows and independent runtime fixes",references=references });
         Save("selection.json",new { version=ProductInfo.ReleaseVersion,game=game,Chinese=options.Chinese,Dlc=options.Dlc,MarkerPatch=options.MarkerPatch,NodeFix=options.NodeFix,DeployManager=options.DeployManager,SubtitleScale=options.SubtitleScale,IgnoreCompatibilityErrors=options.IgnoreCompatibilityErrors,MarkerValues=options.MarkerValues,MarkerParameters=options.MarkerParameters });
         Self=Digest(typeof(InstallerEngine).Assembly.Location,null);
         var runtimes=new Dictionary<string,object>();string windows=Environment.GetFolderPath(Environment.SpecialFolder.Windows);

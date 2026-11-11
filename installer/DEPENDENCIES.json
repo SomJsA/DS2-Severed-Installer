@@ -64,10 +64,10 @@
   },
   "generated": {
     "font_stream_sha256": "d5c09c975a48fa130dfab5fb3c7e49a8591c45dce5a188f13b585adf36743c78",
-    "chinese_assets_bytes": 21705707,
-    "chinese_assets_sha256": "990a5bb9590cfc65724e206134a8b6806f5061672241cc0468261b511a5d83a7",
+    "chinese_assets_bytes": 21702834,
+    "chinese_assets_sha256": "6b6643e475ca7d8ce747ca25630aa7c450a6b0d2d32dd04b8313291b95985cb8",
     "dat0_sha256": "1e2363ed8613f910ca4bb0345d5a5eb3157fad5f51f935c53661bda9a803d803",
-    "dat2_sha256": "90301421956be9de44c2dbc89d64f3a928bc8cc468ad82927ef059f48b454876",
+    "dat2_sha256": "964725c2a6f93f6e46d5047ae4a27e99f685e7dd4c7660de4c59c65e69669a5b",
     "dlc_marker_bytes": 1170665452,
     "dlc_marker_sha256": "e35109e970c9d6e5aed4873f9efcc6f317cf17cb1a17177e14087dada6028b4c"
   },

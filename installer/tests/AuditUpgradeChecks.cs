@@ -17,7 +17,7 @@ class AuditUpgradeChecks {
  Call("ApplySelection",root,options,log);
  Check(Hash(dat0)=="1e2363ed8613f910ca4bb0345d5a5eb3157fad5f51f935c53661bda9a803d803","public upgrade applies exact accepted fonts, short labels and save APX archive");
  Check(Hash(bak)=="fd7d1bdbb5ec6b92324cd877465a029942c78396468695b4551068f4c3562e23","verified pristine backup retained during upgrade");
- Check(File.ReadAllText(state).Contains("version=15")&&File.ReadAllText(state).Contains("installer_release=2026.11.6.19"),"successful data upgrade stamps new schema and release");
+ Check(File.ReadAllText(state).Contains("version=15")&&File.ReadAllText(state).Contains("installer_release=2026.11.11.20"),"successful data upgrade stamps new schema and release");
  Check(!File.Exists(Path.Combine(root,"DS2DAT2.DAT"))&&!File.Exists(Path.Combine(root,"dinput8.dll")),"Chinese-only upgrade adds no DLC or MarkerPatch component");
  string report=(string)asm.GetType("InstallAudit").GetField("LastReport",f).GetValue(null);Check(File.Exists(report),"full-data upgrade has retrievable report ZIP");
  using(var zip=System.IO.Compression.ZipFile.OpenRead(report)){
