@@ -20,7 +20,7 @@
 
 DLC 存档需要 DLC 及运行组件；停用、卸载或回到原版后，请重新启用 DLC 再读取这些存档。请用新版安装器执行升级或更改安装，保留原始备份和自定义配置。
 
-已通过 472 项覆盖原生钩子、存档识别、资源重建、安装审计、升级、回滚、卸载、界面及更新兼容的定向检查；本版另将 24 条已有字幕窗口延长到不触碰后续事件的最大值，15 条无现成空档的字幕保持原时间。Steam 实机与隔离测试不能替代 EA 平台、所有检查点和连续多次死亡的完整回归。详见 [验收范围](installer/VALIDATION-2026.11.26.21.md)。上游提案保留 Draft：[节点 #9](https://github.com/Tubzbuster/DS2SeveredPC/pull/9)、[存档显示 #11](https://github.com/Tubzbuster/DS2SeveredPC/pull/11)、[矿区 #13](https://github.com/Tubzbuster/DS2SeveredPC/pull/13)。
+本版通过 317 项布局、语言与设置、更新兼容和安装审计检查；22 个内嵌资源与上一版逐项一致。本次仅调整安装器界面，保留此前 24 条字幕时长延长及全部游戏修复；此前的 472 项游戏与安装验证和 Steam 实机记录属于历史验收，不代表本次重新进行了完整游戏回归。详见 [本版验收范围](installer/VALIDATION-2026.11.26.21.md)。上游提案保留 Draft：[节点 #9](https://github.com/Tubzbuster/DS2SeveredPC/pull/9)、[存档显示 #11](https://github.com/Tubzbuster/DS2SeveredPC/pull/11)、[矿区 #13](https://github.com/Tubzbuster/DS2SeveredPC/pull/13)。
 
 ## English
 
