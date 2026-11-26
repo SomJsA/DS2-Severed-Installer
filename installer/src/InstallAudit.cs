@@ -140,7 +140,7 @@ internal sealed class InstallAudit
         };
         if(value("chinese")=="True")check("DS2DAT0.DAT","dat0.chinese.release19");
         if((options.Chinese||options.Dlc)&&!options.IgnoreCompatibilityErrors)foreach(string name in new[]{"DS2DAT1.DAT","DS2DAT6.DAT","DS2DAT7.DAT","DS2DAT8.DAT","DS2DAT9.DAT"})check(name,"base."+name);
-        if(value("marker_patch")=="True")check(File.Exists(Path.Combine(game,"dinput8.dll"))?"dinput8.dll":"dinput8.dll.ds2oneclick-off","marker.3.0.7");
+        if(value("marker_patch")=="True")check(File.Exists(Path.Combine(game,"dinput8.dll"))?"dinput8.dll":"dinput8.dll.ds2oneclick-off","marker.3.3.1");
         if(value("owns_dlc_runtime")=="True"||value("dlc")=="True")check(@"plugins\SeveredPC.asi","core.3.9");
         if(value("owns_extras_runtime")=="True")check(@"plugins\SeveredExtras.asi","extras.3.9");
         if(value("owns_bug_plugins")=="True"){check(@"plugins\SeveredPowerNodeFix.asi","node.release19");check(@"plugins\SeveredSaveDisplay.asi","save.release19");check(@"plugins\SeveredMiningCampFix.asi","mining.release19");}

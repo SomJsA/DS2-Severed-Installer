@@ -1,6 +1,6 @@
 # MarkerPatch 提供的功能改善
 
-此表与 2026.11.3 / MarkerPatch 3.0.7 的界面及配置定义一致。61 项功能中默认启用 18 项，其余默认不启用。
+2026.11.26.24 候选整合 MarkerPatch 3.3.1。66 个开关中有 20 项列为推荐启用。
 仅 DLC 的全新安装保留 LoadASIPlugins、EnableSeveredDLC；默认节点修正另需 EnableHackerDLC。取消节点修正后不再强制该项。新增六项属于 MarkerPatch 可选预设，不作为 DLC 强制依赖；已有配置保留。
 
 | 功能 | 默认 | 配置项 | 说明 |
@@ -71,17 +71,24 @@
 |---|---|---|---|---|
 | 各向异性过滤 | 0 | 0–16 | `MaxAnisotropy` | 改善斜视角纹理清晰度；0 表示关闭。 |
 | 动态阴影分辨率 | 1920 | 0–8192 | `DynamicShadowResolution` | 只在游戏阴影设为“非常高”时使用；高于 1920 才启用覆盖。 |
-| 增强抗锯齿 | 0 | 0–3 | `ImprovedAntiAliasingMode` | FXAA、SMAA 需要游戏内抗锯齿开启；SSAA 更清晰，但性能开销较大。 |
-| SSAA 分辨率倍率 | 2 | 1–4 | `SSAAScale` | 仅使用 SSAA 时生效，倍率越高，显卡负担越重。 |
+| 增强抗锯齿 | 0 | 0–4 | `ImprovedAntiAliasingMode` | 模式 4 同时使用 SMAA 和 SSAA。 |
+| SSAA 分辨率倍率 | 2 | 1–4 | `SSAAScale` | 使用 SSAA 或 SMAA＋SSAA 时生效。 |
+| PlayStation 按钮图标 | 2 | 0–2 | `PlayStationButtonIcons` | 0 关闭，1 始终使用 PS3 图标，2 由 SDL 输入自动识别 PlayStation 手柄。 |
+| 多人服装外观 | 0 | 0–36 | `MultiplayerSuit` | 0 保持原服装，1–36 对应官方外观列表。 |
 | 视野倍率 | 1 | 0.5–2 | `FOVScale` | 以默认视野为基准，1.0 为原始视野。 |
 | 陀螺仪灵敏度 | 1 | 0.01–10 | `GyroSensitivity` | 体感瞄准灵敏度倍率，需要先开启陀螺仪瞄准。 |
 | 陀螺仪平滑 | 0.016 | 0–1 | `GyroSmoothing` | 数值越高越平滑，但响应也会变慢。 |
 | 成就列表快捷键 | 36 | 1–255 | `AchievementOverlayKey` | Windows 虚拟键码；默认 36 为 HOME。 |
 | 尸体保留数量 | 25 | 0–500 | `IncreasedEntityPersistenceBodies` | 需要先开启“增加尸体与断肢保留”。数量较大时可能增加资源占用。 |
-| 断肢保留数量 | 96 | 0–1000 | `IncreasedEntityPersistenceLimbs` | 需要先开启“增加尸体与断肢保留”。 |
+| 断肢保留数量 | 36 | 0–1000 | `IncreasedEntityPersistenceLimbs` | 需开启“增加尸体与断肢保留”。升级时保留记录中的配置值。 |
 | 散装模组读取线程 | 4 | 0–16 | `LooseFileThreads` | 0 使用主线程，1–16 使用后台线程；只影响散装模组。 |
 | 散装模组预读内存（MB） | 32 | 0–512 | `LooseFilePrefetchMB` | 读取线程大于 0 时可提前读取散装模组；0 关闭预读。 |
 | 游戏归档预读（MB） | 0 | 0–64 | `StreamReadAheadMB` | 0 关闭此项；游戏原始值为 1；补丁支持最高 64 MB。 |
+
+## MarkerPatch 3.3.1 候选新增开关
+
+- `FixStuckChaseCamera` 和 `MarkerPatchMenu` 默认开启。
+- `DisableControllerAimAcceleration`、`AlwaysSucceedQTE` 和 `SkipHackingMinigame` 默认关闭。
 
 ## MarkerPatch 3.0.7 新增
 

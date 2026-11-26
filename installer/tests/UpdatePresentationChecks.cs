@@ -25,7 +25,7 @@ class UpdatePresentationChecks
                 using(Form owner=(Form)Activator.CreateInstance(type,true)){
                     type.GetProperty("PreviewOnly").SetValue(owner,true,null);
                     object installed=Activator.CreateInstance(asm.GetType("InstalledSelection"),true);
-                    Set(installed,"HasRecord",true);Set(installed,"Version","2026.11.11.20");Set(installed,"MarkerPresent",true);Set(installed,"MarkerIsCurrent",true);
+                    Set(installed,"HasRecord",true);Set(installed,"Version","2026.11.11.20");Set(installed,"MarkerPresent",true);Set(installed,"MarkerIsCurrent",false);Set(installed,"MarkerVersion","3.0.7");
                     Set(owner,"installedSelection",installed);type.GetMethod("UpdateMaintenanceSummary",instance).Invoke(owner,null);
                     string hint=((Label)type.GetField("installedHint",instance).GetValue(owner)).Text;
                     Check(hint.Contains("2026.11.11.20")&&hint.Contains("3.0.7"),"record and bundled component versions retained");

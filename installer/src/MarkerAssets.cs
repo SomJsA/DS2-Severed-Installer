@@ -63,7 +63,7 @@ internal static partial class InstallerEngine
             if (File.Exists(path) && !IsOwnedMarkerAsset(game, old.Relative, Sha256(path))) throw new IOException(L.T("MarkerPatch 资源已被外部修改，请先核对：") + old.Relative);
         }
         byte[] package = ReadResource("DS2_MARKER_ASSETS");
-        if (HashBytes(package) != "95781f153738dbc7a67d014476fea730195933812e36e746051279a0218b62e9") throw new InvalidDataException(L.T("内置 MarkerPatch 资源包校验失败。"));
+        if (HashBytes(package) != "f3f14bcafaa4f327bd2251af7486d1b70aa315e42670ee4e34a867693ae1face") throw new InvalidDataException(L.T("内置 MarkerPatch 资源包校验失败。"));
         using (var memory = new MemoryStream(package))
         using (var archive = new ZipArchive(memory, ZipArchiveMode.Read))
         {

@@ -124,7 +124,7 @@ class MaintenanceChecks
         Call("Uninstall",game,Log("external-assets-remove"));Check(Equal(assetBefore,Snapshot(game)),"external achievement asset restored");
         game=Fixture("changed-assets");Call("ApplySelection",game,Options(false,false,true),Log("changed-assets-seed"));File.WriteAllText(Path.Combine(game,"achievements","img","0.png"),"changed after install");
         var changedAsset=Snapshot(game);Refused(()=>Call("Uninstall",game,Log("changed-assets-refused")),"externally modified managed asset blocks uninstall");Check(Equal(changedAsset,Snapshot(game)),"modified asset refusal preserves all files");
-        Check(((System.Collections.ICollection)Call("GetMarkerPatchOptions")).Count==61,"MarkerPatch 3.0.7 exposes all 61 feature switches");
+        Check(((System.Collections.ICollection)Call("GetMarkerPatchOptions")).Count==66,"MarkerPatch 3.3.1 exposes all 66 feature switches");
 
         game=Fixture("remembered-settings");Call("ApplySelection",game,Options(false,false,true),Log("remembered-seed"));
         var remembered=Current(game);Set(remembered,"SubtitleScale",1.7m);Set(remembered,"NodeFix",false);

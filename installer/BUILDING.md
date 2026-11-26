@@ -1,6 +1,6 @@
-# Build 2026.11.11.20
+# Build the 2026.11.26.24 candidate
 
-Build `runtime-fixes/build.cmd` with x86 MSVC and the Windows SDK, then build `plugins/power_node_fix/build_msvc.cmd`, `plugins/save_display_fix/build_msvc.cmd` and `plugins/mining_camp_fix/build_msvc.cmd`. Run `installer/tools/build_installer.ps1` with `-SeveredAsi`, `-NodeAsi`, `-SaveAsi`, `-MiningAsi` and the pinned private dependencies in `DEPENDENCIES.json`. The legacy combined `extras` source is retained for historical auditing and is not embedded or installed. Original MarkerPatch 3.0.7 remains unchanged. Installer target: .NET Framework 4, x86.
+Build `runtime-fixes/build.cmd` with x86 MSVC and the Windows SDK, then build `plugins/power_node_fix/build_msvc.cmd`, `plugins/save_display_fix/build_msvc.cmd` and `plugins/mining_camp_fix/build_msvc.cmd`. Run `installer/tools/build_installer.ps1` with `-SeveredAsi`, `-NodeAsi`, `-SaveAsi`, `-MiningAsi` and the pinned private dependencies in `DEPENDENCIES.json`. Pass the official 3.3.1 release ZIP as `-MarkerAssets` and its extracted `dinput8.dll` as `-MarkerPatchDll`. The installer targets .NET Framework 4 on x86.
 
 The independent ASIs have no import from the DLC core; their loader requirement is MarkerPatch. The combined `DS2DAT3.DAT` supplies menu and native in-game save previews. The Chinese frontend incorporates the same save APX while retaining the accepted title font changes. Complete resource and DAT output hashes are verified. Tests cover hook ABI/policy, coordination, save classification, ownership, migration, rollback, runtime prerequisites, UI and browser failures. Isolated checks are separate from gameplay acceptance.
 

@@ -4,7 +4,7 @@ The code-only source publication contains no game archives, localization/font st
 artwork, icons, DLL/ASI/EXE dependencies or compiled installer.
 
 - MarkerPatch: https://github.com/Wemino/MarkerPatch, source commit
-  `d40f9ce31175c8fa5d59cca9dc3b417a396076f8`. GPL-2.0, license in
+  `f48dfde77512113c42a58f3776ba9b89b97a3d20` (3.3.1). GPL-2.0, license in
   `licenses/MarkerPatch-LICENSE.txt`. Obtain/build binaries from upstream.
 - DS2SeveredPC: https://github.com/Tubzbuster/DS2SeveredPC, release tag
   `v1.1.5`. License in `licenses/DS2SeveredPC-LICENSE.txt`.

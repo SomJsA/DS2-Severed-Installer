@@ -23,7 +23,7 @@ $root = Split-Path -Parent $PSScriptRoot
 if (-not $AssetsRoot) { $AssetsRoot = Join-Path $root 'assets' }
 if (-not $UiAssetsDir) { $UiAssetsDir = Join-Path $AssetsRoot 'ui' }
 if (-not $ChineseAssets) { $ChineseAssets = Join-Path $AssetsRoot 'Chinese.assets.R8.7z' }
-if (-not $MarkerAssets) { $MarkerAssets = Join-Path $root 'build-deps\MarkerPatch.3.0.7.zip' }
+if (-not $MarkerAssets) { $MarkerAssets = Join-Path $root 'build-deps\MarkerPatch.3.3.1.zip' }
 if (-not $MarkerIni) { $MarkerIni = Join-Path $AssetsRoot 'MarkerPatch.ini' }
 if (-not $OutputExe) { $OutputExe = Join-Path $root 'output\DS2SeveredOneClick.exe' }
 if (-not $Csc) { $Csc = 'C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe' }
@@ -36,7 +36,7 @@ function Assert-Hash {
     if ($actual -ne $Expected) { throw "SHA256 mismatch: $Path`n$actual" }
 }
 
-Assert-Hash $MarkerPatchDll '30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55' 1718784
+Assert-Hash $MarkerPatchDll 'd37df6d429c6c1671d93b1b84c03c2eb516957de735ee3abb4d3d93200b34745' 2012672
 Assert-Hash $SeveredAsi '48874e8ea9ebe97191e7058cc1832eed5d164a62b22c1bd4e875698d2023158f' 124416
 Assert-Hash $NodeAsi 'b4433be75687bef192914bc39e8a2c0ac31e3115d098a4c153f25ae722dfc55a' 726528
 Assert-Hash $SaveAsi 'add55bbb72932bf70ff177fb71e9bba8358790f5e2c0b8208a1f50cf97014f35' 730112
@@ -48,7 +48,7 @@ Assert-Hash (Join-Path $root 'assets\save-icons\SaveIcons.tail.bin') '30b1b4dbb5
 Assert-Hash (Join-Path $root 'assets\save-icons\SaveIcons.toc.bin') 'bb86263f00028a0f545239a9d28d8829cded328c7f7ed62b1085e18c6df0917c' 2048
 Assert-Hash (Join-Path $root 'assets\save-icons\NativeSaveIcons.tail.bin') '847c35a2053387e5057e78629139148194ffb3430ec2c528cd33abff0c177385' 195320
 Assert-Hash (Join-Path $root 'assets\save-icons\NativeSaveIcons.toc.bin') 'e31493cf6b8fa0ecb99212ea8f9decb801847f688d33e0f91eeb38ae5efdddc3' 32768
-Assert-Hash $MarkerAssets '95781f153738dbc7a67d014476fea730195933812e36e746051279a0218b62e9' 1191931
+Assert-Hash $MarkerAssets 'f3f14bcafaa4f327bd2251af7486d1b70aa315e42670ee4e34a867693ae1face' 1261454
 Assert-Hash $ChineseAssets '6b6643e475ca7d8ce747ca25630aa7c450a6b0d2d32dd04b8313291b95985cb8' 21702834
 
 

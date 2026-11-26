@@ -11,7 +11,7 @@ using System.Threading;
 internal sealed class InstalledSelection
 {
     public bool HasRecord, MarkerPresent, MarkerEnabled, MarkerIsCurrent, ExternalMarker, HasComponents;
-    public string Version;
+    public string Version, MarkerVersion;
     public InstallOptions Options = new InstallOptions();
 }
 
@@ -45,7 +45,9 @@ internal static partial class InstallerEngine
         string active = Path.Combine(game, "dinput8.dll"), disabled = Path.Combine(game, DisabledMarker);
         result.MarkerPresent = File.Exists(active) || File.Exists(disabled);
         result.MarkerEnabled = File.Exists(active);
-        result.MarkerIsCurrent = File.Exists(active) ? Sha256(active) == MarkerDllSha : File.Exists(disabled) && Sha256(disabled) == MarkerDllSha;
+        string markerHash = File.Exists(active) ? Sha256(active) : File.Exists(disabled) ? Sha256(disabled) : null;
+        result.MarkerIsCurrent = markerHash == MarkerDllSha;
+        result.MarkerVersion = markerHash == MarkerDllSha ? UpdateChecker.BundledMarkerVersion : markerHash == PreviousMarkerDllSha ? "3.0.7" : null;
         result.ExternalMarker = (result.MarkerPresent && !markerOwned) ||
             (File.Exists(active) && !IsKnownMarkerHash(Sha256(active))) ||
             (File.Exists(disabled) && !IsKnownMarkerHash(Sha256(disabled))) || (File.Exists(active) && File.Exists(disabled));
@@ -281,7 +283,7 @@ internal static partial class InstallerEngine
         if (!int.TryParse(StateValue(game, "version"), out version) || version < 1 || version > 15)
             throw new InvalidDataException(L.T("无法识别此安装记录的版本，请保留文件并尝试全新安装。"));
     }
-    private static bool IsKnownMarkerHash(string hash) { return hash == MarkerDllSha || hash == LegacyMarkerDllSha; }
+    private static bool IsKnownMarkerHash(string hash) { return hash == MarkerDllSha || hash == PreviousMarkerDllSha || hash == LegacyMarkerDllSha; }
     private static string MarkerHashForUninstall(string game)
     {
         string recorded = StateValue(game, "marker_dll_sha256");

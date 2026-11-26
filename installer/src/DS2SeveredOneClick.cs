@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.26.23")]
-[assembly: AssemblyFileVersion("2026.11.26.23")]
-[assembly: AssemblyInformationalVersion("2026.11.26.23-update-notification-scope")]
+[assembly: AssemblyVersion("2026.11.26.24")]
+[assembly: AssemblyFileVersion("2026.11.26.24")]
+[assembly: AssemblyInformationalVersion("2026.11.26.24-marker331-candidate")]
 
 internal sealed class InstallOptions
 {
@@ -510,7 +510,8 @@ internal static partial class InstallerEngine
     private const string ChineseAssetsSha =
         "6b6643e475ca7d8ce747ca25630aa7c450a6b0d2d32dd04b8313291b95985cb8";
     private const string MarkerDllSha =
-        "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55";
+        "d37df6d429c6c1671d93b1b84c03c2eb516957de735ee3abb4d3d93200b34745";
+    private const string PreviousMarkerDllSha = "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55";
     private const string LegacyMarkerDllSha = "c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5";
     private const string SeveredAsiSha = "48874e8ea9ebe97191e7058cc1832eed5d164a62b22c1bd4e875698d2023158f";
     private const string SaveDisplayCandidate4SeveredAsiSha = "fec3972b90bc48a41f854fcc783b9f18e580ff6c332f32776d6e77c07ab52fd5";
@@ -548,7 +549,8 @@ internal static partial class InstallerEngine
             "EnableSeveredDLC", "EnableHackerDLC", "EnableZealotDLC",
             "EnableRivetGunDLC", "EnableIgnitionRooms", "EnableOriginalPlasmaCutter",
             "FixFlareArtifacts",
-            "HighCoreCPUFix", "FixInputHistory", "FixSolarArrayElevator", "FixMenuSpeed", "FixExplosionDamage", "FixOffscreenEffects"
+            "HighCoreCPUFix", "FixInputHistory", "FixSolarArrayElevator", "FixMenuSpeed", "FixExplosionDamage", "FixOffscreenEffects",
+            "FixStuckChaseCamera", "MarkerPatchMenu"
         };
 
     public static Dictionary<string, bool> RecommendedMarkerValues()

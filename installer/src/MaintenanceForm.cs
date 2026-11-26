@@ -138,7 +138,7 @@ internal sealed partial class InstallerForm
         bool managed = installedSelection != null && installedSelection.HasRecord;
         installedHint.Text = managed ? L.T("安装记录：") + installedSelection.Version : L.T("未发现本工具的安装记录");
         if (installedSelection != null && installedSelection.ExternalMarker) installedHint.Text = L.T("外置加载器 / MarkerPatch：兼容性未验证，可向对应作者提 Issue。");
-        if (managed && installedSelection.MarkerPresent && !installedSelection.ExternalMarker) installedHint.Text += " | MarkerPatch " + (installedSelection.MarkerIsCurrent ? "3.0.7" : L.T("已识别旧版"));
+        if (managed && installedSelection.MarkerPresent && !installedSelection.ExternalMarker) installedHint.Text += " | MarkerPatch " + (installedSelection.MarkerVersion ?? (installedSelection.MarkerIsCurrent ? UpdateChecker.BundledMarkerVersion : L.T("已识别版本")));
         installButton.Text = managed ? L.T("升级 / 更改安装") : L.T("安装所选组件");
         startupControlButton.Enabled = !busy && managed && installedSelection.MarkerPresent && !installedSelection.ExternalMarker;
         startupControlButton.Text = installedSelection != null && installedSelection.MarkerEnabled ? L.T("停用随包 MarkerPatch") : L.T("启用随包 MarkerPatch");

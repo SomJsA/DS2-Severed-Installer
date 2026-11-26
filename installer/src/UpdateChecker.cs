@@ -27,7 +27,7 @@ internal sealed class UpdateReport
 internal static class UpdateChecker
 {
     internal const string Repository = "SomJsA/DS2-Severed-Installer";
-    internal const string BundledMarkerVersion = "3.0.7";
+    internal const string BundledMarkerVersion = "3.3.1";
     private const int MaxJson = 2 * 1024 * 1024;
 
     internal static Version ParseVersion(string tag)

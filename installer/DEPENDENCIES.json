@@ -2,16 +2,17 @@
   "schema": 3,
   "markerpatch": {
     "repository": "https://github.com/Wemino/MarkerPatch",
-    "source_commit": "d40f9ce31175c8fa5d59cca9dc3b417a396076f8",
-    "dinput8_bytes": 1718784,
-    "dinput8_sha256": "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55",
-    "release_tag": "3.0.7",
+    "source_commit": "f48dfde77512113c42a58f3776ba9b89b97a3d20",
+    "dinput8_bytes": 2012672,
+    "dinput8_sha256": "d37df6d429c6c1671d93b1b84c03c2eb516957de735ee3abb4d3d93200b34745",
+    "release_tag": "3.3.1",
     "build_kind": "official release asset",
     "legacy_managed_dll_sha256": "c6923b5ecd4c941a9894c21f145a51931efea9ef4ed384a16ee53680563232e5",
-    "assets_zip_bytes": 1191931,
-    "assets_zip_sha256": "95781f153738dbc7a67d014476fea730195933812e36e746051279a0218b62e9",
+    "assets_zip_bytes": 1261454,
+    "assets_zip_sha256": "f3f14bcafaa4f327bd2251af7486d1b70aa315e42670ee4e34a867693ae1face",
     "asset_files": 64,
-    "feature_count": 61
+    "feature_count": 66,
+    "previous_managed_dll_sha256": "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55"
   },
   "severedpc": {
     "repository": "https://github.com/Tubzbuster/DS2SeveredPC",

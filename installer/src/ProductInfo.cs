@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 internal static class ProductInfo
 {
-    public const string ReleaseVersion = "2026.11.26.23";
+    public const string ReleaseVersion = "2026.11.26.24";
     public static string GroupTitle { get { return L.T("死亡空间贴吧汉化组移植&汉化"); } }
     public static string Contact { get { return L.T("交流群339639634 && 死亡空间贴吧"); } }
     public const string GroupUrl = "https://qm.qq.com/q/AsZY1d8WxG";
@@ -78,6 +78,7 @@ internal static class ProductInfo
             "2026.11.3.12 — " + L.T("安装 MarkerPatch 或 DLC 前检查必需的 x86 运行库；保留安装诊断报告。") + "\r\n" +
             "2026.11.26.22 — " + L.T("适配低分辨率与高缩放：大图自动切换为小图标或文字卡片，必要时等比缩放。") + "\r\n" +
             "2026.11.26.23 — " + L.T("区分安装器与 MarkerPatch 的更新通知；安装记录不再按日期标为旧版。") + "\r\n" +
+            "2026.11.26.24 — " + L.T("候选：随包 MarkerPatch 升级为 3.3.1，补齐新增设置。") + "\r\n" +
             L.T("支持更改安装、保存设置、根目录管理器与更新检查。"); }
     }
     public static string SaveCompatibility { get { return L.T("DLC 存档需要 Severed DLC 及运行组件。卸载、停用或回到原版后，请勿读取这些存档；原版读档失败的具体表现尚未验证。请备份存档，重新安装并启用 DLC 后继续。名称和图标修复只改显示，不转换存档。"); } }
