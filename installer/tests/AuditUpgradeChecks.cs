@@ -15,7 +15,7 @@ class AuditUpgradeChecks {
  var options=Activator.CreateInstance(asm.GetType("InstallOptions"),true);foreach(string key in new[]{"Dlc","MarkerPatch","NodeFix","DeployManager"})options.GetType().GetField(key).SetValue(options,false);options.GetType().GetField("Chinese").SetValue(options,true);
  Action<string> log=(text)=>File.AppendAllText(Path.Combine(root,"engine.log"),text+Environment.NewLine,Encoding.UTF8);
  Call("ApplySelection",root,options,log);
- Check(Hash(dat0)=="1e2363ed8613f910ca4bb0345d5a5eb3157fad5f51f935c53661bda9a803d803","public upgrade applies exact accepted fonts, short labels and save APX archive");
+ Check(Hash(dat0)=="3442897e7743c031b0bcc02c7b3ec18d89d46cefaa83fb11e7d3e4332a531af8","public upgrade applies exact accepted fonts, short labels and save APX archive");
  Check(Hash(bak)=="fd7d1bdbb5ec6b92324cd877465a029942c78396468695b4551068f4c3562e23","verified pristine backup retained during upgrade");
  Check(File.ReadAllText(state).Contains("version=15")&&File.ReadAllText(state).Contains("installer_release=2026.11.11.20"),"successful data upgrade stamps new schema and release");
  Check(!File.Exists(Path.Combine(root,"DS2DAT2.DAT"))&&!File.Exists(Path.Combine(root,"dinput8.dll")),"Chinese-only upgrade adds no DLC or MarkerPatch component");
@@ -23,7 +23,7 @@ class AuditUpgradeChecks {
  using(var zip=System.IO.Compression.ZipFile.OpenRead(report)){
  using(var rd=new StreamReader(zip.GetEntry("prerequisite-runtime.json").Open()))Check(rd.ReadToEnd().Contains("\"required\":false"),"Chinese-only install skips runtime prerequisite");
  using(var rd=new StreamReader(zip.GetEntry("snapshot-before.csv").Open()))Check(rd.ReadToEnd().Contains("1bb7beeda1b6a42365ef64a69c3822b0"),"before CSV records exact candidate MD5");
- using(var rd=new StreamReader(zip.GetEntry("snapshot-after.csv").Open()))Check(rd.ReadToEnd().Contains("d4c9b80096c2ef9ab35030da99bb9d39"),"after CSV matches independent stable MD5 reference");
+ using(var rd=new StreamReader(zip.GetEntry("snapshot-after.csv").Open()))Check(rd.ReadToEnd().Contains("d9b4b2cd27edef6fd24931b917a01b50"),"after CSV matches independent stable MD5 reference");
  using(var rd=new StreamReader(zip.GetEntry("verification.json").Open()))Check(rd.ReadToEnd().Contains("\"passed\":true"),"all full-data expected comparisons pass");}
  Call("Uninstall",root,log);
  Check(Hash(dat0)=="fd7d1bdbb5ec6b92324cd877465a029942c78396468695b4551068f4c3562e23","candidate uninstaller restores exact original DAT0");

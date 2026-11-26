@@ -108,6 +108,21 @@
       "md5": "d4c9b80096c2ef9ab35030da99bb9d39",
       "sha256": "1e2363ed8613f910ca4bb0345d5a5eb3157fad5f51f935c53661bda9a803d803"
     },
+    "dat0.chinese.release25": {
+      "bytes": 2200768512,
+      "md5": "d9b4b2cd27edef6fd24931b917a01b50",
+      "sha256": "3442897e7743c031b0bcc02c7b3ec18d89d46cefaa83fb11e7d3e4332a531af8"
+    },
+    "dat2.english.contact-beam": {
+      "bytes": 3187759104,
+      "md5": "25cdded7a8ddd5fb7f7115b57853d77e",
+      "sha256": "eb977e2f6f537b3d7d9b93ddaae928d6f35c45806bcf8496a2bea2319e1395ad"
+    },
+    "dat2.chinese.contact-beam": {
+      "bytes": 3187759104,
+      "md5": "b93f6e166a99b82c680dcc0415b82ee4",
+      "sha256": "6fbd88eb5ec906a80d1e578226f1e6923f69e1f34901a704e3fec6627fa38b0a"
+    },
     "node.release19": {
       "bytes": 726528,
       "md5": "b7f7a057935176739793b620a53bfcb5",

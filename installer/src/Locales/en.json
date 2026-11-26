@@ -171,7 +171,7 @@
   "内置 DLC 汉化资源校验失败。": "Embedded DLC localization verification failed.",
   "DLC 汉化输出校验失败。": "DLC localization output verification failed.",
   "DLC 汉化落盘校验失败。": "Installed DLC localization verification failed.",
-  "DLC 218 条 XLSX 译文安装完成（zh-workbook-v1，90301421...）。": "All 218 approved DLC translations installed (zh-workbook-v1, 90301421...).",
+  "DLC 218 条 XLSX 译文安装完成（zh-workbook-v1，6fbd88eb...）。": "All 218 approved DLC translations installed (zh-workbook-v1, 6fbd88eb...).",
   "内置 MarkerPatch DLL 校验失败。": "Embedded MarkerPatch DLL verification failed.",
   "保留已有 MarkerPatch 设置，仅确保 DLC 加载与所需物品开关启用。": "Existing MarkerPatch settings are retained; only DLC loading and required item options are ensured.",
   "最小配置：仅 LoadASIPlugins、EnableSeveredDLC 开启；字幕与其他增强关闭。": "Minimum profile: only LoadASIPlugins and EnableSeveredDLC are enabled. Subtitle scaling and other enhancements are off.",
@@ -623,5 +623,5 @@
   "Viral 城市白": "Viral Urban White",
   "Viral 虎纹白": "Viral Tiger White",
   "SMAA＋SSAA": "SMAA + SSAA",
-  "候选：随包 MarkerPatch 升级为 3.3.1，补齐新增设置。": "Candidate: bundle MarkerPatch 3.3.1 and expose its new settings."
+  "随包 MarkerPatch 3.3.1，修复 DLC 聚能枪站立蓄力和部分弹窗“确定”的字间空格。": "Bundle MarkerPatch 3.3.1, fix the Contact Beam's standing charge in Severed, and remove the extra space from the Chinese OK label."
 }

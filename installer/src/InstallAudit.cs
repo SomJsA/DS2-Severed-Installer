@@ -138,7 +138,7 @@ internal sealed class InstallAudit
             checks.Add(new { path=name,expected_reference=role,expected=expected,actual=found?actual:null,status=match?"MATCH":"MISMATCH_OR_UNREADABLE" });
             Write("VERIFY "+name+" expected="+role+" "+(match?"MATCH":"FAILED"));if(!match)failures.Add(name);
         };
-        if(value("chinese")=="True")check("DS2DAT0.DAT","dat0.chinese.release19");
+        if(value("chinese")=="True")check("DS2DAT0.DAT","dat0.chinese.release25");
         if((options.Chinese||options.Dlc)&&!options.IgnoreCompatibilityErrors)foreach(string name in new[]{"DS2DAT1.DAT","DS2DAT6.DAT","DS2DAT7.DAT","DS2DAT8.DAT","DS2DAT9.DAT"})check(name,"base."+name);
         if(value("marker_patch")=="True")check(File.Exists(Path.Combine(game,"dinput8.dll"))?"dinput8.dll":"dinput8.dll.ds2oneclick-off","marker.3.3.1");
         if(value("owns_dlc_runtime")=="True"||value("dlc")=="True")check(@"plugins\SeveredPC.asi","core.3.9");

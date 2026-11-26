@@ -1,10 +1,11 @@
-"""Reproduce 21 short Chinese action-label changes from private LH2 input."""
+"""Reproduce the verified short Chinese action-label changes from private LH2 input."""
 from pathlib import Path
 import argparse,hashlib,json,struct,sys
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--source',type=Path,required=True)
 p.add_argument('--output',type=Path,required=True)
 p.add_argument('--research-dir',type=Path,required=True)
+p.add_argument('--fix-ok',action='store_true',help='Fix the remaining spaced OK label in the previously corrected stream')
 a=p.parse_args();sys.path.insert(0,str(a.research_dir))
 from ds2 import streamfile
 u=lambda b,p:struct.unpack_from('<I',b,p)[0]
@@ -12,6 +13,11 @@ source=a.source.read_bytes();assets=streamfile.read(source)[1]
 languages=[v for v in assets if v.type=='LH2'];assert len(languages)==1
 old=languages[0].payload();new=bytearray(old)
 rows=json.loads(Path(__file__).with_name('short_action_labels.json').read_text(encoding='utf-8'))
+legacy_sha='06bd09bf7304dc2336379a089a045baaa6ee4cc3cf5ea56cb043e5fbc1161121'
+if a.fix_ok:
+ if hashlib.sha256(source).hexdigest()!=legacy_sha:
+  raise ValueError('Expected the verified stream with the prior 21 label fixes')
+ rows=[{'id':'AE3D74E6','chinese_before':'确 定','chinese_trial':'确定'}]
 n=u(old,16);offsets=[u(old,32+4*n+4*i) for i in range(n)]
 for row in rows:
  i=next(i for i in range(n) if u(old,32+4*i)==int(row['id'],16));at=offsets[i];end=old.index(0,at)
@@ -22,7 +28,7 @@ for row in rows:
 changed=[]
 for i,at in enumerate(offsets):
  if old[at:old.index(0,at)]!=new[at:new.index(0,at)]:changed.append('%08X'%u(old,32+4*i))
-assert set(changed)=={x['id'] for x in rows} and len(changed)==21
+assert set(changed)=={x['id'] for x in rows} and len(changed)==len(rows)
 out=bytearray(source);position=12;current=None;consumed=0
 while position+12<=len(source):
  size=u(source,position+4)
@@ -34,6 +40,8 @@ while position+12<=len(source):
  position+=size
 assert consumed==len(new) and len(out)==len(source)
 for before,after in zip(assets,streamfile.read(out)[1]):assert after.payload()==(bytes(new) if before.type=='LH2' else before.payload())
-assert hashlib.sha256(out).hexdigest()=='06bd09bf7304dc2336379a089a045baaa6ee4cc3cf5ea56cb043e5fbc1161121'
+expected_sha='46c35dd24c746bd2091aff8dfe4dbc44e01ef57874295b253ce31c1951bfb8dc' if a.fix_ok else legacy_sha
+if hashlib.sha256(out).hexdigest()!=expected_sha:
+ raise ValueError('Short-label output hash differs from the verified stream')
 with a.output.open('xb') as f:f.write(out)
-print('Verified 21 exact labels; all other strings and asset payloads preserved')
+print(f'Verified {len(rows)} exact label changes; all other strings and asset payloads preserved')

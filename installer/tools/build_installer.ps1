@@ -49,7 +49,7 @@ Assert-Hash (Join-Path $root 'assets\save-icons\SaveIcons.toc.bin') 'bb86263f000
 Assert-Hash (Join-Path $root 'assets\save-icons\NativeSaveIcons.tail.bin') '847c35a2053387e5057e78629139148194ffb3430ec2c528cd33abff0c177385' 195320
 Assert-Hash (Join-Path $root 'assets\save-icons\NativeSaveIcons.toc.bin') 'e31493cf6b8fa0ecb99212ea8f9decb801847f688d33e0f91eeb38ae5efdddc3' 32768
 Assert-Hash $MarkerAssets 'f3f14bcafaa4f327bd2251af7486d1b70aa315e42670ee4e34a867693ae1face' 1261454
-Assert-Hash $ChineseAssets '6b6643e475ca7d8ce747ca25630aa7c450a6b0d2d32dd04b8313291b95985cb8' 21702834
+Assert-Hash $ChineseAssets '264070f7992265d4ec801fa06adc62f790eab534baa0cf8f025520efd9cbb6b1' 21703669
 
 
 $outputDir = Split-Path -Parent $OutputExe

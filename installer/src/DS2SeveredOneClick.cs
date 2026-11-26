@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.26.24")]
-[assembly: AssemblyFileVersion("2026.11.26.24")]
-[assembly: AssemblyInformationalVersion("2026.11.26.24-marker331-candidate")]
+[assembly: AssemblyVersion("2026.11.26.25")]
+[assembly: AssemblyFileVersion("2026.11.26.25")]
+[assembly: AssemblyInformationalVersion("2026.11.26.25")]
 
 internal sealed class InstallOptions
 {
@@ -502,13 +502,13 @@ internal static partial class InstallerEngine
     private const string OriginalDat0Sha =
         "fd7d1bdbb5ec6b92324cd877465a029942c78396468695b4551068f4c3562e23";
     private const string PatchedDat0Sha =
-        "1e2363ed8613f910ca4bb0345d5a5eb3157fad5f51f935c53661bda9a803d803";
+        "3442897e7743c031b0bcc02c7b3ec18d89d46cefaa83fb11e7d3e4332a531af8";
     private const string OriginalDat2Sha =
         "81a145da647660d34a6fcb15ea3a8709c74855cf1beef23fc668a3ae42eb6ea0";
     private const string ChineseDat2Sha =
         "964725c2a6f93f6e46d5047ae4a27e99f685e7dd4c7660de4c59c65e69669a5b";
     private const string ChineseAssetsSha =
-        "6b6643e475ca7d8ce747ca25630aa7c450a6b0d2d32dd04b8313291b95985cb8";
+        "264070f7992265d4ec801fa06adc62f790eab534baa0cf8f025520efd9cbb6b1";
     private const string MarkerDllSha =
         "d37df6d429c6c1671d93b1b84c03c2eb516957de735ee3abb4d3d93200b34745";
     private const string PreviousMarkerDllSha = "30af0b5ccf50a34d9303d99c04d899c6f6368e522f509ca9d077586542622b55";
@@ -526,7 +526,7 @@ internal static partial class InstallerEngine
     private static readonly string RuntimeConfig = Path.Combine("plugins", "SeveredRuntimeFixes.ini");
     private const string MarkerSha =
         "becb3529597bb84d8eb216a5d4ded7efd0191ea4493a24e7ec956078947de097";
-    private const long ChineseAssetsBytes = 21702834;
+    private const long ChineseAssetsBytes = 21703669;
     private const long ChineseDat2Bytes = 3187759104;
     private const long PatchedDat0Bytes = 2200768512;
     private const int BigArchiveAlign = 0x800;
@@ -651,7 +651,7 @@ internal static partial class InstallerEngine
             if (options.Dlc)
             {
                 log(L.T("步骤 2/3：安装原始英文 DLC..."));
-                InstallDlc(game, dlcArchive, temp, sevenZip, package, log, undo, !wasManagedDat2);
+                InstallDlc(game, dlcArchive, temp, sevenZip, package, log, undo, !wasManagedDat2, !options.Chinese);
             }
             if (options.Dlc)
             {
@@ -763,7 +763,7 @@ internal static partial class InstallerEngine
         else if (ownsDat2 && File.Exists(dat2))
         {
             string dat2Hash = Sha256(dat2);
-            if (dat2Hash == recordedDat2Hash || (string.IsNullOrEmpty(recordedDat2Hash) && (dat2Hash == OriginalDat2Sha || dat2Hash == ChineseDat2Sha)))
+            if (dat2Hash == recordedDat2Hash || (string.IsNullOrEmpty(recordedDat2Hash) && IsKnownDat2Hash(dat2Hash)))
                 RestoreOrRemoveOwned(game, "DS2DAT2.DAT", dat2Hash, log);
             else throw new InvalidOperationException(L.T("DS2DAT2.DAT 已被其他工具修改，已保留文件及卸载记录。"));
         }
@@ -834,7 +834,7 @@ internal static partial class InstallerEngine
         if (dat2 && File.Exists(Path.Combine(game, "DS2DAT2.DAT")))
         {
             string actual = Sha256(Path.Combine(game, "DS2DAT2.DAT"));
-            bool matches = !string.IsNullOrEmpty(dat2Hash) ? actual == dat2Hash : actual == OriginalDat2Sha || actual == ChineseDat2Sha;
+            bool matches = !string.IsNullOrEmpty(dat2Hash) ? actual == dat2Hash : IsKnownDat2Hash(actual);
             if (!matches) problems.Add(L.T("DS2DAT2.DAT 已被其他工具修改，将保留该文件。"));
             owned["DS2DAT2.DAT"] = actual;
         }
@@ -896,7 +896,7 @@ internal static partial class InstallerEngine
            Sha256(titleToc)!="29a17fc868d38d198aecdaf7759bca847dc967b822a7a564491f633a77023db2")
             throw new InvalidDataException(L.T("内置标题字体界面资源校验失败。"));
         if (Sha256(font) != "d5c09c975a48fa130dfab5fb3c7e49a8591c45dce5a188f13b585adf36743c78" ||
-            Sha256(text) != "06bd09bf7304dc2336379a089a045baaa6ee4cc3cf5ea56cb043e5fbc1161121")
+            Sha256(text) != "46c35dd24c746bd2091aff8dfe4dbc44e01ef57874295b253ce31c1951bfb8dc")
             throw new InvalidDataException(L.T("内置字体或译文资源校验失败。"));
 
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
@@ -957,7 +957,7 @@ internal static partial class InstallerEngine
         string target = Path.Combine(game, "DS2DAT2.DAT");
         if (!File.Exists(target) || (ReadState(game, "dlc") != "True" && ReadState(game, "owns_dat2") != "True")) return false;
         string hash = Sha256(target), expected = ReadState(game, "installed_dat2_sha256");
-        return string.IsNullOrEmpty(expected) ? hash == OriginalDat2Sha || hash == ChineseDat2Sha : hash == expected;
+        return string.IsNullOrEmpty(expected) ? IsKnownDat2Hash(hash) : hash == expected;
     }
     private static DlcPackage ReadDlcPackage(string archive, string temp, string sevenZip)
     {
@@ -974,7 +974,14 @@ internal static partial class InstallerEngine
         string path = Path.Combine(game, "DS2DAT2.DAT");
         if (!File.Exists(path)) return "none";
         string hash = Sha256(path);
-        return hash == OriginalDat2Sha ? "base-en-v1" : hash == ChineseDat2Sha ? "zh-workbook-v1" : "unknown";
+        return hash == OriginalDat2Sha || hash == FixedEnglishDat2Sha ? "base-en-v1" :
+            hash == ChineseDat2Sha || hash == FixedChineseDat2Sha ? "zh-workbook-v1" : "unknown";
+    }
+
+    private static bool IsKnownDat2Hash(string hash)
+    {
+        return hash == OriginalDat2Sha || hash == ChineseDat2Sha ||
+            hash == FixedEnglishDat2Sha || hash == FixedChineseDat2Sha;
     }
 
     private static void ReplaceDat(string target, string staged, string temp, bool keepOriginalBackup, List<Action> undo, Action<string> log)
@@ -1001,7 +1008,7 @@ internal static partial class InstallerEngine
         else File.Move(staged, target);
     }
 
-    private static void InstallDlc(string game, string archive, string temp, string sevenZip, DlcPackage package, Action<string> log, List<Action> undo, bool keepOriginalBackup)
+    private static void InstallDlc(string game, string archive, string temp, string sevenZip, DlcPackage package, Action<string> log, List<Action> undo, bool keepOriginalBackup, bool fixEnglish)
     {
         string root = Path.Combine(temp, "dlc");
         log(L.T("包内版本与协议通过：") + package.Summary);
@@ -1024,23 +1031,29 @@ internal static partial class InstallerEngine
             if (Encoding.ASCII.GetString(header, 0, 4) != "BIGH" || ReadLe32(header, 4) != package.PayloadBytes)
                 throw new InvalidDataException(L.T("DLC 数据不是支持的完整 BIGH 归档。"));
         }
+        string installedHash = package.PayloadSha256;
+        if (fixEnglish && installedHash == OriginalDat2Sha)
+        {
+            FixStagedContactBeam(extracted, FixedEnglishDat2Sha);
+            installedHash = FixedEnglishDat2Sha;
+        }
         string target = Path.Combine(game, "DS2DAT2.DAT");
-        if (File.Exists(target) && Sha256(target) == package.PayloadSha256)
+        if (File.Exists(target) && Sha256(target) == installedHash)
         {
             if (keepOriginalBackup)
             {
                 string backup = target + ".ds2oneclick.bak";
                 if (File.Exists(backup)) throw new IOException(L.T("已有 DLC 备份但缺少可确认的安装归属，请保留文件并核对旧安装。"));
                 File.Copy(target, backup);
-                if (Sha256(backup) != package.PayloadSha256) throw new IOException(L.T("原有 DLC 备份校验失败。"));
+                if (Sha256(backup) != installedHash) throw new IOException(L.T("原有 DLC 备份校验失败。"));
                 undo.Add(() => { if (File.Exists(backup)) File.Delete(backup); });
             }
             log(L.T("DS2DAT2.DAT 已是此包的英文数据，跳过替换。"));
             return;
         }
         ReplaceDat(target, extracted, temp, keepOriginalBackup, undo, log);
-        if (Sha256(target) != package.PayloadSha256) throw new InvalidDataException(L.T("原始 DLC 落盘校验失败。"));
-        log(L.T("原始英文 DLC 安装完成（SHA-256 ") + package.PayloadSha256 + L.T("）。"));
+        if (Sha256(target) != installedHash) throw new InvalidDataException(L.T("原始 DLC 落盘校验失败。"));
+        log(L.T("原始英文 DLC 安装完成（SHA-256 ") + installedHash + L.T("）。"));
     }
 
     private static bool InstallDlcChinese(string game, string temp, Action<string> log, List<Action> undo, bool keepOriginalBackup, string acceptedEnglishHash)
@@ -1052,12 +1065,12 @@ internal static partial class InstallerEngine
             return false;
         }
         string hash = Sha256(dat2);
-        if (hash == ChineseDat2Sha)
+        if (hash == FixedChineseDat2Sha)
         {
             log(L.T("DLC 已是 XLSX 汉化版本 zh-workbook-v1，跳过。"));
             return true;
         }
-        if (hash != OriginalDat2Sha)
+        if (!IsKnownDat2Hash(hash))
         {
             if (!string.IsNullOrEmpty(acceptedEnglishHash) && hash == acceptedEnglishHash)
             {
@@ -1074,16 +1087,22 @@ internal static partial class InstallerEngine
             Sha256(toc) != "4771a3b58d03a6216dc5e802ca5e04676ee638ae8e1f0f49485f9f88abb6bd35")
             throw new InvalidDataException(L.T("内置 DLC 汉化资源校验失败。"));
         string rebuilt = Path.Combine(temp, "DS2DAT2.zh.DAT");
-        RebuildBigh(dat2, rebuilt, new Dictionary<uint, string>
-        {
-            { 0x4F21D71F, stream },
-            { 0x4F9AE556, toc }
-        });
-        if (new FileInfo(rebuilt).Length != ChineseDat2Bytes || Sha256(rebuilt) != ChineseDat2Sha)
+        if (hash == ChineseDat2Sha)
+            File.Copy(dat2, rebuilt);
+        else
+            RebuildBigh(dat2, rebuilt, new Dictionary<uint, string>
+            {
+                { 0x4F21D71F, stream },
+                { 0x4F9AE556, toc }
+            });
+        string expectedRebuilt = hash == FixedEnglishDat2Sha ? FixedChineseDat2Sha : ChineseDat2Sha;
+        if (new FileInfo(rebuilt).Length != ChineseDat2Bytes || Sha256(rebuilt) != expectedRebuilt)
             throw new InvalidDataException(L.T("DLC 汉化输出校验失败。"));
+        if (expectedRebuilt == ChineseDat2Sha)
+            FixStagedContactBeam(rebuilt, FixedChineseDat2Sha);
         ReplaceDat(dat2, rebuilt, temp, keepOriginalBackup, undo, log);
-        if (Sha256(dat2) != ChineseDat2Sha) throw new InvalidDataException(L.T("DLC 汉化落盘校验失败。"));
-        log(L.T("DLC 218 条 XLSX 译文安装完成（zh-workbook-v1，90301421...）。"));
+        if (Sha256(dat2) != FixedChineseDat2Sha) throw new InvalidDataException(L.T("DLC 汉化落盘校验失败。"));
+        log(L.T("DLC 218 条 XLSX 译文安装完成（zh-workbook-v1，6fbd88eb...）。"));
         return true;
     }
 

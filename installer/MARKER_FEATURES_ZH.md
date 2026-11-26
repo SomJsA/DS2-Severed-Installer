@@ -1,6 +1,6 @@
 # MarkerPatch 提供的功能改善
 
-2026.11.26.24 候选整合 MarkerPatch 3.3.1。66 个开关中有 20 项列为推荐启用。
+2026.11.26.25 整合 MarkerPatch 3.3.1。66 个开关中有 20 项列为推荐启用。
 仅 DLC 的全新安装保留 LoadASIPlugins、EnableSeveredDLC；默认节点修正另需 EnableHackerDLC。取消节点修正后不再强制该项。新增六项属于 MarkerPatch 可选预设，不作为 DLC 强制依赖；已有配置保留。
 
 | 功能 | 默认 | 配置项 | 说明 |

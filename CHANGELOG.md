@@ -1,4 +1,11 @@
-# 2026.11.26.23 — 更新通知区分 / Separate update notifications
+# 2026.11.26.25 — MarkerPatch 3.3.1 和聚能枪修复
+
+- 随包更新至官方 MarkerPatch 3.3.1，补齐新增选项说明，迁移时保留既有设置。
+- 修复受支持的 Severed DLC 中聚能枪站立蓄力时的姿势和远处命中。中国玩家社区在 Steam 完成实测。
+- 移除一条游戏弹窗「确定」中的字间空格。继续使用现有 `Severed.marker`。
+- Bundle official MarkerPatch 3.3.1. Fix standing Contact Beam charge in supported Severed data and remove an internal space from the Chinese OK label.
+
+## 2026.11.26.23 — 更新通知区分 / Separate update notifications
 
 - 仅 MarkerPatch 上游更新时，弹窗明确标为“MarkerPatch 更新”，前往 MarkerPatch 发布页；只有安装器更新时才提示安装器升级。
 - 安装记录显示实际记录版本，不再仅因版本日期不同而标为“旧版记录”。
