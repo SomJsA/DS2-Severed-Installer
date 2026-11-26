@@ -1,3 +1,11 @@
+2026.11.26.21 — 低分辨率与 Windows 缩放 / Smaller displays and Windows scaling
+
+主窗口按空间切换大图、小图标或文字卡片，再按比例缩放；常见小屏无须滚动，极小窗口才使用滚动兜底。安装、卸载和进度保持可见，支持调整大小与最大化。详细设置等弹窗也可滚动访问。保留 2026.11.11.20 的字幕时长及全部游戏资源。验收边界见 VALIDATION-2026.11.26.21.md。
+
+The installer adapts artwork to icon or text cards, then scales proportionally. Main-window scrolling is only an extreme-size fallback; installation actions remain visible. Game resources retain the exact previous-release bytes.
+
+以下为历史说明 / Historical notes follow.
+
 2026.11.4.16 — 中英数字距修正候选5 / Readable spacing candidate 5
 
 采用B方案：空格5→3；英文字母和数字恢复各自源TTF的步进与左侧留白。保留3.15的字形、标点及标题/剧情字体分工。详见 installer/SPACING-3.16.md。

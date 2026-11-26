@@ -21,11 +21,14 @@ internal sealed class ImageChoice : CheckBox
     public Image Artwork { get; set; }
     public string Caption { get; set; }
     public bool ContainArtwork { get; set; }
+    public int CompactLevel { get; set; }
+    public float VisualScale { get; set; }
     private float hover, targetHover, selectPulse, selection, targetSelection, press, targetPress;
     private Point lastClick;
     private readonly Timer animation = new Timer { Interval = 16 };
     public ImageChoice()
     {
+        VisualScale = 1f;
         SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         AutoSize = false; Cursor = Cursors.Hand; BackColor = PaintSkin.Background; ForeColor = Color.White;
         AccessibleRole = AccessibleRole.CheckButton;
@@ -48,7 +51,8 @@ internal sealed class ImageChoice : CheckBox
     protected override void OnPaint(PaintEventArgs e)
     {
         var g=e.Graphics; g.SmoothingMode=SmoothingMode.AntiAlias; g.InterpolationMode=InterpolationMode.HighQualityBicubic;
-        g.Clear(BackColor); float unit=Math.Max(1f,g.DpiX/96f), lift=5*unit*hover-2*unit*press;
+        g.Clear(BackColor); float unit=Math.Max(1f,g.DpiX/96f)*VisualScale, lift=5*unit*hover-2*unit*press;
+        if(CompactLevel>0){DrawCompact(g,unit);return;}
         var box=new RectangleF(2*unit,7*unit-lift,Width-4*unit,Height-9*unit);
         using(var path=PaintSkin.Round(box,9*unit))
         {
@@ -83,10 +87,10 @@ internal sealed class ImageChoice : CheckBox
                     g.FillEllipse(flash,lastClick.X-radius,lastClick.Y-radius,radius*2,radius*2);
             }
             float labelY=box.Bottom-66*unit;
-            using(var title=new Font("Microsoft YaHei UI",13F,FontStyle.Bold))
+            using(var title=new Font("Microsoft YaHei UI",13F*VisualScale,FontStyle.Bold))
             using(var textBrush=new SolidBrush(Checked ? Color.FromArgb(240,246,249) : Color.FromArgb(146,164,174)))
                 g.DrawString(Text,title,textBrush,new PointF(box.X+16*unit,labelY));
-            using(var caption=new Font("Microsoft YaHei UI",8.5F))
+            using(var caption=new Font("Microsoft YaHei UI",8.5F*VisualScale))
             using(var textBrush=new SolidBrush(Color.FromArgb(137,161,174)))
                 g.DrawString(Caption ?? "",caption,textBrush,new RectangleF(box.X+16*unit,labelY+32*unit,box.Width-28*unit,26*unit));
             g.Restore(save);
@@ -100,6 +104,36 @@ internal sealed class ImageChoice : CheckBox
                 if(Checked) g.DrawLines(pen,new[]{new PointF(check.X+5*unit,check.Y+10*unit),new PointF(check.X+9*unit,check.Y+14*unit),new PointF(check.X+16*unit,check.Y+7*unit)});
                 else g.DrawEllipse(pen,check);
             }
+        }
+    }
+    private void DrawCompact(Graphics g,float unit)
+    {
+        var box=new RectangleF(unit,unit,Width-2*unit,Height-2*unit);
+        using(var path=PaintSkin.Round(box,7*unit))
+        {
+            using(var brush=new SolidBrush(PaintSkin.Panel))g.FillPath(brush,path);
+            using(var pen=new Pen(Checked?PaintSkin.Accent:Color.FromArgb(52,71,83),(Focused?2f:1f)*unit))g.DrawPath(pen,path);
+        }
+        float textX=14*unit;
+        if(CompactLevel==1&&Artwork!=null)
+        {
+            float edge=48*unit,ratio=Math.Min(edge/Artwork.Width,edge/Artwork.Height);
+            g.DrawImage(Artwork,new RectangleF(14*unit,(Height-Artwork.Height*ratio)/2,Artwork.Width*ratio,Artwork.Height*ratio));
+            textX=76*unit;
+        }
+        float titleY=(CompactLevel==1?15:6)*unit;
+        using(var title=new Font("Microsoft YaHei UI",10.5F*VisualScale,FontStyle.Bold))
+        using(var caption=new Font("Microsoft YaHei UI",7.8F*VisualScale))
+        using(var textBrush=new SolidBrush(Enabled?Color.FromArgb(230,239,243):Color.FromArgb(146,164,174)))
+        {
+            g.DrawString(Text,title,textBrush,new RectangleF(textX,titleY,Width-textX-30*unit,25*unit));
+            g.DrawString(Caption??"",caption,textBrush,new RectangleF(textX,titleY+26*unit,Width-textX-20*unit,(CompactLevel==1?33:20)*unit));
+        }
+        float x=Width-20*unit,y=13*unit;
+        using(var pen=new Pen(Checked?PaintSkin.Accent:Color.FromArgb(139,162,174),1.6f*unit))
+        {
+            if(Checked)g.DrawLines(pen,new[]{new PointF(x-5*unit,y),new PointF(x-1*unit,y+4*unit),new PointF(x+6*unit,y-4*unit)});
+            else g.DrawRectangle(pen,x-5*unit,y-5*unit,11*unit,11*unit);
         }
     }
     protected override void Dispose(bool disposing) { if(disposing){animation.Dispose(); if(Artwork!=null)Artwork.Dispose();} base.Dispose(disposing); }

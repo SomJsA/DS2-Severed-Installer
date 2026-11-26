@@ -1,5 +1,7 @@
 # 更新检查兼容性检查
 
+`AdaptiveLayoutChecks.cs` 使用 x86 csc，引用 System、System.Core、System.Drawing、System.Windows.Forms。参数为安装器 EXE。使用透明预览窗口验证 9 组逻辑工作区、中英文、紧凑卡片、常见小屏无滚动条、极小窗口滚动兜底、固定操作按钮及窄屏弹窗；不修改 Windows 分辨率、缩放或游戏文件。逻辑工作区覆盖 1080P 100%／125%／150%／200%，1366×768、1280×720、1024×768、800×600 以及更小空间，预留任务栏。
+
 使用 .NET Framework 的 x86 csc 编译 UpdateCompatibilityCheck.cs。运行：
 
     UpdateCompatibilityCheck.exe <installer.exe> releases-fixture.json <expected embedded release>

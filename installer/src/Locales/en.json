@@ -564,5 +564,6 @@
   "修复剧情人名中点裁切并增强圆点，逗号左距微增，句号恢复原距。": "Reveal and strengthen the complete dialogue name middle dot, slightly increase comma left spacing, and restore period spacing.",
   "检测到旧合并修复插件，请使用更改安装完成迁移。": "An older combined fixes plugin is present. Use Change installation to migrate it.",
   "请先通过更改安装升级独立修复插件。": "Use Change installation to upgrade the standalone fixes first.",
-  "修复短操作提示换行；按问题拆分 ASI，并补全局内存档 DLC 名称与图片。": "Fix wrapped action prompts, separate each runtime bug into its own ASI, and identify DLC saves in both menu and in-game lists."
+  "修复短操作提示换行；按问题拆分 ASI，并补全局内存档 DLC 名称与图片。": "Fix wrapped action prompts, separate each runtime bug into its own ASI, and identify DLC saves in both menu and in-game lists.",
+  "适配低分辨率与高缩放：大图自动切换为小图标或文字卡片，必要时等比缩放。": "Support smaller displays and Windows scaling: switch large artwork to icons or text cards, then scale proportionally if needed."
 }

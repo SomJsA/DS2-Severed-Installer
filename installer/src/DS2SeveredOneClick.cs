@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.11.20")]
-[assembly: AssemblyFileVersion("2026.11.11.20")]
-[assembly: AssemblyInformationalVersion("2026.11.11.20-subtitle-window-extension")]
+[assembly: AssemblyVersion("2026.11.26.21")]
+[assembly: AssemblyFileVersion("2026.11.26.21")]
+[assembly: AssemblyInformationalVersion("2026.11.26.21-adaptive-installer-layout")]
 
 internal sealed class InstallOptions
 {
@@ -185,7 +185,7 @@ internal sealed partial class InstallerForm : Form
     {
         Text = ProductInfo.GroupTitle;
         Icon = ProductInfo.LoadIcon();
-        ClientSize = new Size(920, 716); FormBorderStyle = FormBorderStyle.FixedSingle; MaximizeBox = false;
+        ClientSize = new Size(920, 716); FormBorderStyle = FormBorderStyle.Sizable; MaximizeBox = true;
         StartPosition = FormStartPosition.CenterScreen; Font = new Font("Microsoft YaHei UI",9.5F);
         BackColor = PaintSkin.Background; ForeColor = Color.FromArgb(230,239,243); AutoScaleMode = AutoScaleMode.Dpi;
         AddLabel(this,ProductInfo.GroupTitle,18F,FontStyle.Bold,24,25,Color.FromArgb(239,247,250));
@@ -231,7 +231,7 @@ internal sealed partial class InstallerForm : Form
         markerOptionsList.CheckOnClick=true; markerOptionsList.IntegralHeight=false; markerOptionsList.BackColor=PaintSkin.Panel; markerOptionsList.ForeColor=Color.White; markerOptionsList.HorizontalScrollbar=true;
         foreach(var option in InstallerEngine.GetMarkerPatchOptions()){int i=markerOptionsList.Items.Add(option);markerOptionsList.SetItemChecked(i,option.Recommended);}
         markerBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary(); dlcBox.CheckedChanged+=(sender,e)=>OnDlcSelectionChanged(); chineseBox.CheckedChanged+=(sender,e)=>UpdateSelectionSummary();
-        InitializeMaintenanceUi(); ApplyLanguage(); FormClosing+=(sender,e)=>{if(busy)e.Cancel=true;};
+        InitializeMaintenanceUi(); InitializeAdaptiveLayout(); ApplyLanguage(); FormClosing+=(sender,e)=>{if(busy)e.Cancel=true;};
     }
     private static Label AddLabel(Control parent,string text,float size,FontStyle style,int x,int y,Color color)
     {
@@ -259,10 +259,11 @@ internal sealed partial class InstallerForm : Form
         chineseLanguageButton.Invalidate();englishLanguageButton.Invalidate();
         chineseBox.Caption=L.T("基础游戏 + Severed DLC");markerBox.Caption=L.T("功能改善与个性化");
         foreach(var card in new[]{chineseBox,dlcBox,markerBox}){card.AccessibleName=card.Text;card.Invalidate();}
-        selectionHint.Left=L.IsEnglish?770:844;
-        subtitleScaleBox.Left=L.IsEnglish?130:108;subtitleUnit.Left=L.IsEnglish?217:194;
+        selectionHint.Left=LayoutX(L.IsEnglish?770:844);
+        subtitleScaleBox.Left=LayoutX(L.IsEnglish?130:108);subtitleUnit.Left=LayoutX(L.IsEnglish?217:194);
         UpdateSelectionSummary();
         ApplyMaintenanceLanguage();
+        ApplyAdaptiveLayout();
     }
     private SkinButton MakeButton(string text,int x,int y,int width,int height,bool primary)
     {
@@ -286,7 +287,9 @@ internal sealed partial class InstallerForm : Form
     }
     private Form MakeDialog(string title,Size size)
     {
-        return new Form{Text=title,Icon=Icon,ClientSize=size,StartPosition=FormStartPosition.CenterParent,BackColor=PaintSkin.Background,ForeColor=Color.White,Font=Font,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false};
+        var dialog = new Form{Text=title,Icon=Icon,ClientSize=size,StartPosition=FormStartPosition.CenterParent,BackColor=PaintSkin.Background,ForeColor=Color.White,Font=Font,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false,AutoScroll=true};
+        dialog.Load += (sender,e)=>FitWindowToWorkingArea(dialog,Screen.FromControl(dialog).WorkingArea);
+        return dialog;
     }
     private void AutoDetectGame()
     {

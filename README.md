@@ -1,8 +1,10 @@
 # DS2 Severed Installer
 
-当前版本：**2026.11.11.20** · [下载 / Releases](https://github.com/SomJsA/DS2-Severed-Installer/releases/tag/v2026.11.11.20)
+当前版本：**2026.11.26.21** · [下载 / Releases](https://github.com/SomJsA/DS2-Severed-Installer/releases/tag/v2026.11.26.21)
 
 死亡空间贴吧汉化组移植&汉化。支持 Steam / EA，安装器界面支持简体中文 / English。
+
+本版修复高缩放和低分辨率下安装按钮被裁掉的问题。空间足够时保留大图，高缩放或小屏时自动切为小图标或文字卡片，再按比例缩放；常见小屏无须滚动，极小窗口保留滚动兜底，安装按钮保持可见。布局工作区检查覆盖 1080P 150%／200%、1280×720、1024×768、800×600 等空间，详见本版验收范围。
 
 - 可分别选择简体中文汉化、Severed DLC、MarkerPatch。安装顺序为 MarkerPatch → 原始英文 DLC → 所选汉化。只装 DLC 时保留英文／启动器语言。
 - 标题使用 MStiffHei，剧情使用 Swei Shear Sans CJK SC Regular；保留已确认的字形、中文零额外字距、空格步进 3、中英数字距和标点修正。移除 21 处短操作提示的内部空格，修正“返回、确认、继续、取消、选择、启动”等提示换行。
@@ -18,13 +20,13 @@
 
 DLC 存档需要 DLC 及运行组件；停用、卸载或回到原版后，请重新启用 DLC 再读取这些存档。请用新版安装器执行升级或更改安装，保留原始备份和自定义配置。
 
-已通过 472 项覆盖原生钩子、存档识别、资源重建、安装审计、升级、回滚、卸载、界面及更新兼容的定向检查；本版另将 24 条已有字幕窗口延长到不触碰后续事件的最大值，15 条无现成空档的字幕保持原时间。Steam 实机与隔离测试不能替代 EA 平台、所有检查点和连续多次死亡的完整回归。详见 [验收范围](installer/VALIDATION-2026.11.11.20.md)。上游提案保留 Draft：[节点 #9](https://github.com/Tubzbuster/DS2SeveredPC/pull/9)、[存档显示 #11](https://github.com/Tubzbuster/DS2SeveredPC/pull/11)、[矿区 #13](https://github.com/Tubzbuster/DS2SeveredPC/pull/13)。
+已通过 472 项覆盖原生钩子、存档识别、资源重建、安装审计、升级、回滚、卸载、界面及更新兼容的定向检查；本版另将 24 条已有字幕窗口延长到不触碰后续事件的最大值，15 条无现成空档的字幕保持原时间。Steam 实机与隔离测试不能替代 EA 平台、所有检查点和连续多次死亡的完整回归。详见 [验收范围](installer/VALIDATION-2026.11.26.21.md)。上游提案保留 Draft：[节点 #9](https://github.com/Tubzbuster/DS2SeveredPC/pull/9)、[存档显示 #11](https://github.com/Tubzbuster/DS2SeveredPC/pull/11)、[矿区 #13](https://github.com/Tubzbuster/DS2SeveredPC/pull/13)。
 
 ## English
 
 A bilingual installer for Steam and EA: Simplified Chinese localization, original Severed DLC and MarkerPatch. DLC-only installations retain English/launcher language. Reuse the existing `Severed.marker`.
 
-2026.11.11.20 retains the accepted title/dialogue fonts, spacing and punctuation, removes internal spaces from 21 short action labels, and extends 24 existing subtitle windows without moving later subtitle starts or audio cue times. The original DLC core and official MarkerPatch remain separate. Power Node, save display and mining-camp initialization each have their own optional runtime plugin; known combined Extras installations are migrated.
+2026.11.26.21 adapts large artwork to icon or text cards and scales proportionally within smaller work areas. Ordinary smaller desktops need no main-window scrollbars; extreme sizes retain a scroll fallback. It retains the accepted title/dialogue fonts, spacing and punctuation, removes internal spaces from 21 short action labels, and extends 24 existing subtitle windows without moving later subtitle starts or audio cue times. The original DLC core and official MarkerPatch remain separate. Power Node, save display and mining-camp initialization each have their own optional runtime plugin; known combined Extras installations are migrated.
 
 DLC saves receive chapter-specific titles and previews in the menu and native in-game list. Only display buffers change; saves, chapter metadata, difficulty, time and progress remain unchanged. The mining fix corrects only the exact shared initializer responsible for the reproduced post-death/reload panel lock, preserving the three distinct puzzle steps.
 
