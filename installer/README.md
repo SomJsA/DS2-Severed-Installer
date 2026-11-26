@@ -1,3 +1,9 @@
+2026.11.26.23 — 区分组件与安装器更新 / Separate update notifications
+
+仅 MarkerPatch 上游更新时明确提示组件更新，安装记录不再仅因日期差异显示旧版。随包 MarkerPatch 保持 3.0.7。验收范围见 VALIDATION-2026.11.26.23.md。
+
+以下为历史版本说明 / Previous release notes follow.
+
 2026.11.26.22 — 低分辨率与 Windows 缩放 / Smaller displays and Windows scaling
 
 主窗口按空间切换大图、小图标或文字卡片，再按比例缩放；常见小屏无须滚动，极小窗口才使用滚动兜底。安装、卸载和进度保持可见，支持调整大小与最大化。详细设置等弹窗也可滚动访问。保留 2026.11.11.20 的字幕时长及全部游戏资源。验收边界见 VALIDATION-2026.11.26.22.md。

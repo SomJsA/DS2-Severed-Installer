@@ -136,7 +136,7 @@ internal sealed partial class InstallerForm
         }
         else markerIssuesLink.Visible = false;
         bool managed = installedSelection != null && installedSelection.HasRecord;
-        installedHint.Text = managed ? L.T("当前安装：") + (installedSelection.Version == ProductInfo.ReleaseVersion ? installedSelection.Version : L.T("旧版记录：") + installedSelection.Version) : L.T("未发现本工具的安装记录");
+        installedHint.Text = managed ? L.T("安装记录：") + installedSelection.Version : L.T("未发现本工具的安装记录");
         if (installedSelection != null && installedSelection.ExternalMarker) installedHint.Text = L.T("外置加载器 / MarkerPatch：兼容性未验证，可向对应作者提 Issue。");
         if (managed && installedSelection.MarkerPresent && !installedSelection.ExternalMarker) installedHint.Text += " | MarkerPatch " + (installedSelection.MarkerIsCurrent ? "3.0.7" : L.T("已识别旧版"));
         installButton.Text = managed ? L.T("升级 / 更改安装") : L.T("安装所选组件");
@@ -232,9 +232,10 @@ internal sealed partial class InstallerForm
     }
     private Form CreateUpdateDialog(UpdateReport report)
     {
-            var dialog = MakeDialog(L.T("更新与累计日志"), new Size(790,590));
+            string title = report.Installer != null ? (report.MarkerUpdate ? L.T("安装器与 MarkerPatch 更新") : L.T("安装器更新")) : (report.MarkerUpdate ? L.T("MarkerPatch 更新") : L.T("更新检查"));
+            var dialog = MakeDialog(title, new Size(790,590));
             bool available = report.Installer != null || report.MarkerUpdate;
-            string body = report.Installer == null ? (string.IsNullOrWhiteSpace(report.Error) ? L.T("本程序没有发现更新版本。") : L.T("更新检查未完成，可打开发布页手动查看。")) : L.T("发现新版：") + report.Installer.Tag + "\r\n\r\n" + report.CombinedNotes;
+            string body = report.Installer != null ? L.T("安装器有可用更新：") + report.Installer.Tag + "\r\n\r\n" + report.CombinedNotes : (report.MarkerUpdate ? L.T("MarkerPatch 有可选更新。") : (string.IsNullOrWhiteSpace(report.Error) ? L.T("安装器已是最新版本。") : L.T("更新检查未完成，可打开发布页手动查看。")));
             body += "\r\n\r\nMarkerPatch " + L.T("随包版本：") + UpdateChecker.BundledMarkerVersion + "\r\n" +
                 (report.MarkerUpdate ? L.T("上游有更新；新版本与当前节点修正的兼容性尚需验证。") + "\r\n" + report.MarkerNotes : (string.IsNullOrWhiteSpace(report.Error) ? L.T("未发现较新的上游发行版本。") : L.T("部分更新信息未能获取，可打开发布页查看。")));
             if (!string.IsNullOrWhiteSpace(report.Error)) body += "\r\n\r\n" + report.Error;

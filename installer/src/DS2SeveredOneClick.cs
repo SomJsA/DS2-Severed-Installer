@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.26.22")]
-[assembly: AssemblyFileVersion("2026.11.26.22")]
-[assembly: AssemblyInformationalVersion("2026.11.26.22-adaptive-installer-layout")]
+[assembly: AssemblyVersion("2026.11.26.23")]
+[assembly: AssemblyFileVersion("2026.11.26.23")]
+[assembly: AssemblyInformationalVersion("2026.11.26.23-update-notification-scope")]
 
 internal sealed class InstallOptions
 {

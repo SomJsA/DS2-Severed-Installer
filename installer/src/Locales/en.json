@@ -565,5 +565,14 @@
   "检测到旧合并修复插件，请使用更改安装完成迁移。": "An older combined fixes plugin is present. Use Change installation to migrate it.",
   "请先通过更改安装升级独立修复插件。": "Use Change installation to upgrade the standalone fixes first.",
   "修复短操作提示换行；按问题拆分 ASI，并补全局内存档 DLC 名称与图片。": "Fix wrapped action prompts, separate each runtime bug into its own ASI, and identify DLC saves in both menu and in-game lists.",
-  "适配低分辨率与高缩放：大图自动切换为小图标或文字卡片，必要时等比缩放。": "Support smaller displays and Windows scaling: switch large artwork to icons or text cards, then scale proportionally if needed."
+  "适配低分辨率与高缩放：大图自动切换为小图标或文字卡片，必要时等比缩放。": "Support smaller displays and Windows scaling: switch large artwork to icons or text cards, then scale proportionally if needed.",
+  "安装记录：": "Installation record: ",
+  "安装器与 MarkerPatch 更新": "Installer and MarkerPatch updates",
+  "安装器更新": "Installer update",
+  "MarkerPatch 更新": "MarkerPatch update",
+  "更新检查": "Update check",
+  "安装器有可用更新：": "Installer update available: ",
+  "MarkerPatch 有可选更新。": "An optional MarkerPatch update is available.",
+  "安装器已是最新版本。": "The installer is up to date.",
+  "区分安装器与 MarkerPatch 的更新通知；安装记录不再按日期标为旧版。": "Distinguish installer updates from MarkerPatch updates and show installation records without an age label."
 }

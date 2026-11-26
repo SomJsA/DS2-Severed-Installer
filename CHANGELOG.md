@@ -1,4 +1,11 @@
-# 2026.11.26.22 — 小屏幕与高缩放 / Smaller displays and Windows scaling
+# 2026.11.26.23 — 更新通知区分 / Separate update notifications
+
+- 仅 MarkerPatch 上游更新时，弹窗明确标为“MarkerPatch 更新”，前往 MarkerPatch 发布页；只有安装器更新时才提示安装器升级。
+- 安装记录显示实际记录版本，不再仅因版本日期不同而标为“旧版记录”。
+- 保留随包 MarkerPatch 3.0.7、游戏资源、字幕与独立 ASI；本次没有整合上游新组件。
+- Distinguish installer updates, MarkerPatch-only updates, combined updates and failed checks in both languages.
+
+## 2026.11.26.22 — 小屏幕与高缩放 / Smaller displays and Windows scaling
 
 - 窗口适应当前屏幕可用空间；修复 1080P、150% Windows 缩放下安装按钮被裁掉的问题。
 - 空间充足时保留大图；高度不足时切成小图标卡片，更窄或更矮时使用文字卡片，再按比例缩放。常见小屏工作区无须滚动；极小窗口保留滚动兜底。
