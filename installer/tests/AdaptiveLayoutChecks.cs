@@ -85,7 +85,7 @@ class AdaptiveLayoutChecks
                         dialog.Opacity = 0; dialog.ShowInTaskbar = false; dialog.Show();
                         type.GetMethod("FitWindowToWorkingArea",Static).Invoke(null,new object[]{dialog,new Rectangle(Point.Empty,area)});
                         dialog.PerformLayout();
-                        Check(dialog.AutoScroll,"secondary dialog must scroll");
+                        Check(!dialog.AutoScroll,"secondary dialog must fit without outer scrolling");
                         Check(dialog.Width <= area.Width && dialog.Height <= area.Height,"secondary dialog exceeds work area");
                         dialog.AutoScrollPosition = new Point(1000,1000);
                         Check(dialog.ClientRectangle.Contains(InForm((Control)dialog.CancelButton,dialog)),"secondary dialog cancel button unreachable");

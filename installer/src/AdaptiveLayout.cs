@@ -120,7 +120,7 @@ internal sealed partial class InstallerForm
         MinimumSize = new Size(Math.Min(560, Width), Math.Min(360, Height));
     }
 
-    private static void FitWindowToWorkingArea(Form form, Rectangle area)
+    internal static void FitWindowToWorkingArea(Form form, Rectangle area)
     {
         var available = Rectangle.Inflate(area, -8, -8);
         int width = form.Width;

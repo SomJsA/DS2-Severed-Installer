@@ -241,13 +241,18 @@ internal sealed partial class InstallerForm
             bool canOpen = available || !string.IsNullOrWhiteSpace(report.Error);
             string page = UpdateChecker.BrowserPage(report);
             if (canOpen) body += "\r\n\r\n" + L.T("是否打开 GitHub 发布网页？选择否则继续正常使用。");
-            var text = new TextBox { ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Text = body, Location = new Point(16,16), Size = new Size(758,410), BackColor = PaintSkin.Panel, ForeColor = Color.White };
+            dialog.AutoScroll=false;dialog.Padding=new Padding(16);
+            var text = new TextBox { ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Text = body, Dock=DockStyle.Fill, BackColor = PaintSkin.Panel, ForeColor = Color.White };
             L.KeepLiteral(text); dialog.Controls.Add(text);
-            var addressLabel = new Label { Text=L.T("发布页地址（也可复制到浏览器）："),AutoSize=true,Location=new Point(16,440),ForeColor=Color.White }; dialog.Controls.Add(addressLabel);
-            var address = new TextBox { ReadOnly=true,Text=page,Location=new Point(16,470),Size=new Size(758,32) }; L.KeepLiteral(address); dialog.Controls.Add(address);
-            var copy=MakeButton(L.T("复制链接"),16,530,180,40,false); copy.Click+=(s,e)=>WebLinks.CopyAddress(address,addressLabel); dialog.Controls.Add(copy);
-            var yes = MakeButton(L.T("是，打开网页"),206,530,280,40,true); yes.Enabled=canOpen; yes.DialogResult=DialogResult.Yes; dialog.Controls.Add(yes);
-            var no = MakeButton(L.T("否，继续使用"),534,530,240,40,false); no.DialogResult=DialogResult.No; dialog.Controls.Add(no);
+            var footer=new Panel{Dock=DockStyle.Bottom,Height=124};dialog.Controls.Add(footer);
+            var addressLabel = new Label { Text=L.T("发布页地址（也可复制到浏览器）："),AutoSize=true,Location=new Point(0,8),ForeColor=Color.White }; footer.Controls.Add(addressLabel);
+            var address = new TextBox { ReadOnly=true,Text=page,Location=new Point(0,36),Size=new Size(footer.Width,28),Anchor=AnchorStyles.Top|AnchorStyles.Left|AnchorStyles.Right }; L.KeepLiteral(address); footer.Controls.Add(address);
+            var buttons=new TableLayoutPanel{Dock=DockStyle.Bottom,Height=44,ColumnCount=3,RowCount=1};
+            buttons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,25));buttons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,37.5f));buttons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,37.5f));footer.Controls.Add(buttons);
+            var copy=MakeButton(L.T("复制链接"),0,0,180,40,false); copy.Click+=(s,e)=>WebLinks.CopyAddress(address,addressLabel); buttons.Controls.Add(copy,0,0);
+            var yes = MakeButton(L.T("是，打开网页"),0,0,280,40,true); yes.Enabled=canOpen; yes.DialogResult=DialogResult.Yes; buttons.Controls.Add(yes,1,0);
+            var no = MakeButton(L.T("否，继续使用"),0,0,240,40,false); no.DialogResult=DialogResult.No; buttons.Controls.Add(no,2,0);
+            foreach(var button in new[]{copy,yes,no}){button.Dock=DockStyle.Fill;button.Margin=new Padding(0,2,8,2);}no.Margin=new Padding(0,2,0,2);
             dialog.CancelButton=no; L.ApplyTree(dialog);return dialog;
     }
     private void ShowUpdateReport(UpdateReport report)

@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.26.21")]
-[assembly: AssemblyFileVersion("2026.11.26.21")]
-[assembly: AssemblyInformationalVersion("2026.11.26.21-adaptive-installer-layout")]
+[assembly: AssemblyVersion("2026.11.26.22")]
+[assembly: AssemblyFileVersion("2026.11.26.22")]
+[assembly: AssemblyInformationalVersion("2026.11.26.22-adaptive-installer-layout")]
 
 internal sealed class InstallOptions
 {
@@ -317,7 +317,7 @@ internal sealed partial class InstallerForm : Form
     {
         using(var dialog=MakeDialog(L.T("安装日志"),new Size(800,480)))
         {
-            logBox.Dock=DockStyle.Fill;dialog.Controls.Add(logBox);
+            dialog.AutoScroll=false;logBox.Dock=DockStyle.Fill;dialog.Controls.Add(logBox);
             try{dialog.ShowDialog(this);}finally{dialog.Controls.Remove(logBox);logBox.Dock=DockStyle.None;}
         }
     }
@@ -326,11 +326,12 @@ internal sealed partial class InstallerForm : Form
         using(var dialog=MakeDialog(L.T("详情"),new Size(680,650)))
         {
             detailsBox.Text=ProductInfo.Details;detailsBox.Multiline=true;detailsBox.ReadOnly=true;detailsBox.ScrollBars=ScrollBars.Vertical;detailsBox.TabStop=false;
-            detailsBox.Location=new Point(18,18);detailsBox.Size=new Size(644,410);detailsBox.BackColor=PaintSkin.Panel;detailsBox.ForeColor=Color.White;dialog.Controls.Add(detailsBox);
+            dialog.AutoScroll=false;dialog.Padding=new Padding(18);detailsBox.Dock=DockStyle.Fill;detailsBox.BackColor=PaintSkin.Panel;detailsBox.ForeColor=Color.White;dialog.Controls.Add(detailsBox);
+            var linkPanel=new Panel{Dock=DockStyle.Bottom,Height=150};dialog.Controls.Add(linkPanel);
             string[] links={ProductInfo.GroupUrl,ProductInfo.TiebaUrl,ProductInfo.MarkerRepository,ProductInfo.DlcRepository,ProductInfo.OwnRepository};
             string[] labels={L.T("交流群 339639634"),L.T("死亡空间贴吧"),"Wemino/MarkerPatch","Tubzbuster/DS2SeveredPC","SomJsA/DS2-Severed-Installer"};
-            for(int i=0;i<links.Length;i++){string url=links[i];var link=new LinkLabel{Text=labels[i],AutoSize=true,LinkColor=PaintSkin.Accent,Location=new Point(20,448+i*32)};link.LinkClicked+=(sender,e)=>WebLinks.Show(dialog,url);dialog.Controls.Add(link);}
-            L.ApplyTree(dialog);try{dialog.ShowDialog(this);}finally{dialog.Controls.Remove(detailsBox);}
+            for(int i=0;i<links.Length;i++){string url=links[i];var link=new LinkLabel{Text=labels[i],AutoSize=true,LinkColor=PaintSkin.Accent,Location=new Point(2,12+i*28)};link.LinkClicked+=(sender,e)=>WebLinks.Show(dialog,url);linkPanel.Controls.Add(link);}
+            L.ApplyTree(dialog);try{dialog.ShowDialog(this);}finally{dialog.Controls.Remove(detailsBox);detailsBox.Dock=DockStyle.None;}
         }
     }
     private void ShowMarkerSettings()

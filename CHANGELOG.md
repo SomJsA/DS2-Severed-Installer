@@ -1,8 +1,8 @@
-# 2026.11.26.21 — 小屏幕与高缩放 / Smaller displays and Windows scaling
+# 2026.11.26.22 — 小屏幕与高缩放 / Smaller displays and Windows scaling
 
 - 窗口适应当前屏幕可用空间；修复 1080P、150% Windows 缩放下安装按钮被裁掉的问题。
 - 空间充足时保留大图；高度不足时切成小图标卡片，更窄或更矮时使用文字卡片，再按比例缩放。常见小屏工作区无须滚动；极小窗口保留滚动兜底。
-- 详细设置、更新等弹窗也限制在工作区内，超出内容可滚动访问；主窗口允许调整大小及最大化。
+- 详细设置采用自适应双栏与固定底部按钮，仅参数列表内部滚动；详情、日志、更新正文随窗口伸缩，链接与操作区保持可见。浏览器打开失败的备用窗口也适应工作区宽度。
 - Adapt large artwork to small-icon or text cards before proportional scaling. Keep ordinary smaller desktops free of main-window scrollbars; retain scrolling only as an extreme-size fallback. Installation actions remain visible.
 - Retain the 24 subtitle extensions and all previously released game resources and runtime modules.
 

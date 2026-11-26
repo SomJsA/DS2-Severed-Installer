@@ -69,6 +69,9 @@ internal static class WebLinks
         var status=new Label { Location=new Point(18,168),Size=new Size(624,24) };form.Controls.Add(status);
         var copy=new Button { Text=L.T("复制链接"),Location=new Point(18,202),Size=new Size(170,30) };copy.Click+=(s,e)=>CopyAddress(address,status);form.Controls.Add(copy);
         var close=new Button { Text=L.T("继续使用"),Location=new Point(472,202),Size=new Size(170,30),DialogResult=DialogResult.Cancel };form.Controls.Add(close);form.CancelButton=close;
+        foreach(Control control in new Control[]{note,address,status})control.Anchor=AnchorStyles.Top|AnchorStyles.Left|AnchorStyles.Right;
+        close.Anchor=AnchorStyles.Top|AnchorStyles.Right;
+        form.Load+=(s,e)=>InstallerForm.FitWindowToWorkingArea(form,Screen.FromControl(form).WorkingArea);
         L.ApplyTree(form);return form;
     }
     public static void Show(IWin32Window owner,string url)
