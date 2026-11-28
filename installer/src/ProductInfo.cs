@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 internal static class ProductInfo
 {
-    public const string ReleaseVersion = "2026.11.26.25";
+    public const string ReleaseVersion = "2026.11.28.26";
     public static string GroupTitle { get { return L.T("死亡空间贴吧汉化组移植&汉化"); } }
     public static string Contact { get { return L.T("交流群339639634 && 死亡空间贴吧"); } }
     public const string GroupUrl = "https://qm.qq.com/q/AsZY1d8WxG";
@@ -78,6 +78,7 @@ internal static class ProductInfo
             "2026.11.3.12 — " + L.T("安装 MarkerPatch 或 DLC 前检查必需的 x86 运行库；保留安装诊断报告。") + "\r\n" +
             "2026.11.26.22 — " + L.T("适配低分辨率与高缩放：大图自动切换为小图标或文字卡片，必要时等比缩放。") + "\r\n" +
             "2026.11.26.23 — " + L.T("区分安装器与 MarkerPatch 的更新通知；安装记录不再按日期标为旧版。") + "\r\n" +
+            "2026.11.28.26 — " + L.T("新增自定义 MarkerPatch ZIP 导入，支持两种旧贴吧汉化升级，并精简双语更新提示。") + "\r\n" +
             "2026.11.26.25 — " + L.T("随包 MarkerPatch 3.3.1，修复 DLC 聚能枪站立蓄力和部分弹窗“确定”的字间空格。") + "\r\n" +
             L.T("支持更改安装、保存设置、根目录管理器与更新检查。"); }
     }

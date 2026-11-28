@@ -77,9 +77,43 @@ class MaintenanceChecks
         Check((bool)Get(Call("InspectInstallation",game),"ExternalMarker"),"external loader detected");
         Refused(()=>Call("SetMarkerEnabled",game,false,Log("external-refusal")),"external loader startup toggle refused");
         Check(Equal(before,Snapshot(game)),"external loader and all files preserved after refusal");
+        InvalidOperationException upgradeError=null;
+        try { Call("ApplySelection",game,Current(game),Log("external-upgrade-refusal")); }
+        catch (InvalidOperationException error) { upgradeError=error; }
+        Check(upgradeError!=null,"maintenance refuses an unrecognized replacement of the managed loader");
+        string message=(string)Call("MaintenanceFailure",upgradeError);
+        Check(message.Contains("existing installation record") && message.Contains("dinput8.dll") &&
+            message.Contains("Check the source of the loader") && !message.Contains("try uninstalling"),
+            "loader mismatch explains existing installation and gives specific recovery guidance");
+        Refused(()=>Call("Uninstall",game,Log("external-uninstall-refusal")),"uninstall enforces the same loader check");
+        string uninstallMessage=(string)Invoke(asm.GetType("UninstallSupport"),"FailureMessage",upgradeError);
+        Check(uninstallMessage.EndsWith(message,StringComparison.Ordinal),"uninstall displays actionable maintenance guidance without generic repair steps");
+        Check(Equal(before,Snapshot(game)),"upgrade and uninstall refusal preserve the existing installation");
+        object replacement=Current(game);
+        bool asked=false;
+        Set(replacement,"ConfirmMarkerLoaderReplacement",(Func<string,bool>)(files=>{asked=files=="dinput8.dll";return false;}));
+        bool canceled=false;
+        try { Call("ApplySelection",game,replacement,Log("external-replacement-canceled")); }
+        catch (OperationCanceledException) { canceled=true; }
+        Check(asked && canceled && Equal(before,Snapshot(game)),"declining the replacement preserves the loader and installation");
+
+        Set(replacement,"ConfirmMarkerLoaderReplacement",(Func<string,bool>)(_=>true));
+        var replacementParameters=(Dictionary<string,string>)Get(replacement,"MarkerParameters");
+        replacementParameters["MaxAnisotropy"]="35";
+        Refused(()=>Call("ApplySelection",game,replacement,Log("external-replacement-rollback")),"replacement with invalid settings fails during installation");
+        Check(Equal(before,Snapshot(game)),"failed replacement rolls back the loader, config, record and new backup");
+        replacementParameters["MaxAnisotropy"]="16";
+        Call("ApplySelection",game,replacement,Log("external-replacement-confirmed"));
+        string replacementBackup=Directory.GetFiles(game,"dinput8.dll.ds2oneclick-replaced-*.bak").Single();
+        Check(Hash(replacementBackup)==before[@"\dinput8.dll"] && !(bool)Get(Call("InspectInstallation",game),"ExternalMarker"),
+            "confirmed replacement preserves the old loader and installs a recognized bundled loader");
+        Check(File.ReadAllText(Path.Combine(game,"MarkerPatch.ini")).Contains("PreserveUnknown=some-value"),"confirmed replacement preserves custom INI sections");
+        Check(((string)engine.GetField("LastInstallNote",flags).GetValue(null)).Contains("repair the game files"),"confirmed replacement displays the repair guidance");
         string managed=Path.Combine(root,"resource-marker.dll");Invoke(engine,"ExtractResource","DS2_MARKER_DLL",managed);File.Copy(managed,Path.Combine(game,"dinput8.dll"),true);
         Call("SetMarkerEnabled",game,false,Log("off-before-uninstall"));
         Call("Uninstall",game,Log("disabled-uninstall"));
+        Check(File.Exists(replacementBackup),"later uninstall preserves the separately backed up loader");
+        original[replacementBackup.Substring(game.Length)]=Hash(replacementBackup);
         Check(Equal(original,Snapshot(game)),"uninstall from disabled state restores original fixture");
 
         foreach(int version in new[]{1,5,8,9})

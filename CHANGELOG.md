@@ -1,4 +1,11 @@
-# 2026.11.26.25 — MarkerPatch 3.3.1 和聚能枪修复
+# 2026.11.28.26 — 自定义 MarkerPatch 与旧贴吧汉化升级
+
+- MarkerPatch 卡片可导入发布 ZIP、恢复随包版、打开 INI。更新提示显示中英文摘要。
+- 支持从能识别的贴吧 β0.1、β0.11 汉化尝试升级。卸载恢复校验过的安装前备份。
+- 已有安装的加载器冲突可确认备份后覆盖。随包 MarkerPatch 仍为官方 3.3.1。
+- Import a custom MarkerPatch release ZIP, restore the bundled build, and open its INI from the card. The installer also recognizes two legacy Tieba localization releases and can back up a conflicting loader before replacing it.
+
+## 2026.11.26.25 — MarkerPatch 3.3.1 和聚能枪修复
 
 - 随包更新至官方 MarkerPatch 3.3.1，补齐新增选项说明，迁移时保留既有设置。
 - 修复受支持的 Severed DLC 中聚能枪站立蓄力时的姿势和远处命中。中国玩家社区在 Steam 完成实测。

@@ -58,6 +58,10 @@ class AdaptiveLayoutChecks
                 Check(form.Opacity == 0 && !form.ShowInTaskbar,"test must remain invisible");
                 Panel viewport = Field(form,"contentViewport") as Panel;
                 Check(viewport != null && viewport.AutoScroll,"content must be scrollable");
+                Control custom = Field(form,"customMarkerButton"), marker = Field(form,"markerBox");
+                Check(custom.Text == (locale == "en" ? "Custom" : "自定义"), "custom MarkerPatch button localized");
+                Check(InForm(marker,form).Contains(InForm(custom,form)), "custom button fits inside MarkerPatch card");
+                Check(custom.Parent.Controls.GetChildIndex(custom) < custom.Parent.Controls.GetChildIndex(marker), "custom button is above the card");
                 IntPtr viewportHandle = viewport.Handle;
                 Check(!viewport.Bounds.IntersectsWith(install),"footer overlaps scrolling content");
                 if(area.Width >= 800)
@@ -70,6 +74,8 @@ class AdaptiveLayoutChecks
                 viewport.AutoScrollPosition = new Point(920,740);
                 Check(viewport.Bounds.Contains(InForm(Field(form,"markerIssuesLink"),form)),"last row not reachable: viewport=" + viewport.Bounds + " row=" + InForm(Field(form,"markerIssuesLink"),form) + " scroll=" + viewport.AutoScrollPosition + " display=" + viewport.DisplayRectangle);
                 viewport.AutoScrollPosition = Point.Empty;
+                viewport.ScrollControlIntoView(custom);
+                Check(viewport.Bounds.Contains(InForm(custom,form)), "custom MarkerPatch button remains reachable");
                 viewport.ScrollControlIntoView(Field(form,"chineseBox"));
                 Check(viewport.Bounds.Contains(InForm(Field(form,"chineseBox"),form)),"component selection not reachable");
                 Check(form.ClientRectangle.Contains(InForm(Field(form,"installButton"),form)),"scrolling moves install button");

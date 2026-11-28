@@ -1,10 +1,10 @@
 # DS2 Severed Installer
 
-当前版本：**2026.11.26.25** · [下载 / Releases](https://github.com/SomJsA/DS2-Severed-Installer/releases/tag/v2026.11.26.25)
+当前版本：**2026.11.28.26** · [下载 / Releases](https://github.com/SomJsA/DS2-Severed-Installer/releases/tag/v2026.11.28.26)
 
 死亡空间贴吧汉化组移植&汉化。支持 Steam / EA，安装器界面支持简体中文 / English。
 
-本版随包使用官方 MarkerPatch 3.3.1，修复 Severed 聚能枪站立蓄力和游戏弹窗中「确定」的多余字间空格。更新提示继续区分安装器和 MarkerPatch。
+随包使用官方 MarkerPatch 3.3.1。「自定义」可导入兼容发布格式的 MarkerPatch ZIP 或恢复随包版。识别到贴吧汉化 β0.1、β0.11 时可直接尝试升级。遇到旧安装的加载器冲突时，可确认备份后覆盖。
 
 2026.11.26.22 已修复高缩放和低分辨率下安装按钮被裁掉的问题。空间足够时保留大图，高缩放或小屏时自动切为小图标或文字卡片，再按比例缩放；常见小屏无须滚动，极小窗口保留滚动兜底，安装按钮保持可见。布局工作区检查覆盖 1080P 150%／200%、1280×720、1024×768、800×600 等空间，详见本版验收范围。
 
@@ -15,7 +15,7 @@
 - DLC 存档按章节显示名称和图片，覆盖主菜单与局内全息保存页。中文随汉化启用，英文为 `Severed, chapter 1 / chapter 2`。只改显示，不转换或写入存档。
 - 矿区修正针对已复现的“操作一个面板后死亡读档，三个面板全锁”。仅修正指定共用初始化对象，仍需分别完成三个面板，不能重复操作同一面板刷进度。
 - 保留既有设置、节点偏好、原始备份与存档。安装记录 schema 15 支持独立插件的校验、迁移、回滚和卸载；未知或已修改文件会保留并提示。
-- 更新检查显示累计日志并打开发布网页，不自动下载／替换程序。安装完成后，在“新游戏”中选择 Severed 进入 DLC。
+- 更新检查区分安装器与 MarkerPatch，显示简短摘要，可打开发布页查看完整日志。安装完成后，在“新游戏”中选择 Severed 进入 DLC。
 
 继续使用原 **Severed.marker**，本版不重发完整 DLC 数据包。程序包、纯源码和许可证分别提供；本次新增源码及配套纯源码包不含游戏 DAT、汉化资源、私有字体、美术素材、存档或编译依赖。历史上游文档和研究工具仍保留，预编译 PE 工具已从当前源码分支移除。
 
@@ -23,11 +23,11 @@
 
 DLC 存档需要 DLC 及运行组件；停用、卸载或回到原版后，请重新启用 DLC 再读取这些存档。请用新版安装器执行升级或更改安装，保留原始备份和自定义配置。
 
-新版的实机与安装验证见 [2026.11.26.25 验收范围](installer/VALIDATION-2026.11.26.25.md)。更新提示的历史验证见 [2026.11.26.23 验收范围](installer/VALIDATION-2026.11.26.23.md)。
+本版验证见 [2026.11.28.26 验收范围](installer/VALIDATION-2026.11.28.26.md)。聚能枪等实机验证见 [2026.11.26.25 验收范围](installer/VALIDATION-2026.11.26.25.md)。
 
 ## English
 
-The installer bundles the official MarkerPatch 3.3.1 release. It fixes the Contact Beam's standing primary charge in supported Severed archives and removes an internal space from the Chinese OK label.
+The installer bundles MarkerPatch 3.3.1. Use **Custom** on its card to import a release-format ZIP or restore the bundled build. Recognized Tieba β0.1 and β0.11 installations can be upgraded in place. Update notices show a short summary and link to the full release notes.
 
 A bilingual installer for Steam and EA: Simplified Chinese localization, original Severed DLC and MarkerPatch. DLC-only installations retain English/launcher language. Reuse the existing `Severed.marker`.
 

@@ -11,7 +11,9 @@ internal sealed partial class InstallerForm
 {
     private readonly CheckBox nodeFixBox = new CheckBox();
     private readonly CheckBox keepManagerBox = new CheckBox();
-    private SkinButton reloadSettingsButton, startupControlButton, updateCheckButton;
+    private SkinButton reloadSettingsButton, startupControlButton, updateCheckButton, customMarkerButton;
+    private CustomMarkerPackage pendingMarkerPackage;
+    private string pendingMarkerName;
     private readonly Label dependencyHint = new Label(), installedHint = new Label();
     private readonly LinkLabel markerIssuesLink = new LinkLabel();
     private readonly Dictionary<string, bool> dependencyOriginal = new Dictionary<string, bool>();
@@ -30,10 +32,16 @@ internal sealed partial class InstallerForm
         startupControlButton = MakeButton(L.T("切换 MarkerPatch 启动"), 484, 613, 410, 30, false);
         updateCheckButton = MakeButton(L.T("检查更新"), 690, 579, 204, 30, false);
         Controls.Add(reloadSettingsButton); Controls.Add(startupControlButton); Controls.Add(updateCheckButton);
+        customMarkerButton = MakeButton(L.T("自定义"), 806, 365, 78, 25, false);
+        markerBox.TrailingActionWidth = 74;
+        customMarkerButton.Name = "customMarkerButton";
+        Controls.Add(customMarkerButton);
+        customMarkerButton.BringToFront();
+        customMarkerButton.Click += (s, e) => ShowCustomMarkerMenu();
         reloadSettingsButton.Click += (s, e) => RefreshInstalledState();
         startupControlButton.Click += (s, e) => ToggleMarkerStartup();
         updateCheckButton.Click += (s, e) => CheckUpdates(false);
-        var markerNotice = AddLabel(this,L.T("MarkerPatch 已预设常用修复，可在上方调整；仅支持随包版本。"),8.5F,FontStyle.Regular,26,650,Color.FromArgb(161,183,197));
+        var markerNotice = AddLabel(this,L.T("MarkerPatch 已预设常用修复，可在上方调整。"),8.5F,FontStyle.Regular,26,650,Color.FromArgb(161,183,197));
         markerNotice.Name="markerPresetNotice";
         dependencyHint.Location = new Point(26, 674); dependencyHint.Size = new Size(868, 36);
         dependencyHint.Font = new Font(Font.FontFamily, 8.5F); dependencyHint.ForeColor = Color.FromArgb(201, 190, 151);
@@ -118,6 +126,7 @@ internal sealed partial class InstallerForm
         if (reloadSettingsButton == null) return;
         nodeFixBox.Text = L.T("修正 Severed 商店能量节点"); keepManagerBox.Text = L.T("安装 / 更新游戏根目录管理器");
         reloadSettingsButton.Text = L.T("读取当前安装"); updateCheckButton.Text = L.T("检查更新");
+        customMarkerButton.Text = L.T("自定义");
         UpdateMaintenanceSummary();
     }
     private void UpdateMaintenanceSummary()
@@ -138,10 +147,13 @@ internal sealed partial class InstallerForm
         bool managed = installedSelection != null && installedSelection.HasRecord;
         installedHint.Text = managed ? L.T("安装记录：") + installedSelection.Version : L.T("未发现本工具的安装记录");
         if (installedSelection != null && installedSelection.ExternalMarker) installedHint.Text = L.T("外置加载器 / MarkerPatch：兼容性未验证，可向对应作者提 Issue。");
-        if (managed && installedSelection.MarkerPresent && !installedSelection.ExternalMarker) installedHint.Text += " | MarkerPatch " + (installedSelection.MarkerVersion ?? (installedSelection.MarkerIsCurrent ? UpdateChecker.BundledMarkerVersion : L.T("已识别版本")));
+        if (managed && installedSelection.MarkerPresent && !installedSelection.ExternalMarker)
+            installedHint.Text += " | MarkerPatch " + (installedSelection.CustomMarker ? L.T("自定义版本") : installedSelection.MarkerVersion ?? L.T("已识别版本"));
         installButton.Text = managed ? L.T("升级 / 更改安装") : L.T("安装所选组件");
         startupControlButton.Enabled = !busy && managed && installedSelection.MarkerPresent && !installedSelection.ExternalMarker;
-        startupControlButton.Text = installedSelection != null && installedSelection.MarkerEnabled ? L.T("停用随包 MarkerPatch") : L.T("启用随包 MarkerPatch");
+        startupControlButton.Text = installedSelection != null && installedSelection.MarkerEnabled ? L.T("停用 MarkerPatch") : L.T("启用 MarkerPatch");
+        customMarkerButton.Enabled = !busy;
+        customMarkerButton.FlowGlow = pendingMarkerPackage != null || installedSelection != null && installedSelection.CustomMarker;
         uninstallButton.Enabled = !busy && (managed || InstallerEngine.HasKnownResidue(gameBox.Text));
     }
 
@@ -182,6 +194,7 @@ internal sealed partial class InstallerForm
         nodeFixBox.Enabled = keepManagerBox.Enabled = reloadSettingsButton.Enabled = !value;
         updateCheckButton.Enabled = !value && !checkingUpdates;
         startupControlButton.Enabled = !value;
+        customMarkerButton.Enabled = !value;
         if (!value) UpdateSelectionSummary();
     }
     private void SaveCurrentConfiguration()
@@ -196,12 +209,74 @@ internal sealed partial class InstallerForm
     {
         if (PreviewOnly || installedSelection == null) return;
         bool enable = !installedSelection.MarkerEnabled;
-        string prompt = enable ? L.T("启用随包 MarkerPatch？重新启动游戏后生效。") : L.T("停用随包 MarkerPatch 后，DLC 入口与依赖它的运行修正将不再生效。继续？");
+        string prompt = enable ? L.T("启用 MarkerPatch？重新启动游戏后生效。") : L.T("停用 MarkerPatch 后，DLC 入口与依赖它的运行修正将不再生效。继续？");
         if (!enable) prompt += "\r\n\r\n" + ProductInfo.SaveCompatibility;
         if (MessageBox.Show(this, prompt, L.T("MarkerPatch 启动控制"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
         SetBusy(true);
         try { InstallerEngine.SetMarkerEnabled(gameBox.Text, enable, AppendLog); RefreshInstalledState(); }
         catch (Exception ex) { MessageBox.Show(this, InstallerEngine.MaintenanceFailure(ex)); }
+        finally { SetBusy(false); }
+    }
+    private void ShowCustomMarkerMenu()
+    {
+        var menu = new ContextMenuStrip();
+        menu.Items.Add(L.T("导入 MarkerPatch ZIP…"), null, (s, e) => ImportMarkerZip());
+        var restore = menu.Items.Add(L.T("恢复随包版"), null, (s, e) =>
+        {
+            if (pendingMarkerPackage != null) { pendingMarkerPackage = null; pendingMarkerName = null; UpdateSelectionSummary(); }
+            else ChangeInstalledMarker(null);
+        });
+        restore.Enabled = pendingMarkerPackage != null || installedSelection != null && installedSelection.CustomMarker && !installedSelection.ExternalMarker;
+        string ini = Path.Combine(gameBox.Text, "MarkerPatch.ini");
+        var open = menu.Items.Add(L.T("打开 MarkerPatch.ini"), null, (s, e) =>
+        {
+            if (PreviewOnly) return;
+            try { Process.Start(new ProcessStartInfo("notepad.exe") { Arguments = "\"" + Path.GetFullPath(ini) + "\"", UseShellExecute = false }); }
+            catch (Exception ex) { MessageBox.Show(this, ex.Message); }
+        });
+        open.Enabled = File.Exists(ini);
+        menu.Closed += (s, e) => menu.Dispose();
+        menu.Show(customMarkerButton, new Point(0, customMarkerButton.Height));
+    }
+
+    private void ImportMarkerZip()
+    {
+        if (PreviewOnly) return;
+        using (var picker = new OpenFileDialog { Filter = L.T("MarkerPatch 发布包 (*.zip)|*.zip"), Title = L.T("导入 MarkerPatch ZIP…"), CheckFileExists = true })
+        {
+            if (picker.ShowDialog(this) != DialogResult.OK) return;
+            string warning = L.T("只导入可信来源的 MarkerPatch 发布包。自定义版本与 DLC 和运行修正的兼容性需要实测，可从这里恢复随包版。");
+            if (MessageBox.Show(this, warning + "\r\n\r\n" + Path.GetFileName(picker.FileName), L.T("导入 MarkerPatch ZIP…"),
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.OK) return;
+            if (installedSelection != null && installedSelection.HasRecord && installedSelection.MarkerPresent && !installedSelection.ExternalMarker)
+                ChangeInstalledMarker(picker.FileName);
+            else
+            {
+                try
+                {
+                    pendingMarkerPackage = InstallerEngine.ReadCustomMarkerZip(picker.FileName);
+                    pendingMarkerName = Path.GetFileName(picker.FileName);
+                    markerBox.Checked = true;
+                    UpdateSelectionSummary();
+                    MessageBox.Show(this, L.T("已选好自定义发布包，将在安装所选组件时使用。"));
+                }
+                catch (Exception ex) { MessageBox.Show(this, ex.Message, L.T("导入失败"), MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            }
+        }
+    }
+
+    private void ChangeInstalledMarker(string zip)
+    {
+        if (PreviewOnly) return;
+        SetBusy(true);
+        try
+        {
+            InstallerEngine.SwitchMarkerVersion(gameBox.Text, zip, AppendLog);
+            pendingMarkerPackage = null; pendingMarkerName = null;
+            RefreshInstalledState();
+            MessageBox.Show(this, zip == null ? L.T("已恢复随包 MarkerPatch。") : L.T("已导入自定义 MarkerPatch。"));
+        }
+        catch (Exception ex) { MessageBox.Show(this, ex.Message, L.T("切换 MarkerPatch 失败"), MessageBoxButtons.OK, MessageBoxIcon.Error); }
         finally { SetBusy(false); }
     }
     private string MaintenanceConfirmationText()
@@ -213,6 +288,7 @@ internal sealed partial class InstallerForm
             "Severed DLC：" + (options.Dlc ? yes : no) + "\r\nMarkerPatch：" + (options.MarkerPatch ? yes : L.T("只保留 DLC 必需依赖；没有 DLC 时移除")) +
             "\r\n\r\n" + InstallerEngine.DependencyDescription(options) + "\r\n\r\n" +
             L.T("识别到旧版时直接迁移，保留自定义值和原始备份。异常时请备份存档并尝试全新安装。") +
+            (pendingMarkerPackage != null && (options.MarkerPatch || options.Dlc) ? "\r\n\r\n" + L.T("本次使用自定义发布包 ") + pendingMarkerName : "") +
             (!options.Dlc && installedSelection != null && installedSelection.Options.Dlc ? "\r\n\r\n" + ProductInfo.SaveCompatibility : "") +
             (installedSelection != null && installedSelection.ExternalMarker ? "\r\n\r\n" + L.T("检测到外置加载器或其他版本，可能不兼容；请核对来源，必要时向对应作者提 Issue。") : "") + L.T("\r\n\r\n继续安装？");
     }
@@ -233,11 +309,13 @@ internal sealed partial class InstallerForm
     private Form CreateUpdateDialog(UpdateReport report)
     {
             string title = report.Installer != null ? (report.MarkerUpdate ? L.T("安装器与 MarkerPatch 更新") : L.T("安装器更新")) : (report.MarkerUpdate ? L.T("MarkerPatch 更新") : L.T("更新检查"));
-            var dialog = MakeDialog(title, new Size(790,590));
+            var dialog = MakeDialog(title, new Size(740,435));
             bool available = report.Installer != null || report.MarkerUpdate;
-            string body = report.Installer != null ? L.T("安装器有可用更新：") + report.Installer.Tag + "\r\n\r\n" + report.CombinedNotes : (report.MarkerUpdate ? L.T("MarkerPatch 有可选更新。") : (string.IsNullOrWhiteSpace(report.Error) ? L.T("安装器已是最新版本。") : L.T("更新检查未完成，可打开发布页手动查看。")));
+            string body = report.Installer != null ? L.T("安装器有可用更新：") + report.Installer.Tag + "\r\n" + UpdateChecker.BriefNotes(report.Installer.Notes, true) : (report.MarkerUpdate ? L.T("MarkerPatch 有可选更新。") : (string.IsNullOrWhiteSpace(report.Error) ? L.T("安装器已是最新版本。") : L.T("更新检查未完成，可打开发布页手动查看。")));
             body += "\r\n\r\nMarkerPatch " + L.T("随包版本：") + UpdateChecker.BundledMarkerVersion + "\r\n" +
-                (report.MarkerUpdate ? L.T("上游有更新；新版本与当前节点修正的兼容性尚需验证。") + "\r\n" + report.MarkerNotes : (string.IsNullOrWhiteSpace(report.Error) ? L.T("未发现较新的上游发行版本。") : L.T("部分更新信息未能获取，可打开发布页查看。")));
+                (report.MarkerUpdate ? (string.IsNullOrEmpty(report.MarkerTag) ? "" : L.T("可导入版本 ") + report.MarkerTag + "\r\n") +
+                    UpdateChecker.BriefNotes(report.MarkerNotes, false) + "\r\n" + L.T("下载 ZIP 后可在 MarkerPatch 卡片的「自定义」中试用。") :
+                    (string.IsNullOrWhiteSpace(report.Error) ? L.T("未发现较新的上游发行版本。") : L.T("部分更新信息未能获取，可打开发布页查看。")));
             if (!string.IsNullOrWhiteSpace(report.Error)) body += "\r\n\r\n" + report.Error;
             bool canOpen = available || !string.IsNullOrWhiteSpace(report.Error);
             string page = UpdateChecker.BrowserPage(report);

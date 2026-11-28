@@ -32,6 +32,7 @@ internal sealed partial class InstallerForm
             else contentCanvas.Controls.Add(control);
             layoutElements.Add(new LayoutElement { Control = control, Bounds = control.Bounds, OriginalFont = control.Font });
         }
+        customMarkerButton.BringToFront();
         contentViewport.Controls.Add(contentCanvas);
         Controls.Add(contentViewport); Controls.Add(actionFooter);
         ResumeLayout(true);
@@ -72,6 +73,7 @@ internal sealed partial class InstallerForm
                 {
                     if (control is ImageChoice) bounds.Height = CardHeight(compactLevel);
                     else if (bounds.Top >= 413) bounds.Y -= savedHeight;
+                    if (control == customMarkerButton) bounds.Y -= savedHeight;
                     if (control == selectionHint) bounds.X = L.IsEnglish ? 770 : 844;
                     if (control == subtitleScaleBox) bounds.X = L.IsEnglish ? 130 : 108;
                     if (control == subtitleUnit) bounds.X = L.IsEnglish ? 217 : 194;

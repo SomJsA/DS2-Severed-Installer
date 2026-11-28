@@ -23,12 +23,22 @@ internal static partial class InstallerEngine
             var data = row as Dictionary<string, object>;
             if (data == null || result.Count >= 256) throw new InvalidDataException("Invalid MarkerPatch asset entry");
             var item = new MarkerAssetInfo { Path = Convert.ToString(data["path"]), Bytes = Convert.ToInt64(data["bytes"]), Sha256 = Convert.ToString(data["sha256"]) };
-            if (!Regex.IsMatch(item.Path, @"^achievements/(img/[0-9]{1,4}\.png|txt/[a-z]{2}\.txt)$") ||
+            if (!IsMarkerAssetPath(item.Path) ||
                 !Regex.IsMatch(item.Sha256, "^[0-9a-f]{64}$") || item.Bytes < 0 || item.Bytes > 1024 * 1024 || result.Any(r => r.Path == item.Path))
                 throw new InvalidDataException("Invalid MarkerPatch asset path or hash");
             result.Add(item);
         }
         return result;
+    }
+    private static bool IsMarkerAssetPath(string path)
+    {
+        return Regex.IsMatch(path, @"\Aachievements/(img/[0-9]{1,4}\.png|txt/[a-z]{2}\.txt)\z");
+    }
+
+    private static string MarkerAssetManifestBase64(IEnumerable<MarkerAssetInfo> files)
+    {
+        string json = new JavaScriptSerializer().Serialize(new { files = files.Select(a => new { path = a.Path, bytes = a.Bytes, sha256 = a.Sha256 }).ToArray() });
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
     }
     private static string MarkerAssetManifestBase64()
     {
@@ -51,7 +61,7 @@ internal static partial class InstallerEngine
         var owned = OwnedMarkerAssets(game).FirstOrDefault(a => a.Relative.Equals(relative, StringComparison.OrdinalIgnoreCase));
         return owned != null && (owned.Sha256 == hash || MarkerAssetList.Value.Any(a => a.Relative.Equals(relative, StringComparison.OrdinalIgnoreCase) && a.Sha256 == hash));
     }
-    private static string HashBytes(byte[] bytes)
+    internal static string HashBytes(byte[] bytes)
     {
         using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
     }

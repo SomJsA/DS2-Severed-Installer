@@ -10,9 +10,18 @@ using System.Threading;
 
 internal sealed class InstalledSelection
 {
-    public bool HasRecord, MarkerPresent, MarkerEnabled, MarkerIsCurrent, ExternalMarker, HasComponents;
+    public bool HasRecord, MarkerPresent, MarkerEnabled, MarkerIsCurrent, CustomMarker, ExternalMarker, HasComponents;
     public string Version, MarkerVersion;
     public InstallOptions Options = new InstallOptions();
+}
+
+internal sealed class MaintenancePreflightException : InvalidOperationException
+{
+    public readonly Dictionary<string, string> ReplaceableMarkerLoaders;
+    public MaintenancePreflightException(string message, Dictionary<string, string> replaceableMarkerLoaders) : base(message)
+    {
+        ReplaceableMarkerLoaders = replaceableMarkerLoaders;
+    }
 }
 
 internal static partial class InstallerEngine
@@ -20,6 +29,8 @@ internal static partial class InstallerEngine
     private const string DisabledMarker = "dinput8.dll.ds2oneclick-off";
     private const string ManagerName = "DS2PatchManager.exe";
     private const string ManagerInfo = "DS2PatchManager.version.json";
+
+    internal static string MarkerLoaderReplacementWarning { get { return L.T("检测到游戏目录可能已经打过其他补丁。如果游戏实际运行有问题，建议先修复游戏文件，再重新安装本补丁。"); } }
 
     public static InstalledSelection InspectInstallation(string gamePath)
     {
@@ -46,11 +57,12 @@ internal static partial class InstallerEngine
         result.MarkerPresent = File.Exists(active) || File.Exists(disabled);
         result.MarkerEnabled = File.Exists(active);
         string markerHash = File.Exists(active) ? Sha256(active) : File.Exists(disabled) ? Sha256(disabled) : null;
-        result.MarkerIsCurrent = markerHash == MarkerDllSha;
-        result.MarkerVersion = markerHash == MarkerDllSha ? UpdateChecker.BundledMarkerVersion : markerHash == PreviousMarkerDllSha ? "3.0.7" : null;
+        string custom = markerOwned ? CustomMarkerHash(game) : null;
+        result.CustomMarker = custom != null && markerHash == custom;
+        result.MarkerIsCurrent = markerHash == MarkerDllSha && custom == null;
+        result.MarkerVersion = result.MarkerIsCurrent ? UpdateChecker.BundledMarkerVersion : !result.CustomMarker && markerHash == PreviousMarkerDllSha ? "3.0.7" : null;
         result.ExternalMarker = (result.MarkerPresent && !markerOwned) ||
-            (File.Exists(active) && !IsKnownMarkerHash(Sha256(active))) ||
-            (File.Exists(disabled) && !IsKnownMarkerHash(Sha256(disabled))) || (File.Exists(active) && File.Exists(disabled));
+            (result.MarkerPresent && !IsManagedMarkerHash(game, markerHash)) || (File.Exists(active) && File.Exists(disabled));
         result.ExternalMarker |= File.Exists(Path.Combine(game, "plugins", "MarkerPatch.asi")) || File.Exists(Path.Combine(game, "plugins", "MarkerPatch.ini"));
         string ini = Path.Combine(game, "MarkerPatch.ini");
         if (File.Exists(ini))
@@ -152,16 +164,21 @@ internal static partial class InstallerEngine
         if (StateValue(game, "marker_patch") == "True" && (File.Exists(activeMarker) || File.Exists(offMarker))) changes["marker_dll_sha256"] = Sha256(File.Exists(activeMarker) ? activeMarker : offMarker);
         string ini = Path.Combine(game, "MarkerPatch.ini");
         string remembered = File.Exists(ini) ? File.ReadAllText(ini) : fallbackIni;
-        if (options.MarkerPatch) { changes["owns_marker_assets"] = "True"; changes["marker_assets_manifest_b64"] = MarkerAssetManifestBase64(); }
+        if (options.MarkerPatch && CustomMarkerHash(game) == null) { changes["owns_marker_assets"] = "True"; changes["marker_assets_manifest_b64"] = MarkerAssetManifestBase64(); }
         if (remembered != null) changes["saved_marker_ini_b64"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(remembered));
         if (File.Exists(ini)) changes["marker_values"] = string.Join(";", Regex.Matches(File.ReadAllText(ini), @"(?m)^\s*(\w+)\s*=\s*([01])\s*$")
             .Cast<Match>().Where(m => MarkerCatalog.Find(m.Groups[1].Value) != null).Select(m => m.Groups[1].Value + "=" + m.Groups[2].Value));
+        File.WriteAllText(path, UpdateStateFields(text, changes), Encoding.UTF8);
+    }
+
+    private static string UpdateStateFields(string text, Dictionary<string, string> changes)
+    {
         foreach (var pair in changes)
         {
             string pattern = @"(?m)^" + Regex.Escape(pair.Key) + @"=[^\r\n]*";
             text = Regex.IsMatch(text, pattern) ? Regex.Replace(text, pattern, m => pair.Key + "=" + pair.Value) : text.TrimEnd() + "\r\n" + pair.Key + "=" + pair.Value + "\r\n";
         }
-        File.WriteAllText(path, text, Encoding.UTF8);
+        return text;
     }
 
     // Saving preferences does not apply the new data assets. Preserve the installed
@@ -286,6 +303,8 @@ internal static partial class InstallerEngine
     private static bool IsKnownMarkerHash(string hash) { return hash == MarkerDllSha || hash == PreviousMarkerDllSha || hash == LegacyMarkerDllSha; }
     private static string MarkerHashForUninstall(string game)
     {
+        string custom = CustomMarkerHash(game);
+        if (custom != null) return custom;
         string recorded = StateValue(game, "marker_dll_sha256");
         if (recorded != null && !IsKnownMarkerHash(recorded)) throw new InvalidDataException(L.T("安装记录中的 MarkerPatch 版本不受支持，请保留文件与备份。"));
         foreach (string name in new[] { "dinput8.dll", DisabledMarker })
@@ -306,11 +325,12 @@ internal static partial class InstallerEngine
 
     private static void ApplySelectionCore(string gamePath, InstallOptions options, Action<string> log)
     {
+        LastInstallNote = "";
         string game = ValidateGame(gamePath);
         EnsureGameStopped();
         InstalledSelection current = InspectInstallation(game);
         if (current.HasRecord) ValidateMaintenanceVersion(game);
-        bool ready = current.MarkerIsCurrent && File.Exists(Path.Combine(game, "MarkerPatch.ini")) && (!current.Options.Dlc ||
+        bool ready = (current.MarkerIsCurrent || current.CustomMarker) && options.CustomMarkerPackage == null && File.Exists(Path.Combine(game, "MarkerPatch.ini")) && (!current.Options.Dlc ||
             (File.Exists(Path.Combine(game, "DS2DAT2.DAT")) && File.Exists(Path.Combine(game, RuntimeConfig)) && File.Exists(Path.Combine(game, "plugins", "SeveredPC.asi")) && Sha256(Path.Combine(game, "plugins", "SeveredPC.asi")) == SeveredAsiSha));
         ready = ready && (!current.Options.Dlc || BugPluginsReady(game));
         ready = ready && (!OwnsSaveIcons(game) || (File.Exists(Path.Combine(game, SaveIconsArchive)) && Sha256(Path.Combine(game, SaveIconsArchive)) == SaveIconsSha));
@@ -341,25 +361,67 @@ internal static partial class InstallerEngine
             finally { DeleteTemp(verify, game); }
             options.DlcArchivePath = archive;
         }
-        if (current.HasRecord) PreflightManaged(game);
-        Transaction(game, ManagedPaths(game), () =>
+        var markerConflicts = new Dictionary<string, string>();
+        if (current.HasRecord)
         {
+            try { PreflightManaged(game); }
+            catch (MaintenancePreflightException error)
+            {
+                if ((!options.Dlc && !options.MarkerPatch) || error.ReplaceableMarkerLoaders == null || options.ConfirmMarkerLoaderReplacement == null) throw;
+                markerConflicts = error.ReplaceableMarkerLoaders;
+                if (!options.ConfirmMarkerLoaderReplacement(string.Join("\r\n", markerConflicts.Keys)))
+                    throw new OperationCanceledException(L.T("已取消覆盖 MarkerPatch 加载器，游戏文件保持原样。"));
+                string markerIni = Path.Combine(game, "MarkerPatch.ini");
+                if (File.Exists(markerIni)) previousIni = File.ReadAllText(markerIni);
+            }
+        }
+        string backupSuffix = ".ds2oneclick-replaced-" + Guid.NewGuid().ToString("N") + ".bak";
+        var replacements = markerConflicts.Keys.ToDictionary(name => name, name => name + backupSuffix);
+        var importedPaths = options.CustomMarkerPackage == null ? Enumerable.Empty<string>() : options.CustomMarkerPackage.Manifest()
+            .SelectMany(a => new[] { a.Relative, a.Relative + ".ds2oneclick.bak" });
+        Transaction(game, ManagedPaths(game).Concat(importedPaths).Concat(replacements.Values), () =>
+        {
+            CustomMarkerPackage custom = null;
+            if (options.MarkerPatch || options.Dlc)
+            {
+                custom = options.CustomMarkerPackage;
+                if (custom == null && current.CustomMarker && !current.ExternalMarker)
+                    custom = CaptureCustomMarker(game, current.MarkerEnabled ? MarkerLoaderName : DisabledMarker);
+            }
             if (current.HasRecord)
             {
+                foreach (var pair in replacements)
+                {
+                    string path = Path.Combine(game, pair.Key), backup = Path.Combine(game, pair.Value);
+                    if (!File.Exists(path) || Sha256(path) != markerConflicts[pair.Key])
+                        throw new IOException(pair.Key + L.T(" 在确认后发生变化，请重新检查并确认。"));
+                    File.Move(path, backup);
+                    if (Sha256(backup) != markerConflicts[pair.Key])
+                        throw new IOException(L.T("维护备份校验失败：") + pair.Value);
+                    log(L.T("已备份被替换的加载器：") + pair.Value);
+                }
                 log(L.T("正在迁移旧安装并更改组件；保留原始备份与当前自定义设置。"));
                 UninstallCore(game, log);
             }
             if (any)
             {
-                Install(game, options, log);
-                if (options.MarkerPatch && previousIni != null)
+                Install(game, options, log, custom);
+                if (custom == null && options.MarkerPatch && previousIni != null)
                     File.WriteAllText(Path.Combine(game, "MarkerPatch.ini"), ConfigureMarkerPatch(previousIni, options), Encoding.UTF8);
                 WriteSelectionState(game, options, previousIni);
-                if (current.MarkerPresent && !current.MarkerEnabled && !current.ExternalMarker && (options.Dlc || options.MarkerPatch)) SetMarkerEnabledCore(game, false, log);
+                if (current.MarkerPresent && !current.MarkerEnabled && (!current.ExternalMarker || replacements.Count != 0) && (options.Dlc || options.MarkerPatch)) SetMarkerEnabledCore(game, false, log);
                 if (options.DeployManager) DeployManagerCore(game, log);
             }
             log(L.T("更改安装已完成。"));
         }, log);
+        if (current.ExternalMarker && (options.Dlc || options.MarkerPatch))
+        {
+            string note = MarkerLoaderReplacementWarning;
+            if (replacements.Count != 0)
+                note += "\r\n" + L.T("已备份被替换的加载器：") + string.Join(", ", replacements.Values);
+            LastInstallNote += (string.IsNullOrEmpty(LastInstallNote) ? "" : "\r\n") + note;
+            log(note);
+        }
     }
 
     public static void SaveConfiguration(string gamePath, InstallOptions options, Action<string> log)
@@ -372,12 +434,12 @@ internal static partial class InstallerEngine
             throw new InvalidOperationException(L.T("组件选择发生变化，请使用“更改安装”；仅保存设置不会增删组件。"));
         ValidateMaintenanceVersion(game);
         if (OwnsSaveIcons(game) && (!File.Exists(Path.Combine(game, SaveIconsArchive)) || Sha256(Path.Combine(game, SaveIconsArchive)) != SaveIconsSha)) throw new InvalidDataException(L.T("请使用更改安装修复缺失或被改动的存档图标资源。"));
-        if (!current.MarkerIsCurrent) throw new InvalidOperationException(L.T("请先使用更改安装升级随包 MarkerPatch，再保存新版设置。"));
+        if (!current.MarkerIsCurrent && !current.CustomMarker) throw new InvalidOperationException(L.T("请先使用更改安装升级随包 MarkerPatch，再保存新版设置。"));
         Transaction(game, new[] { "MarkerPatch.ini", "DS2SeveredOneClick.install.txt", RuntimeConfig, RuntimeConfig + ".ds2oneclick.bak", ManagerName, ManagerName + ".ds2oneclick.bak", ManagerInfo }.Concat(MarkerAssetPaths(game)).Concat(BugPluginPaths()), () =>
         {
             string ini = Path.Combine(game, "MarkerPatch.ini");
             if (!File.Exists(ini)) throw new FileNotFoundException(L.T("MarkerPatch.ini 缺失，请使用更改安装修复。"));
-            File.WriteAllText(ini, ConfigureMarkerPatch(File.ReadAllText(ini), options), Encoding.UTF8);
+            File.WriteAllText(ini, ConfigureMarkerPatchTemplate(File.ReadAllText(ini), options, current.CustomMarker), Encoding.UTF8);
             if (current.Options.Dlc)
             {
                 if (RuntimeHashForUninstall(game) != SeveredAsiSha || !File.Exists(Path.Combine(game, "plugins", "SeveredPC.asi")) || Sha256(Path.Combine(game, "plugins", "SeveredPC.asi")) != SeveredAsiSha)
@@ -386,7 +448,7 @@ internal static partial class InstallerEngine
                 if(!BugPluginsReady(game))throw new InvalidOperationException(L.T("请先通过更改安装升级独立修复插件。"));
                 WriteBugConfiguration(game,options.NodeFix,InstalledMenuChinese(game,options),new List<Action>(),log);
             }
-            if (options.MarkerPatch) InstallMarkerAssets(game, new List<Action>(), log);
+            if (options.MarkerPatch && !current.CustomMarker) InstallMarkerAssets(game, new List<Action>(), log);
             WriteConfigurationState(game, options);
             if (options.DeployManager) DeployManagerCore(game, log);
             log(L.T("设置已保存，重新启动游戏后生效；没有改写 DAT。"));
@@ -415,13 +477,13 @@ internal static partial class InstallerEngine
         if (StateValue(game, "marker_patch") != "True") throw new InvalidOperationException(L.T("此 MarkerPatch 不属于本安装器，不能自动切换启动状态。"));
         string active = Path.Combine(game, "dinput8.dll"), off = Path.Combine(game, DisabledMarker);
         if (File.Exists(active) && File.Exists(off)) throw new IOException(L.T("MarkerPatch 启动文件存在冲突，已保留两个文件。"));
-        foreach (string file in new[] { active, off }) if (File.Exists(file) && !IsKnownMarkerHash(Sha256(file)))
+        foreach (string file in new[] { active, off }) if (File.Exists(file) && !IsManagedMarkerHash(game, Sha256(file)))
             throw new IOException(L.T("检测到外置或未知 dinput8.dll，已保留，不切换它的启动状态。"));
         string from = enabled ? off : active, to = enabled ? active : off;
         if (File.Exists(from)) File.Move(from, to);
         if (!File.Exists(to)) throw new FileNotFoundException(L.T("随包 MarkerPatch 文件缺失，请使用更改安装修复。"));
         if (!enabled) log(ProductInfo.SaveCompatibility);
-        log(enabled ? L.T("已启用随包 MarkerPatch，重新启动游戏后生效。") : L.T("已停用随包 MarkerPatch；DLC 入口与依赖它的运行修正将不再生效。"));
+        log(enabled ? L.T("已启用 MarkerPatch，重新启动游戏后生效。") : L.T("已停用 MarkerPatch。DLC 入口与依赖它的运行修正将不再生效。"));
     }
 
     public static void DeployManager(string gamePath, Action<string> log)
@@ -455,6 +517,7 @@ internal static partial class InstallerEngine
 
     public static string MaintenanceFailure(Exception ex)
     {
+        if (ex is MaintenancePreflightException) return ex.Message;
         return ex.Message + "\r\n\r\n" + L.T("如直接升级或更改安装异常，请先备份存档，再尝试卸载后全新安装。仍有异常时，使用 Steam 验证完整性或 EA app 修复；平台修复可能保留第三方插件，请核对后再安装。不要删除原始备份。 ");
     }
 }

@@ -45,6 +45,14 @@ https://aka.ms/vc14/vc_redist.x86.exe
 完整解压，运行DS2SeveredOneClick.exe，自动识别或选择游戏目录；两个平台均找到时选择对应版本。按需要选择组件，DLC继续使用已有Severed.marker。顺序仍为MarkerPatch→原始DLC→汉化。只装DLC保持英文/启动器语言，仅安装需要的最小运行组件。
 Extract fully, select the intended game installation and components, and reuse Severed.marker. Order remains MarkerPatch, original DLC, then optional Chinese. DLC without Chinese keeps English/launcher language and minimal dependencies.
 
+升级已识别的 β0.1 或 β0.11 汉化时，勾选「简体中文汉化」即可。首次接管时保留安装前的 DAT0 备份，卸载会恢复这份备份。若安装器检测到旧安装的 MarkerPatch 加载器已被替换，勾选 MarkerPatch 或 DLC 后可以确认备份旧 DLL 并用随包版本覆盖。命令行对应 `--replace-marker-loader`。
+
+To upgrade from a recognized β0.1 or β0.11 localization, select Simplified Chinese. The installer keeps a verified pre-installation DAT0 backup for uninstall. If the loader from a previous installation was replaced, selecting MarkerPatch or the DLC lets you confirm backing up that DLL and installing the bundled loader. Use `--replace-marker-loader` for the command-line equivalent.
+
+MarkerPatch 卡片上的「自定义」可导入官方发布格式的 ZIP。首装时先选包再安装。已有受管理的 MarkerPatch 时，导入或恢复随包版只切换 MarkerPatch 相关文件。导入包在根目录需提供 32 位 `dinput8.dll` 和 `MarkerPatch.ini`，可附带 `achievements` 资源。新配置项保留在 INI 中，可从同一菜单打开。自定义版本的 DLC 与运行修正兼容性需要实测。
+
+The Custom button on the MarkerPatch card imports a release-format ZIP. Select it before a fresh installation, or switch an existing managed installation in place. The archive must contain the x86 `dinput8.dll` and `MarkerPatch.ini` at its root, with optional `achievements` assets. Newly introduced settings remain in the INI, which can be opened from the same menu. Imported builds need in-game compatibility testing with the DLC and runtime fixes.
+
 MD5与日志 / MD5 and reports
 安装/更改安装自动计算安装前后完整MD5及SHA-256，包括大型DAT与已有原始备份；慢速/外接硬盘会耗时。报告在安装器旁DS2-InstallLogs内，完成或失败都会给出路径。ZIP包含installation.log、snapshot-before/after.json与.csv、verification.json、运行库前置记录、环境信息及失败详情。未开始游戏安装时会记录game_installation_started=false，不伪造前后摘要。报告含本机路径和设置，发出前可查看；不包含存档或DAT内容，不自动上传。
 Install/Change records complete before/after MD5 and SHA-256. Large data/backups are read in full, so slow disks take longer. Reports are under DS2-InstallLogs next to the installer. Success/failure paths retain logs, digest CSV/JSON, independent expected comparisons, runtime status and exceptions. A prerequisite cancellation records that game installation never started. Reports contain paths/settings, no saves or DAT contents, and are not uploaded automatically.
@@ -55,7 +63,7 @@ Identical inputs and choices should produce identical DATs/bundled modules acros
 若游戏仍无法启动，复现一次后使用StartupDiagnostics/DS2StartupDiagnostics.exe收集启动报告，连同安装日志ZIP发回。不要用本工具改写存档。DLC存档仍需要DLC组件。
 If startup still fails, reproduce once, then run StartupDiagnostics/DS2StartupDiagnostics.exe and send both generated reports. DLC saves still require the DLC/runtime components.
 
-本地候选，未发布GitHub；未在本机实际重装VC运行库。缺失/取消/重启/失败分支采用受控模拟验证，真实Microsoft安装包已验证签名和身份。游戏内效果仍需验收。
+运行库缺失、取消、重启和失败分支经过受控模拟，随包 Microsoft x86 运行库已核验签名和身份。各版本的实测范围见相应验收记录。
 Local candidates, not published on GitHub. No actual VC runtime reinstall was performed on this computer. Dependency decisions/exit paths were tested with controlled callbacks; the real Microsoft package identity/signature was checked. In-game acceptance remains pending.
 
 回退：先用本候选卸载，再用目标旧版重新安装所需组件。安装记录schema 14，旧管理器可能无法管理此记录，勿直接用于卸载。

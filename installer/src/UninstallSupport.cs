@@ -10,6 +10,7 @@ internal static class UninstallSupport
 
     public static string FailureMessage(Exception error)
     {
-        return L.T("卸载未完成：") + error.Message + "\r\n\r\n" + RepairAdvice;
+        string message = L.T("卸载未完成：") + error.Message;
+        return error is MaintenancePreflightException ? message : message + "\r\n\r\n" + RepairAdvice;
     }
 }

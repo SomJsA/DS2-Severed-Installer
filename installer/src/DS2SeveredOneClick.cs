@@ -15,9 +15,9 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Dead Space 2 Severed 一站式补丁")]
 [assembly: AssemblyDescription("DLC data loader, optional workbook-based Chinese patch, and MarkerPatch installer")]
 [assembly: AssemblyProduct("DS2SeveredOneClick")]
-[assembly: AssemblyVersion("2026.11.26.25")]
-[assembly: AssemblyFileVersion("2026.11.26.25")]
-[assembly: AssemblyInformationalVersion("2026.11.26.25")]
+[assembly: AssemblyVersion("2026.11.28.26")]
+[assembly: AssemblyFileVersion("2026.11.28.26")]
+[assembly: AssemblyInformationalVersion("2026.11.28.26")]
 
 internal sealed class InstallOptions
 {
@@ -29,6 +29,8 @@ internal sealed class InstallOptions
     public bool DeployManager = false;
     public decimal SubtitleScale = 1.0m;
     public string DlcArchivePath;
+    public Func<string, bool> ConfirmMarkerLoaderReplacement;
+    public CustomMarkerPackage CustomMarkerPackage;
     public Dictionary<string,string> MarkerParameters = MarkerCatalog.DefaultParameters();
     public Dictionary<string, bool> MarkerValues = InstallerEngine.RecommendedMarkerValues();
 }
@@ -106,6 +108,7 @@ internal static class Program
             DeployManager = args.Contains("--keep-manager"),
             IgnoreCompatibilityErrors = args.Contains("--ignore-errors")
         };
+        if (args.Contains("--replace-marker-loader")) options.ConfirmMarkerLoaderReplacement = _ => true;
         try
         {
             if (File.Exists(Path.Combine(game, "DS2SeveredOneClick.install.txt")))
@@ -413,6 +416,7 @@ internal sealed partial class InstallerForm : Form
             IgnoreCompatibilityErrors = ignoreErrorsBox.Checked,
             SubtitleScale = subtitleScaleBox.Value,
             DlcArchivePath = dlcPathBox.Text.Trim(),
+            CustomMarkerPackage = pendingMarkerPackage,
             MarkerParameters = new Dictionary<string,string>(parameterValues),
             MarkerValues = RequestedMarkerValues(values),
             NodeFix = nodeFixBox.Checked,
@@ -433,7 +437,13 @@ internal sealed partial class InstallerForm : Form
         logBox.Clear();
         try
         {
-            InstallerEngine.ApplySelection(gameBox.Text, ReadOptions(), AppendLog);
+            var options = ReadOptions();
+            options.ConfirmMarkerLoaderReplacement = files => MessageBox.Show(this,
+                InstallerEngine.MarkerLoaderReplacementWarning + "\r\n\r\n" + files + "\r\n\r\n" +
+                L.T("是否备份列出的加载器，并用随包 MarkerPatch 继续安装？"),
+                L.T("确认覆盖 MarkerPatch 加载器"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2) == DialogResult.Yes;
+            InstallerEngine.ApplySelection(gameBox.Text, options, AppendLog);
             progressBar.Style = ProgressBarStyle.Continuous;
             progressBar.Value = 100;
             AppendLog(L.T("安装完成。"));
@@ -577,7 +587,7 @@ internal static partial class InstallerEngine
         return games.Count==1?games[0].Path:null;
     }
 
-    public static void Install(string gamePath, InstallOptions options, Action<string> log)
+    public static void Install(string gamePath, InstallOptions options, Action<string> log, CustomMarkerPackage custom = null)
     {
         LastInstallNote = "";
         if (!options.MarkerPatch && !options.Dlc && !options.Chinese)
@@ -637,7 +647,12 @@ internal static partial class InstallerEngine
                 LastDlcDescription = package.Summary;
                 log(L.T("数据包：") + package.Summary);
             }
-            if (options.MarkerPatch)
+            if (custom != null)
+            {
+                log(L.T("正在安装自定义 MarkerPatch。"));
+                InstallCustomMarker(game, custom, options, undo, log);
+            }
+            else if (options.MarkerPatch)
             {
                 log(L.T("步骤 1/3：安装 MarkerPatch 核心与所选设置..."));
                 InstallMarkerPatch(game, temp, options, log, undo);
@@ -680,12 +695,15 @@ internal static partial class InstallerEngine
             }
             if (options.Dlc && !options.Chinese)
                 log(L.T("未选择汉化：DLC 保持原始英文。"));
+            string dat0Backup = Path.Combine(game, "DS2DAT0.DAT.ds2oneclick.bak");
+            string dat0BackupHash = chineseApplied && File.Exists(dat0Backup) ? Sha256(dat0Backup) : ReadState(game, "dat0_backup_sha256");
             File.WriteAllText(
                 Path.Combine(game, "DS2SeveredOneClick.install.txt"),
                 "version=10\r\n" +
                 "owns_save_icons=" + (iconsApplied || previousIcons) + "\r\n" +
                 "save_icons_sha256=" + (iconsApplied ? SaveIconsSha : previousIcons ? ReadState(game,"save_icons_sha256") : "") + "\r\n" +
                 "chinese=" + (chineseApplied || previousChinese) + "\r\n" +
+                "dat0_backup_sha256=" + dat0BackupHash + "\r\n" +
                 "dlc_variant=" + (dlcLocalized ? "zh-workbook-v1" : package != null ? package.Variant : InstalledDlcVariant(game)) + "\r\n" +
                 "owns_dat2=" + (options.Dlc || dlcLocalized || wasManagedDat2) + "\r\n" +
                 "dlc=" + (options.Dlc || previousRuntime) + "\r\n" +
@@ -696,8 +714,9 @@ internal static partial class InstallerEngine
                 BugPluginState(game,options.Dlc) +
                 "owns_runtime_config=" + (options.Dlc || previousRuntimeConfig) + "\r\n" +
                 "marker_patch=" + (options.MarkerPatch || options.Dlc || previousMarker) + "\r\n" +
-                "owns_marker_assets=" + (options.MarkerPatch || previousMarkerAssets) + "\r\n" +
-                "marker_assets_manifest_b64=" + (options.MarkerPatch ? MarkerAssetManifestBase64() : previousAssetManifest) + "\r\n" +
+                CustomMarkerStateKey + "=" + (custom == null ? "" : HashBytes(custom.Loader)) + "\r\n" +
+                "owns_marker_assets=" + (custom != null || options.MarkerPatch || previousMarkerAssets) + "\r\n" +
+                "marker_assets_manifest_b64=" + (custom != null ? MarkerAssetManifestBase64(custom.Manifest()) : options.MarkerPatch ? MarkerAssetManifestBase64() : previousAssetManifest) + "\r\n" +
                 "marker_profile=" + (options.MarkerPatch ? "selected" : options.Dlc ? "minimal-or-preserved" : "unchanged") + "\r\n" +
                 "subtitle_scale=" + options.SubtitleScale.ToString("0.0#", CultureInfo.InvariantCulture) + "\r\n" +
                 "english_base_sha256=" + (package != null ? package.PayloadSha256 : previousBaseHash) + "\r\n" +
@@ -748,11 +767,11 @@ internal static partial class InstallerEngine
         string dat0Backup = dat0 + ".ds2oneclick.bak";
         if (ownsChinese && (!File.Exists(dat0) || IsKnownPatchedDat0Hash(Sha256(dat0))))
         {
-            if (!File.Exists(dat0Backup) || Sha256(dat0Backup) != OriginalDat0Sha)
-                throw new InvalidOperationException(L.T("找不到可验证的 DS2DAT0.DAT 原始备份，拒绝卸载汉化。"));
+            if (!HasVerifiedDat0Backup(game, dat0Backup))
+                throw new InvalidOperationException(L.T("找不到可验证的 DS2DAT0.DAT 安装前备份，拒绝卸载汉化。"));
             RestoreOrRemoveOwned(game, "DS2DAT0.DAT", File.Exists(dat0) ? Sha256(dat0) : null, log);
         }
-        else if (ownsChinese && File.Exists(dat0) && Sha256(dat0) != OriginalDat0Sha)
+        else if (ownsChinese && File.Exists(dat0) && !IsDat0BaselineHash(Sha256(dat0)))
         {
             throw new InvalidOperationException(L.T("DS2DAT0.DAT 已被其他工具修改，拒绝覆盖。"));
         }
@@ -816,6 +835,7 @@ internal static partial class InstallerEngine
         if (!chinese && !runtime && !marker && !dat2)
             throw new InvalidDataException(L.T("安装记录缺少组件信息，无法安全卸载。"));
         var problems = new List<string>();
+        var markerConflicts = new Dictionary<string, string>();
         var owned = new Dictionary<string, string>();
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
         if (chinese)
@@ -824,10 +844,10 @@ internal static partial class InstallerEngine
             if (IsKnownPatchedDat0Hash(current) || current == null)
             {
                 string backup = dat0 + ".ds2oneclick.bak";
-                if (!File.Exists(backup) || Sha256(backup) != OriginalDat0Sha)
-                    problems.Add(L.T("缺少可验证的 DS2DAT0.DAT 原版备份，无法恢复汉化。"));
+                if (!HasVerifiedDat0Backup(game, backup))
+                    problems.Add(L.T("缺少可验证的 DS2DAT0.DAT 安装前备份，无法卸载汉化。"));
             }
-            else if (current != OriginalDat0Sha)
+            else if (!IsDat0BaselineHash(current))
                 problems.Add(L.T("DS2DAT0.DAT 已被其他工具修改，不能确认恢复方式。"));
             owned["DS2DAT0.DAT"] = null;
         }
@@ -865,8 +885,15 @@ internal static partial class InstallerEngine
         foreach (var item in owned)
         {
             string path = Path.Combine(game, item.Key);
-            if (File.Exists(path) && item.Value != null && Sha256(path) != item.Value)
-                problems.Add(item.Key + L.T(" 已被改动，将保留该文件。"));
+            if (File.Exists(path) && item.Value != null)
+            {
+                string actual = Sha256(path);
+                if (actual != item.Value)
+                {
+                    if (item.Key == "dinput8.dll" || item.Key == DisabledMarker) markerConflicts.Add(item.Key, actual);
+                    else problems.Add(item.Key + L.T(" 已被改动，将保留该文件。"));
+                }
+            }
             foreach (string candidate in new[] { path, path + ".ds2oneclick.bak" })
             {
                 if (!File.Exists(candidate)) continue;
@@ -875,8 +902,16 @@ internal static partial class InstallerEngine
                 else using (var check = new FileStream(candidate, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { }
             }
         }
-        if (problems.Count != 0)
-            throw new InvalidOperationException(L.T("卸载前检查未通过，尚未修改任何文件：\r\n") + string.Join("\r\n", problems.Distinct()));
+        if (problems.Count != 0 || markerConflicts.Count != 0)
+        {
+            var loaderProblems = markerConflicts.Keys.Select(name => name + L.T(" 与维护所需的随包 MarkerPatch 加载器不匹配，已保留该文件。"));
+            string guidance = markerConflicts.Count != 0
+                ? L.T("请核对加载器的来源。若要卸载，请先备份现有 DLL，再恢复原先随安装器安装的 DLL。请保留安装记录和原始备份。")
+                : L.T("请保留安装记录和原始备份，处理上述问题后再试。");
+            throw new MaintenancePreflightException(L.T("检测到已有安装记录，维护检查未通过，尚未修改任何游戏文件：\r\n") +
+                string.Join("\r\n", loaderProblems.Concat(problems).Distinct()) + "\r\n\r\n" + guidance,
+                problems.Count == 0 ? markerConflicts : null);
+        }
     }
 
     private static bool InstallChinese(string game, string temp, string sevenZip, Action<string> log, List<Action> undo, bool ignoreErrors)
@@ -906,7 +941,10 @@ internal static partial class InstallerEngine
             log(L.T("DS2DAT0.DAT 已包含本汉化，跳过。"));
             return true;
         }
-        if (hash != OriginalDat0Sha)
+        bool legacy = IsLegacyDat0Hash(hash);
+        string legacyNotice = legacy ? L.T("识别到老版本贴吧汉化，尝试升级。建议修复游戏后全新安装。") : null;
+        if (legacyNotice != null) log(legacyNotice);
+        if (!IsDat0BaselineHash(hash))
         {
             if (!ignoreErrors)
                 throw new InvalidOperationException(L.T("DS2DAT0.DAT 不是支持的原版版本。"));
@@ -916,7 +954,7 @@ internal static partial class InstallerEngine
 
         ValidateTitleFontSource(game);
         string backup = dat0 + ".ds2oneclick.bak";
-        if (File.Exists(backup) && Sha256(backup) != OriginalDat0Sha)
+        if (File.Exists(backup) && !IsDat0BaselineHash(Sha256(backup)))
             throw new InvalidOperationException(L.T("已有 DAT0 备份哈希不匹配，拒绝覆盖。"));
         string rebuilt = Path.Combine(temp, "DS2DAT0.zh.DAT");
         RebuildBigh(dat0, rebuilt, new Dictionary<uint, string>
@@ -925,11 +963,12 @@ internal static partial class InstallerEngine
             { 0xD22D5B5A, text },
             { 0x15C7731F, titleUi },
             { 0x16408156, titleToc }
-        });
+        }, legacy ? ReadLegacyDat0EntrySizes() : null);
         if (new FileInfo(rebuilt).Length != PatchedDat0Bytes || Sha256(rebuilt) != PatchedDat0Sha)
             throw new InvalidDataException(L.T("重建后的 DS2DAT0.DAT 校验失败。"));
         ReplaceDat(dat0, rebuilt, temp, true, undo, log);
         log(L.T("DS2DAT0.DAT 汉化写入完成。"));
+        if (legacyNotice != null) LastInstallNote += (string.IsNullOrEmpty(LastInstallNote) ? "" : "\r\n") + legacyNotice;
         return true;
     }
 
@@ -1184,14 +1223,23 @@ internal static partial class InstallerEngine
 
     private static string ConfigureMarkerPatch(string text, InstallOptions options)
     {
+        return ConfigureMarkerPatchTemplate(text, options, false);
+    }
+
+    private static string ConfigureMarkerPatchTemplate(string text, InstallOptions options, bool onlyExisting)
+    {
         foreach (var pair in options.MarkerValues)
         {
-            text = SetIni(text, pair.Key, options.MarkerPatch && pair.Value ? "1" : "0");
+            if (!onlyExisting || ReadMarkerIniValue(text, pair.Key) != null)
+                text = SetIni(text, pair.Key, options.MarkerPatch && pair.Value ? "1" : "0");
         }
-        text = SetIni(text, "FontScalingFactor", options.SubtitleScale.ToString("0.0#", CultureInfo.InvariantCulture));
-        foreach(var pair in options.MarkerParameters) text=SetIni(text,pair.Key,pair.Value);
+        if (!onlyExisting || ReadMarkerIniValue(text, "FontScalingFactor") != null)
+            text = SetIni(text, "FontScalingFactor", options.SubtitleScale.ToString("0.0#", CultureInfo.InvariantCulture));
+        foreach(var pair in options.MarkerParameters)
+            if (!onlyExisting || ReadMarkerIniValue(text, pair.Key) != null) text=SetIni(text,pair.Key,pair.Value);
         if(options.Dlc)
         {
+            if (onlyExisting) RequireCustomMarkerDependencies(text);
             text=SetIni(text,"LoadASIPlugins","1");
             text=SetIni(text,"EnableSeveredDLC","1");
             if (options.NodeFix) text=SetIni(text,"EnableHackerDLC","1");
@@ -1209,7 +1257,7 @@ internal static partial class InstallerEngine
         string dat0 = Path.Combine(game, "DS2DAT0.DAT");
         if (!File.Exists(dat0)) throw new FileNotFoundException(L.T("缺少 DS2DAT0.DAT。"), dat0);
         string dat0Hash = Sha256(dat0);
-        if (dat0Hash != OriginalDat0Sha && !IsKnownPatchedDat0Hash(dat0Hash))
+        if (!IsDat0BaselineHash(dat0Hash) && !IsKnownPatchedDat0Hash(dat0Hash))
         {
             if (!ignoreErrors)
                 throw new InvalidDataException(L.T("DS2DAT0.DAT 不属于 Steam/EA pristine 或本补丁版本。"));
@@ -1319,7 +1367,7 @@ internal static partial class InstallerEngine
             existed && IsKnownSeveredRuntimeHash(Sha256(path));
         bool ownBug = OwnsBugPath(game,relative,existed ? Sha256(path) : null);
         bool ownExtras = relative==ExtrasRelative && OwnsExtras(game) && existed && Sha256(path)==ExtrasHashForUninstall(game);
-        bool ownMarkerBinary = relative == "dinput8.dll" && ReadState(game, "marker_patch") == "True" && existed && IsKnownMarkerHash(Sha256(path));
+        bool ownMarkerBinary = (relative == MarkerLoaderName || relative == DisabledMarker) && ReadState(game, "marker_patch") == "True" && existed && IsManagedMarkerHash(game, Sha256(path));
         bool ownDlcMarker = relative == "DS2DAT2.DAT.severed" && (ReadState(game, "owns_dlc_runtime") == "True" || ReadState(game, "dlc") == "True");
         bool ownRuntimeConfig = relative == RuntimeConfig && ReadState(game, "owns_runtime_config") == "True";
         bool ownSaveIcons = relative == SaveIconsArchive && OwnsSaveIcons(game) && existed && KnownSaveIconsSha(ReadState(game,"save_icons_sha256")) && Sha256(path) == ReadState(game,"save_icons_sha256");
@@ -1400,7 +1448,7 @@ internal static partial class InstallerEngine
         }
     }
 
-    private static void RebuildBigh(string source, string target, Dictionary<uint, string> replacements)
+    private static void RebuildBigh(string source, string target, Dictionary<uint, string> replacements, Dictionary<uint, uint> originalEntrySizes = null)
     {
         var entries = new Dictionary<uint, Tuple<uint, uint>>();
         byte[] trailer;
@@ -1416,6 +1464,13 @@ internal static partial class InstallerEngine
                 uint offset = ReadBe32(table, i * 12);
                 uint size = ReadBe32(table, i * 12 + 4);
                 uint hash = ReadBe32(table, i * 12 + 8);
+                if (originalEntrySizes != null && !replacements.ContainsKey(hash))
+                {
+                    uint originalSize;
+                    if (!originalEntrySizes.TryGetValue(hash, out originalSize) || Align(originalSize, BigArchiveAlign) != size)
+                        throw new InvalidDataException(L.T("旧汉化的 DAT 归档布局不匹配。"));
+                    size = originalSize;
+                }
                 entries[hash] = Tuple.Create(offset, size);
             }
             int trailerLength = checked((int)headerSize - 16 - checked((int)count * 12));

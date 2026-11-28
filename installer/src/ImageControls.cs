@@ -23,6 +23,7 @@ internal sealed class ImageChoice : CheckBox
     public bool ContainArtwork { get; set; }
     public int CompactLevel { get; set; }
     public float VisualScale { get; set; }
+    public int TrailingActionWidth { get; set; }
     private float hover, targetHover, selectPulse, selection, targetSelection, press, targetPress;
     private Point lastClick;
     private readonly Timer animation = new Timer { Interval = 16 };
@@ -127,7 +128,8 @@ internal sealed class ImageChoice : CheckBox
         using(var textBrush=new SolidBrush(Enabled?Color.FromArgb(230,239,243):Color.FromArgb(146,164,174)))
         {
             g.DrawString(Text,title,textBrush,new RectangleF(textX,titleY,Width-textX-30*unit,25*unit));
-            g.DrawString(Caption??"",caption,textBrush,new RectangleF(textX,titleY+26*unit,Width-textX-20*unit,(CompactLevel==1?33:20)*unit));
+            using (var format = new StringFormat { Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap })
+                g.DrawString(Caption??"",caption,textBrush,new RectangleF(textX,titleY+26*unit,Math.Max(1, Width-textX-(20+TrailingActionWidth)*unit),(CompactLevel==1?33:20)*unit),format);
         }
         float x=Width-20*unit,y=13*unit;
         using(var pen=new Pen(Checked?PaintSkin.Accent:Color.FromArgb(139,162,174),1.6f*unit))

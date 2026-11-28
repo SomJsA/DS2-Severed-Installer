@@ -84,6 +84,7 @@ $compileArgs = @(
     "/resource:$SevenZipExe,DS2_7Z_EXE",
     "/resource:$SevenZipDll,DS2_7Z_DLL",
     "/resource:$ChineseAssets,DS2_CHINESE_ASSETS",
+    "/resource:$(Join-Path $root 'assets\LegacyDat0.entry-sizes.txt'),DS2_LEGACY_DAT0_LAYOUT",
     "/resource:$VCRedist,DS2_VC_REDIST_X86",
     "/resource:$(Join-Path $root 'assets\InstallAudit.references.json'),DS2_AUDIT_REFERENCES",
     "/resource:$MarkerPatchDll,DS2_MARKER_DLL",

@@ -18,7 +18,7 @@ internal sealed class ReleaseUpdate
 internal sealed class UpdateReport
 {
     public ReleaseUpdate Installer;
-    public string CombinedNotes = "", MarkerNotes = "", Error = "";
+    public string CombinedNotes = "", MarkerNotes = "", MarkerTag = "", Error = "";
     public bool MarkerUpdate;
     public bool UsedFeedFallback;
     public string MarkerPage = "https://github.com/Wemino/MarkerPatch/releases";
@@ -149,6 +149,26 @@ internal static class UpdateChecker
         if(!Uri.TryCreate(offered,UriKind.Absolute,out candidate) || candidate.Host!="github.com")offered=fallback;
         return WebLinks.Normalize(offered,fallback);
     }
+
+    internal static string BriefNotes(string notes, bool bilingual)
+    {
+        notes = notes ?? "";
+        Match english = Regex.Match(notes, @"(?im)^#{1,6}\s+English\s*$");
+        if (bilingual && english.Success)
+            notes = L.IsEnglish ? notes.Substring(english.Index + english.Length) : notes.Substring(0, english.Index);
+        var lines = new List<string>();
+        foreach (string raw in notes.Split('\n'))
+        {
+            string line = raw.Trim();
+            if (line.Length == 0) continue;
+            if (line.StartsWith("#") && lines.Count > 0) break;
+            if (line.StartsWith("#")) continue;
+            line = Regex.Replace(line, @"\[([^\]]+)\]\([^)]*\)", "$1").Replace("`", "").Replace("**", "");
+            lines.Add(line.Length > 144 ? line.Substring(0, 141) + "…" : line);
+            if (lines.Count == 3) break;
+        }
+        return string.Join("\r\n", lines);
+    }
     public static UpdateReport Check()
     {
         var result = new UpdateReport();
@@ -170,7 +190,8 @@ internal static class UpdateChecker
             if (newer.Count != 0)
             {
                 result.MarkerPage = newer[0].Page;
-                result.MarkerNotes = string.Join("\r\n\r\n", newer.Select(r => r.Tag + "\r\n" + r.Notes));
+                result.MarkerTag = newer[0].Tag;
+                result.MarkerNotes = newer[0].Notes;
             }
         }
         catch (Exception ex) { result.Error += "\r\n" + L.T("MarkerPatch 更新检查失败：") + ex.Message; }
